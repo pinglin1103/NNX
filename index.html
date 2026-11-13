@@ -98,6 +98,8 @@
   .lblt{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:1.05rem;letter-spacing:.2em;color:var(--sage-d);background:#E6ECE6;border-radius:10px;padding:5px 14px}
   .text.vert .line.lbl{border-left:none;padding-left:0;margin:0 0 0 14px;display:block}
   .text.vert .lblt{writing-mode:vertical-rl;padding:14px 6px;letter-spacing:.3em}
+  #appWarn{display:none;background:#FBEDE8;border:2px solid var(--rose);border-radius:14px;padding:12px 14px;margin:8px 2px;line-height:1.7;font-size:1rem}
+  #appWarn.on{display:block} #appWarn .btn{margin-top:8px}
   #note{font-size:.85rem;color:var(--rose);margin:6px 2px;min-height:1.2em;line-height:1.6}
   .vtabs{display:none;justify-content:center;gap:8px;margin:-4px 0 12px}
   .vtabs.on{display:flex}
@@ -247,6 +249,7 @@
     <div class="tip" id="tip">💡 會念的字先自己念，不會的再按！</div>
     <div id="qdone"></div>
     <div id="cards"></div>
+    <div id="appWarn" role="alert"></div>
     <div id="swipe">← 往左滑，看後面的字</div>
     <div class="text" id="text"></div>
     <div id="fin">念完了，好棒！⭐</div>
@@ -1821,7 +1824,7 @@ var SELF_TPL = null;
   function norm(l){return (l||"").replace("_","-").toLowerCase()}
   var noVoice = false;
   // 只用台灣中文語音;優先「增強／高品質」版,再來才是一般版。老師也可以在設定裡自己選。
-  var twVoices = [];
+  var twVoices = [], otherZh = [], voicesSeen = false;
   function voiceScore(v){
     var n = v.name || "", sc = 0;
     if(/premium|enhanced|增強|高品質|進階|natural|neural|online/i.test(n)) sc += 10;
@@ -1836,17 +1839,46 @@ var SELF_TPL = null;
     twVoices.sort(function(a,b){ return voiceScore(b) - voiceScore(a); });
     var saved = sget("cr3|voice"), keep = null;
     twVoices.forEach(function(v){ if(saved && v.name === saved) keep = v; });
+    // 沒有台灣語音:改用手機內建的聲音(不指定語音,交給手機用預設的中文聲音念)
+    otherZh = twVoices.length ? [] : vs.filter(function(v){ return /^(zh|cmn|yue)\b/.test(norm(v.lang)); });
+    otherZh.forEach(function(v){ if(saved && v.name === saved) keep = v; });
     voice = keep || twVoices[0] || null;
-    noVoice = (!voice && vs.length > 0);
+    noVoice = (!twVoices.length && vs.length > 0);
+    if(vs.length) voicesSeen = true;
     fillVoiceSel(); updateNote();
   }
   function fillVoiceSel(){
     var sel = document.getElementById("selVoice"); if(!sel) return;
     sel.innerHTML = "";
-    if(!twVoices.length){ var o = document.createElement("option"); o.textContent = "（沒有台灣語音）"; sel.appendChild(o); sel.disabled = true; return; }
+    if(!synth){ var o = document.createElement("option"); o.textContent = "（這裡不能發聲）"; sel.appendChild(o); sel.disabled = true; return; }
     sel.disabled = false;
+    if(!twVoices.length){
+      var d = document.createElement("option"); d.value = ""; d.textContent = "手機內建聲音"; if(!voice) d.selected = true; sel.appendChild(d);
+      otherZh.forEach(function(v){ var o = document.createElement("option"); o.value = v.name; o.textContent = v.name.replace(/\s*\(.*?\)\s*$/,""); if(voice && v.name === voice.name) o.selected = true; sel.appendChild(o); });
+      return;
+    }
     twVoices.forEach(function(v){ var o = document.createElement("option"); o.value = v.name; o.textContent = v.name.replace(/\s*\(.*?\)\s*$/,"") + (voiceScore(v) >= 10 ? " ★" : ""); if(voice && v.name === voice.name) o.selected = true; sel.appendChild(o); });
   }
+  // Threads、FB、IG、LINE 等 App 裡的瀏覽器常常不能發聲:提示改用 Chrome / Safari 開
+  var UA = navigator.userAgent || "", IS_ANDROID = /Android/i.test(UA), IS_LINE = /\bLine\//i.test(UA);
+  var INAPP = /Threads|Instagram|FBAN|FBAV|FB_IAB|Barcelona|\bLine\/|MicroMessenger|; wv\)/i.test(UA);
+  function showAppWarn(){
+    var w = document.getElementById("appWarn"); if(!w || w.classList.contains("on")) return;
+    var how = IS_ANDROID ? "請按右上角「⋮」或「⋯」→「在瀏覽器中開啟」，或按下面的按鈕用 Chrome 打開。" : "請按右上角「⋯」→「在 Safari 中開啟」（或用 Safari 直接打開這個網址）。";
+    w.innerHTML = "<b>🔇 這裡沒有聲音</b><br>Threads、FB、IG、LINE 這些 App 裡面開的網頁，常常不能念出聲音。" + how;
+    if(IS_ANDROID || IS_LINE){
+      var b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = IS_LINE ? "用瀏覽器打開" : "用 Chrome 打開";
+      b.addEventListener("click", function(){
+        var u = location.href.split("#")[0];
+        if(IS_LINE){ location.href = u + (u.indexOf("?") < 0 ? "?" : "&") + "openExternalBrowser=1"; return; }
+        location.href = "intent://" + u.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(u) + ";end";
+      });
+      w.appendChild(document.createElement("br")); w.appendChild(b);
+    }
+    w.classList.add("on");
+  }
+  if(!synth){ fillVoiceSel(); setTimeout(showAppWarn, 0); }
+  else if(INAPP){ setTimeout(function(){ if(!voicesSeen) showAppWarn(); }, 3000); }
   if(synth){
     pickVoice();
     if(synth.addEventListener) synth.addEventListener("voiceschanged", pickVoice); else synth.onvoiceschanged = pickVoice;
@@ -1855,14 +1887,15 @@ var SELF_TPL = null;
   }
 
   function speak(txt, done){
-    if(!synth){ if(done) done(); return; }
+    if(!synth){ showAppWarn(); if(done) done(); return; }
     if(!voice) pickVoice();
     var u = new SpeechSynthesisUtterance(txt);
     u.lang = "zh-TW"; if(voice) u.voice = voice;
     u.rate = rate; u.pitch = 1; u.volume = 1;
     var fired = false;
     function fin(){ if(fired) return; fired = true; if(done) done(); }
-    u.onend = fin; u.onerror = fin;
+    u.onend = fin;
+    u.onerror = function(e){ var er = e && e.error; if(er && er !== "interrupted" && er !== "canceled" && INAPP) showAppWarn(); fin(); };
     setTimeout(fin, 4500);
     var my = ++speakSeq;
     function go(){ if(my !== speakSeq) { fin(); return; } try{ synth.resume(); }catch(e){} synth.speak(u); }
@@ -2361,7 +2394,7 @@ var SELF_TPL = null;
   function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
   function updateNote(){
     var m = [];
-    if(noVoice) m.push("這台裝置沒找到「中文(台灣)」語音,可能會念成其他口音。iPad:設定→輔助使用→朗讀內容→聲音→中文(台灣),下載「美佳(增強版)」;電腦:Windows 設定→時間與語言→語音→新增 中文(台灣)。");
+    if(noVoice) m.push("這台裝置沒找到「中文(台灣)」語音,先用手機內建的聲音念,可能會是其他口音。iPad:設定→輔助使用→朗讀內容→聲音→中文(台灣),下載「美佳(增強版)」;電腦:Windows 設定→時間與語言→語音→新增 中文(台灣)。");
     if(missingZy && showZy) m.push("有些字沒有注音(自動注音需要連網載入)。可重新整理,或在字後面手動加 字[ㄅㄛ]。");
     $("note").textContent = m.join(" ");
   }
@@ -2574,7 +2607,7 @@ var SELF_TPL = null;
     e.preventDefault(); if(playing) stopPlay(); else startPlay();
   });
   $("selVoice").addEventListener("change", function(){
-    var n = this.value; twVoices.forEach(function(v){ if(v.name === n) voice = v; });
+    var n = this.value; voice = null; twVoices.concat(otherZh).forEach(function(v){ if(v.name === n) voice = v; });
     sset("cr3|voice", n); stopPlay(); speak("你好，我們一起來讀課文。");
   });
   $("vTest").addEventListener("click", function(){ stopPlay(); speak("你好，我們一起來讀課文。"); });
