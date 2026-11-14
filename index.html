@@ -2239,6 +2239,8 @@ var SELF_TPL = null;
   var TW_NEUTRAL_OK = "們麼嗎呢吧啊呀啦嘛了的地得著子頭個哪喔哇咧囉吶";
   // 繁體分兩個字、簡體合成一個字的(發/髮、捨/舍…),轉簡體會查錯,照原本的查
   var PREFER_T = "發捨臟髒鑽捲彿載傳結觀參幹桿彆相";
+  // 「得」的台灣規則還在請老師確認,先維持原本的注音(改成 true 就啟用)
+  var TW_DE = false;
   // 台灣讀音(兩岸念法不同的字);已經是輕聲的不改
   var TW1 = {"識":"ㄕˋ","期":"ㄑㄧˊ","息":"ㄒㄧˊ","惜":"ㄒㄧˊ","擊":"ㄐㄧˊ","跡":"ㄐㄧ","昔":"ㄒㄧˊ","穴":"ㄒㄩㄝˋ","質":"ㄓˊ",
     "微":"ㄨㄟˊ","危":"ㄨㄟˊ","帆":"ㄈㄢˊ","企":"ㄑㄧˋ","液":"ㄧˋ","菌":"ㄐㄩㄣˋ","暫":"ㄓㄢˋ","跌":"ㄉㄧㄝˊ","擁":"ㄩㄥˇ",
@@ -2265,7 +2267,7 @@ var SELF_TPL = null;
     var n = toks.length;
     function C(i){ return (i >= 0 && i < n && toks[i].click) ? toks[i].c : ""; }
     function Z(i){ return (i >= 0 && i < n && toks[i].click) ? (toks[i].zy || "") : ""; }
-    function set(i, z){ var t = toks[i]; if(t && t.click && t.auto && z){ t.zy = z; t.tw = true; } }
+    function set(i, z){ var t = toks[i]; if(t && t.click && t.auto && z && (TW_DE || t.c !== "得")){ t.zy = z; t.tw = true; } }
     // 1. 語詞(長的先比對)
     for(var i = 0; i < n; i++){
       for(var L = 3; L >= 2; L--){
@@ -2290,7 +2292,7 @@ var SELF_TPL = null;
         t.zy = ((p && "回反響呼適因對答報效供感相順照韋".indexOf(p) >= 0) || (q && "對付用變景邀酬徵聘驗戰".indexOf(q) >= 0)) ? "ㄧㄥˋ" : "ㄧㄥ"; continue;
       }
       if(c === "哪" && p && !q){ t.zy = "˙ㄋㄚ"; continue; }
-      if(c === "得" && t.zy === "ㄉㄜˊ" && p){
+      if(c === "得" && TW_DE && t.zy === "ㄉㄜˊ" && p){
         if(q && DE_NEXT.indexOf(q) >= 0) continue;
         if(DE_PREV.indexOf(p) >= 0) continue;
         if(p === "不" && DE_BU.indexOf(C(i-2)) < 0) continue;
@@ -2362,7 +2364,7 @@ var SELF_TPL = null;
               var z = zS || zT;
               if(zS && zS[0] === "˙" && zT && zT[0] !== "˙" && TW_NEUTRAL_OK.indexOf(t.c) < 0) z = zT;
               if(zT && zT[0] === "˙" && zS && zS[0] !== "˙") z = zT;
-              if(zT && PREFER_T.indexOf(t.c) >= 0) z = zT;
+              if(zT && (PREFER_T.indexOf(t.c) >= 0 || (t.c === "得" && !TW_DE))) z = zT;
               t.zy = z;
             });
           }catch(e){}
