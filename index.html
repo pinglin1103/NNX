@@ -2375,6 +2375,8 @@ var SELF_TPL = null;
         }
       }
       twFix(toks);
+      // 「一」變調時,語音用同音字念,才會跟注音一樣(ㄧˋ→意、ㄧˊ→移)
+      toks.forEach(function(t){ if(t.c === "一" && t.say === "一"){ if(t.zy === "ㄧˋ") t.say = "意"; else if(t.zy === "ㄧˊ") t.say = "移"; } });
       out.push(toks);
     });
     return out;
