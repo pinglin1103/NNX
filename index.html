@@ -2343,6 +2343,16 @@ var SELF_TPL = null;
       if(c === "一" && t.zy[0] === "˙" && !(p && p === q && "口次個天步條張隻點片句聲下回遍".indexOf(p) < 0)){ var nz = Z(i+1); t.zy = !nz ? "ㄧ" : (/ˋ$/.test(nz) ? "ㄧˊ" : "ㄧˋ"); continue; }
     }
   }
+  // 破音字與「這個讀音」的同音字(單獨念一個字時用)
+  var POLY = "著得地長種重行還為樂覺數倒處相應當少好調量空差假中降興將縫曲散傳彈角乾都隻";
+  var HOMO = {"˙ㄓㄜ":"遮","ㄓㄨㄛˊ":"酌","ㄓㄨˋ":"住","˙ㄉㄜ":"的","ㄉㄜˊ":"德","ㄓㄤˇ":"掌","ㄔㄤˊ":"常",
+    "ㄓㄨㄥˋ":"眾","ㄓㄨㄥˇ":"腫","ㄔㄨㄥˊ":"蟲","ㄒㄧㄥˊ":"形","ㄏㄤˊ":"航","ㄏㄞˊ":"孩","ㄏㄨㄢˊ":"環","ㄨㄟˋ":"位","ㄨㄟˊ":"圍",
+    "ㄩㄝˋ":"月","ㄌㄜˋ":"勒","ㄐㄧㄠˋ":"叫","ㄐㄩㄝˊ":"決","ㄕㄨˇ":"鼠","ㄕㄨˋ":"樹","ㄕㄨㄛˋ":"碩","ㄉㄠˋ":"到","ㄉㄠˇ":"島",
+    "ㄔㄨˋ":"觸","ㄔㄨˇ":"楚","ㄒㄧㄤˋ":"象","ㄒㄧㄤ":"香","ㄧㄥˋ":"硬","ㄧㄥ":"英","ㄉㄤˋ":"蕩","ㄉㄤ":"噹","ㄕㄠˋ":"紹",
+    "ㄏㄠˋ":"號","ㄊㄧㄠˊ":"條","ㄉㄧㄠˋ":"掉","ㄌㄧㄤˊ":"糧","ㄌㄧㄤˋ":"亮","ㄎㄨㄥˋ":"控","ㄔㄞ":"拆","ㄔㄚˋ":"岔","ㄔㄚ":"插",
+    "ㄐㄧㄚˋ":"架","ㄐㄧㄚˇ":"甲","ㄒㄧㄤˊ":"祥","ㄒㄧㄥˋ":"杏","ㄒㄧㄥ":"星","ㄐㄧㄤˋ":"匠","ㄐㄧㄤ":"江","ㄈㄥˋ":"奉","ㄈㄥˊ":"逢",
+    "ㄑㄩˇ":"取","ㄑㄩ":"區","ㄙㄢˇ":"傘","ㄙㄢˋ":"散","ㄓㄨㄢˋ":"賺","ㄔㄨㄢˊ":"船","ㄉㄢˋ":"蛋","ㄊㄢˊ":"談","ㄐㄧㄠˇ":"腳",
+    "ㄑㄧㄢˊ":"錢","ㄍㄢ":"甘","ㄉㄧˋ":"弟","ㄉㄨ":"督","ㄉㄡ":"兜","ㄓ":"之","ㄓㄨㄥ":"忠","ㄐㄧㄤˇ":"講"};
   var HAS_PY = function(){ return !!(window.pinyinPro && window.pinyinPro.pinyin); };
   // 自動注音常標錯的字,直接用台灣讀音(課文沒手動加 [注音] 時才用)
   var FIXZY = {"於":"ㄩˊ", "車":"ㄔㄜ", "垃":"ㄌㄜˋ", "圾":"ㄙㄜˋ"};
@@ -2414,6 +2424,8 @@ var SELF_TPL = null;
       }
       twFix(toks);
       // 「一」變調時,語音用同音字念,才會跟注音一樣(ㄧˋ→意、ㄧˊ→移)
+      // 破音字單獨念一個字時,語音常念成別的音,改用同音字念(只用在一個字一個字念,整句念不換)
+      toks.forEach(function(t){ if(t.click && t.say === t.c && POLY.indexOf(t.c) >= 0 && HOMO[t.zy] && HOMO[t.zy] !== t.c) t.one = HOMO[t.zy]; });
       toks.forEach(function(t){ if(t.c === "一" && t.say === "一"){ if(t.zy === "ㄧˋ") t.say = "意"; else if(t.zy === "ㄧˊ") t.say = "移"; } });
       out.push(toks);
     });
@@ -2470,7 +2482,7 @@ var SELF_TPL = null;
       toks.forEach(function(t){
         if(t.click){
           var b = document.createElement("button");
-          b.type = "button"; b.className = "ch"; b.setAttribute("data-say", t.say);
+          b.type = "button"; b.className = "ch"; b.setAttribute("data-say", t.say); b.setAttribute("data-one", t.one || t.say);
           var g = document.createElement("span"); g.textContent = t.c; b.appendChild(g);
           if(showZy && t.zy) b.appendChild(zyEl(t.zy));
           if(HAN.test(t.c) && !t.zy) missingZy = true;
@@ -2537,7 +2549,7 @@ var SELF_TPL = null;
     if(quiz){ var cb = chars[i]; quizTap(cb.firstChild.textContent, cb, cb.getAttribute("data-say")); return; }
     stopPlay(); setPick(i);
     var b = chars[i]; b.classList.add("now");
-    speak(b.getAttribute("data-say"), function(){ b.classList.remove("now"); });
+    speak(b.getAttribute("data-one"), function(){ b.classList.remove("now"); });
   }
 
   function startPlay(){
@@ -2557,7 +2569,7 @@ var SELF_TPL = null;
       if(my !== token || !playing) return;
       if(i >= chars.length){ finished(); return; }
       mark(i); var cur = i;
-      speak(chars[cur].getAttribute("data-say"), function(){
+      speak(chars[cur].getAttribute("data-one"), function(){
         if(my !== token) return;
         setTimeout(function(){ i = cur + 1; step(); }, gap);
       });
@@ -2607,7 +2619,7 @@ var SELF_TPL = null;
     var queued = from, AHEAD = 5;
     function pump(upTo){ while(queued < chars.length && queued <= upTo){ enqueue(queued); queued++; } }
     function enqueue(k){
-      var u = new SpeechSynthesisUtterance(chars[k].getAttribute("data-say"));
+      var u = new SpeechSynthesisUtterance(chars[k].getAttribute("data-one"));
       u.lang = "zh-TW"; if(voice) u.voice = voice;
       u.rate = rate; u.pitch = 1; u.volume = 1;
       u.onstart = function(){ if(my !== token) return; mark(k, true); pump(k + AHEAD); };
