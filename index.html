@@ -203,6 +203,7 @@
     <button class="btn rose" id="stop" style="display:none">■ 停</button>
     <button class="btn ghost" id="restart" title="從第一個字開始念">↺ 從頭</button>
     <button class="btn quiz" id="quizBtn" title="聽聲音，找出那個字">🎯 考考我</button>
+    <button class="btn ghost" id="zyBtn" aria-pressed="true" title="顯示或隱藏注音">ㄅ 隱藏注音</button>
     <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴</button>
     <div class="setgrp" id="setGrp">
     <div class="grp"><span>速度</span>
@@ -2840,7 +2841,13 @@ var SELF_TPL = null;
   function setLy(v){ vert = v; $("lyV").classList.toggle("on", v); $("lyH").classList.toggle("on", !v); sset("cr3|vert", v ? "1" : "0"); render(); }
   $("lyV").addEventListener("click", function(){ setLy(true); });
   $("lyH").addEventListener("click", function(){ setLy(false); });
-  function setZy(on){ showZy = on; $("zyOn").classList.toggle("on", on); $("zyOff").classList.toggle("on", !on); render(); }
+  function setZy(on){
+    showZy = on; $("zyOn").classList.toggle("on", on); $("zyOff").classList.toggle("on", !on);
+    var zb = $("zyBtn"); zb.textContent = on ? "ㄅ 隱藏注音" : "ㄅ 顯示注音"; zb.setAttribute("aria-pressed", on ? "true" : "false");
+    sset("cr3|zy", on ? "1" : "0"); render();
+  }
+  $("zyBtn").addEventListener("click", function(){ setZy(!showZy); });
+  if(sget("cr3|zy") === "0") setTimeout(function(){ setZy(false); }, 0);
   $("zyOn").addEventListener("click", function(){ setZy(true); });
   $("zyOff").addEventListener("click", function(){ setZy(false); });
 
