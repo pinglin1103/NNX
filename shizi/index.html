@@ -161,7 +161,7 @@ h1{color:#5B4636;text-shadow:0 2px 0 #fff}
 h1 .u{color:#C9776E}
 .ctl{background:rgba(250,243,232,.92);backdrop-filter:blur(6px)}
 .ctl .vb.on{background:linear-gradient(180deg,#9CCABD,#79AD9F);border-color:transparent;color:#fff}
-.mascot{width:150px;height:auto;margin-top:12px;filter:drop-shadow(0 6px 8px rgba(120,85,50,.28));animation:bob 3s ease-in-out infinite}
+.mascot{width:96px;height:auto;margin-top:12px;filter:drop-shadow(0 6px 8px rgba(120,85,50,.28));animation:bob 3s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-6px)}}
 .deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .deco span{position:absolute;font-size:22px;opacity:.85;filter:drop-shadow(0 3px 2px rgba(120,85,50,.25))}
@@ -177,6 +177,37 @@ h1 .u{color:#C9776E}
 #wordList{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:12px}
 #wordList .card{font-size:34px;padding:10px 12px}
 .extitem .vw{font-size:30px}
+
+/* 手機、平板縮小版面 */
+@media (max-width:700px){
+ .wrap{padding:8px 8px 20px}
+ h1{font-size:18px} .stars{font-size:16px;padding:4px 12px}
+ nav{gap:5px;margin-top:8px} nav button{flex:1 1 30%;font-size:15px;padding:8px 4px;border-radius:14px 14px 0 0}
+ main{padding:12px 10px;min-height:0}
+ .tip{font-size:14px;margin-bottom:8px}
+ .learn{grid-template-columns:1fr 1fr;gap:10px}
+ .card{font-size:24px;padding:4px 8px} .chars{gap:6px} #wordList .card{font-size:24px;padding:6px 8px}
+ .big{font-size:52px} .pic{font-size:60px} .pic .im{width:120px;max-height:100px}
+ .detail{padding:12px} .mean{font-size:16px} .fact{font-size:14px}
+ .extitem .vw{font-size:22px} .extitem .im{width:42px;height:34px}
+ .match{grid-template-columns:1fr 1fr;gap:10px}
+ .mcol{grid-template-columns:1fr;gap:8px}
+ .mpic,.mword{min-height:64px;padding:4px;border-radius:14px!important}
+ .mpic{font-size:34px;flex-direction:row;gap:6px} .mpic .sub{font-size:18px} .mpic .ear{font-size:28px} .mpic .ear small{font-size:12px}
+ .mpic .im{width:52px;height:44px}
+ .mword{font-size:34px}
+ .qpic{font-size:64px;min-width:120px;min-height:90px;padding:6px} .qpic .im{width:140px;height:105px}
+ .qword{font-size:40px}
+ .opts{grid-template-columns:repeat(4,1fr);gap:6px} .opt{font-size:30px;padding:6px 2px}
+ .rin{font-size:40px;width:90px}
+ .btn{font-size:16px;padding:8px 16px}
+ .spk{width:40px;height:40px;font-size:18px}
+ .pc{width:50px;height:50px;font-size:32px}
+ .board{width:min(300px,84vw)} .board .ghost{font-size:min(230px,62vw)}
+ .pinfo{font-size:22px}
+ .mascot{width:70px}
+ .deco span{font-size:15px}
+}
 
 /* ===== 平板、手機版面（電腦版不受影響） ===== */
 button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -722,7 +753,7 @@ $("verBox").onclick=e=>{const b=e.target.closest(".vb");if(b)go(b.dataset.v,G,-1
 $("grSel").onchange=e=>go(V,e.target.value,-1);
 $("lesSel").onchange=e=>go(V,G,+e.target.value);
 $("tgl").onclick=()=>{const m=$("ctl").classList.toggle("min");$("tgl").textContent=m?"展開設定 ▼":"收合設定 ▲"};
-if(innerWidth<=600)$("tgl").onclick(); /* 手機先收合設定，畫面比較清爽 */
+if(window.innerWidth<700){$("ctl").classList.add("min");$("tgl").textContent="展開設定 ▼"} /* 手機先收合設定 */
 window.addEventListener("hashchange",()=>{const p=location.hash.slice(1).split("-");if(p.length===3)go(p[0],p[1],+p[2],false)});
 
 /* ===== 分頁 ===== */
@@ -788,7 +819,7 @@ function mkItems(){return shuffle(CH).filter(o=>W[o.c]).map(o=>{const ws=W[o.c].
 function newQuiz(){qList=mkItems();qi=0;qMiss=[];qRe=false;showQ()}
 function showQ(){const it=qList[qi];if(!it)return;const {o,w}=it;
   $("qNum").innerHTML=(qRe?"<b style='color:#C9776E'>🔁 重新練習</b>　":"")+`第 ${qi+1} / ${qList.length} 題`;
-  $("qPic").innerHTML=picOfWord(w)||"🔊";$("qPic").style.display="";
+  const qp=picOfWord(w);$("qPic").innerHTML=qp;$("qPic").style.display=qp?"":"none";
   $("qWord").innerHTML=`${zyV(w.t,w.z,o.c)}<button class="spk" onclick="say('${w.t}')">🔊</button>`;
   $("qMsg").textContent="";$("qNext").style.display="none";
   const dis=shuffle(CH.filter(x=>x.c!==o.c&&!w.t.includes(x.c))).slice(0,3);
@@ -810,7 +841,7 @@ $("qNext").onclick=()=>{qi++;if(qi<qList.length)return showQ();
 let rList=[],ri=0,rLv=0,rMiss=[],rRe=false,rBad=false;
 function newRecall(){rList=mkItems();ri=0;rMiss=[];rRe=false;showR()}
 function showR(){const it=rList[ri];if(!it)return;const {o,w}=it;rLv=0;rBad=false;
-  $("rNum").innerHTML=(rRe?"<b style='color:#C9776E'>🔁 重新練習</b>　":"")+`第 ${ri+1} / ${rList.length} 題`;$("rPic").innerHTML=picOfWord(w)||"🔊";
+  $("rNum").innerHTML=(rRe?"<b style='color:#C9776E'>🔁 重新練習</b>　":"")+`第 ${ri+1} / ${rList.length} 題`;const rp=picOfWord(w);$("rPic").innerHTML=rp;$("rPic").style.display=rp?"":"none";
   $("rWord").innerHTML=`${zyV(w.t,w.z,o.c)}<button class="spk" onclick="say('${w.t}')">🔊</button>`;
   $("rIn").value="";$("rHint").innerHTML="";$("rMsg").textContent="";$("rNext").style.display="none";$("rCheck").style.display=""}
 $("rCheck").onclick=()=>{const {o,w}=rList[ri];const v=$("rIn").value.replace(/\s/g,"").replace(/靑/g,"青");
@@ -832,12 +863,16 @@ function buildWrite(){$("pGrid").innerHTML="";CH.forEach((o,i)=>{const d=documen
 function setP(i,q){pi=i;document.querySelectorAll(".pc").forEach((x,j)=>x.classList.toggle("on",j===i));const o=CH[i];
   $("ghost").textContent=o.c;$("pInfo").innerHTML=`${zyH(o.c,o.z)} <button class="spk sm" onclick="say('${o.c}')">🔊</button><span class="fact"><b>部首</b> ${o.b}</span><span class="fact"><b>部件</b> ${o.p.replace(/\+/g," ＋ ")}</span>`;
   clearCv();if($("pMsg"))$("pMsg").textContent="";if(!q)say(o.c)}
-function sizeCanvas(){const r=cv.getBoundingClientRect();if(!r.width)return;const dpr=window.devicePixelRatio||1;
-  strokes=[];cv.width=r.width*dpr;cv.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#5A524D";ctx.lineWidth=Math.max(10,r.width/32)}
+let cvW=0;
+function sizeCanvas(){const r=cv.getBoundingClientRect();if(!r.width||Math.abs(r.width-cvW)<1)return;const dpr=window.devicePixelRatio||1;
+  let keep=null;if(cvW&&cv.width){keep=document.createElement("canvas");keep.width=cv.width;keep.height=cv.height;keep.getContext("2d").drawImage(cv,0,0)}
+  if(cvW){const k=r.width/cvW;strokes.forEach(st=>st.forEach(p=>{p.x*=k;p.y*=k}))}else strokes=[];
+  cv.width=r.width*dpr;cv.height=r.height*dpr;cvW=r.width;ctx.setTransform(1,0,0,1,0,0);if(keep)ctx.drawImage(keep,0,0,cv.width,cv.height);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#5A524D";ctx.lineWidth=Math.max(10,r.width/32)}
 function clearCv(){ctx.clearRect(0,0,cv.width,cv.height);strokes=[]}
 let drawing=false,last=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-cv.addEventListener("pointerdown",e=>{drawing=true;last=pos(e);strokes.push([last]);cv.setPointerCapture(e.pointerId);ctx.beginPath();ctx.arc(last.x,last.y,ctx.lineWidth/2,0,7);ctx.fillStyle=ctx.strokeStyle;ctx.fill()});
+["touchstart","touchmove"].forEach(ev=>cv.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+cv.addEventListener("pointerdown",e=>{sizeCanvas();drawing=true;last=pos(e);strokes.push([last]);cv.setPointerCapture(e.pointerId);ctx.beginPath();ctx.arc(last.x,last.y,ctx.lineWidth/2,0,7);ctx.fillStyle=ctx.strokeStyle;ctx.fill()});
 cv.addEventListener("pointermove",e=>{if(!drawing)return;const p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;strokes[strokes.length-1].push(p)});
 ["pointerup","pointercancel","pointerleave"].forEach(t=>cv.addEventListener(t,()=>drawing=false));
 window.addEventListener("resize",()=>{if($("write").classList.contains("on"))sizeCanvas()});
