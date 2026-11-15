@@ -2014,7 +2014,7 @@ var SELF_TPL = null;
       if(showZy && p[1]) b.appendChild(zyEl(p[1]));
       b.addEventListener("click", function(){
         if(quiz){ quizTap(p[0], b, p[0]); return; }
-        stopPlay(); b.classList.add("now"); speak(FIXSAY[p[0]] || p[0], function(){ b.classList.remove("now"); });
+        stopPlay(); b.classList.add("now"); speak(FIXSAY[p[0]] || (SAY_TW[p[0]] && SAY_TW[p[0]][0] === p[1] ? SAY_TW[p[0]][1] : "") || (POLY.indexOf(p[0]) >= 0 && HOMO[p[1]]) || p[0], function(){ b.classList.remove("now"); });
       });
       g.appendChild(b);
     });
@@ -2354,6 +2354,7 @@ var SELF_TPL = null;
     "ㄐㄧㄚˋ":"架","ㄐㄧㄚˇ":"甲","ㄒㄧㄤˊ":"祥","ㄒㄧㄥˋ":"杏","ㄒㄧㄥ":"星","ㄐㄧㄤˋ":"匠","ㄐㄧㄤ":"江","ㄈㄥˋ":"奉","ㄈㄥˊ":"逢",
     "ㄑㄩˇ":"取","ㄑㄩ":"區","ㄙㄢˇ":"傘","ㄙㄢˋ":"散","ㄓㄨㄢˋ":"賺","ㄔㄨㄢˊ":"船","ㄉㄢˋ":"蛋","ㄊㄢˊ":"談","ㄐㄧㄠˇ":"腳",
     "ㄑㄧㄢˊ":"錢","ㄍㄢ":"甘","ㄉㄧˋ":"弟","ㄉㄨ":"督","ㄉㄡ":"兜","ㄓ":"之","ㄓㄨㄥ":"忠","ㄐㄧㄤˇ":"講","ㄓㄨㄤˋ":"壯"};
+  var SAY_TW = {"髮":["ㄈㄚˇ","法"]};
   var HAS_PY = function(){ return !!(window.pinyinPro && window.pinyinPro.pinyin); };
   // 自動注音常標錯的字,直接用台灣讀音(課文沒手動加 [注音] 時才用)
   var FIXZY = {"於":"ㄩˊ", "車":"ㄔㄜ", "垃":"ㄌㄜˋ", "圾":"ㄙㄜˋ"};
@@ -2427,6 +2428,8 @@ var SELF_TPL = null;
       // 「一」變調時,語音用同音字念,才會跟注音一樣(ㄧˋ→意、ㄧˊ→移)
       // 破音字單獨念一個字時,語音常念成別的音,改用同音字念(只用在一個字一個字念,整句念不換)
       toks.forEach(function(t){ if(t.click && t.say === t.c && POLY.indexOf(t.c) >= 0 && HOMO[t.zy] && HOMO[t.zy] !== t.c) t.one = HOMO[t.zy]; });
+      // 台灣讀音跟語音引擎念法不同的字,整句念也換成同音字(髮 ㄈㄚˇ→法)
+      toks.forEach(function(t){ if(t.click && t.say === t.c && SAY_TW[t.c] && SAY_TW[t.c][0] === t.zy){ t.say = SAY_TW[t.c][1]; t.one = t.say; } });
       toks.forEach(function(t){ if(t.c === "一" && t.say === "一"){ if(t.zy === "ㄧˋ") t.say = "意"; else if(t.zy === "ㄧˊ") t.say = "移"; } });
       out.push(toks);
     });
