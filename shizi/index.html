@@ -177,6 +177,74 @@ h1 .u{color:#C9776E}
 #wordList{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:12px}
 #wordList .card{font-size:34px;padding:10px 12px}
 .extitem .vw{font-size:30px}
+
+/* ===== 平板、手機版面（電腦版不受影響） ===== */
+button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (max-width:1024px){
+  nav{flex-wrap:nowrap;gap:6px}
+  nav button{flex:1 1 0;min-width:0;font-size:18px;padding:10px 4px}
+  .ctl{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .board{width:min(440px,100%)}
+  .match{grid-template-columns:1fr 1fr;gap:16px}
+}
+@media (max-width:600px){
+  .deco{display:none}
+  body{background:#F6EBDB}
+  .ctl{position:relative;padding:8px 12px;gap:8px}
+  .ctl .brand{font-size:14px;flex:1 1 auto}
+  .ctl .grp{width:100%}
+  .ctl .grp b{width:34px}
+  .ctl .grp select{flex:1;min-width:0;font-size:16px}
+  .ctl #qrBtn,.ctl .tgl{font-size:13px;padding:5px 9px;margin-left:0}
+  .wrap{padding:8px 10px 24px}
+  header{flex-wrap:nowrap;gap:8px}
+  h1{font-size:19px;line-height:1.35;margin:2px 0}
+  h1 small{display:none}
+  .stars{font-size:16px;padding:4px 12px;flex:none}
+  nav{position:sticky;top:0;z-index:4;margin-top:8px;gap:4px;background:#F6EBDB;padding-top:4px}
+  nav button span{display:block}
+  .slogan{display:none}
+  nav button{font-size:13px;line-height:1.25;padding:7px 2px 6px;border-radius:14px 14px 0 0;white-space:normal;transform:none!important}
+  nav button.on{opacity:1;box-shadow:inset 0 -4px 0 rgba(255,255,255,.75)}
+  main{padding:12px;min-height:0;border-radius:0 0 20px 20px}
+  .tip{font-size:15px;margin-bottom:10px}
+  /* 認識生字 */
+  .learn{grid-template-columns:1fr 1fr;gap:10px}
+  .detail{padding:12px;border-radius:20px}
+  .dmain{gap:10px;margin:8px 0}
+  .big{font-size:58px}
+  .pic{font-size:64px}.pic .im{width:120px;max-height:100px}
+  .mean{font-size:17px;margin:4px 0 10px}
+  .fact{font-size:15px}
+  .extitem{font-size:24px}.extitem .vw{font-size:24px}
+  .mascot{display:none}
+  .card{font-size:28px;padding:4px 8px}
+  #wordList{gap:8px}#wordList .card{font-size:26px;padding:6px 8px}
+  /* 看圖配對：圖在左、字在右 */
+  .match{grid-template-columns:1fr 1fr;gap:10px}
+  .mcol{grid-template-columns:1fr;gap:8px}
+  .mpic,.mword{min-height:76px}
+  .mpic{font-size:40px}.mpic .im{width:70px;height:58px}.mpic .sub{font-size:20px}
+  .mword{font-size:40px}
+  /* 測驗、回想 */
+  .qpic{font-size:76px;min-width:150px;min-height:110px;padding:6px}
+  .qpic .im{width:170px;height:130px}
+  .qword{font-size:42px}
+  .opts{grid-template-columns:1fr 1fr;gap:8px}
+  .opt{font-size:42px;padding:4px}
+  .rin{font-size:44px;width:100px}
+  .msg{font-size:19px}
+  .bar{gap:8px;margin-top:12px}
+  .btn{font-size:16px;padding:9px 16px}
+  /* 生字練習 */
+  .pgrid{gap:6px;margin-bottom:10px}
+  .pc{width:50px;height:50px;font-size:32px;border-radius:14px!important}
+  .pinfo{font-size:24px;gap:8px}
+  .board .ghost{font-size:min(310px,72vw)}
+  #write .bar{display:grid;grid-template-columns:1fr 1fr}
+  #write .bar .btn{padding:10px 6px}
+}
+@media (max-width:360px){nav button{font-size:12px}h1{font-size:17px}}
 </style>
 </head>
 <body>
@@ -201,15 +269,15 @@ h1 .u{color:#C9776E}
  </div></div>
 <div class="wrap">
 <header>
-  <h1><span class="u" id="hUnit"></span><span id="hName"></span>－我會認字，也會玩遊戲！<small>by NNX</small></h1>
+  <h1><span class="u" id="hUnit"></span><span id="hName"></span><span class="slogan">－我會認字，也會玩遊戲！</span><small>by NNX</small></h1>
   <div class="stars">⭐ <span id="star">0</span></div>
 </header>
 <nav id="nav">
-  <button data-t="learn" class="on">🔊 認識生字</button>
-  <button data-t="match">🖐️ 看圖配對</button>
-  <button data-t="quiz">❓ 語詞測驗</button>
-  <button data-t="recall">💭 回想記憶</button>
-  <button data-t="write">✏️ 生字練習</button>
+  <button data-t="learn" class="on">🔊 <span>認識生字</span></button>
+  <button data-t="match">🖐️ <span>看圖配對</span></button>
+  <button data-t="quiz">❓ <span>語詞測驗</span></button>
+  <button data-t="recall">💭 <span>回想記憶</span></button>
+  <button data-t="write">✏️ <span>生字練習</span></button>
 </nav>
 <main>
 <section id="learn" class="on">
@@ -264,6 +332,7 @@ h1 .u{color:#C9776E}
     <button class="btn" id="pDone">⭐ 我寫好了</button>
     <button class="btn mauve" id="pNext">下一個字 ➜</button>
   </div>
+  <div class="msg" id="pMsg"></div>
 </section>
 </main>
 </div>
@@ -653,6 +722,7 @@ $("verBox").onclick=e=>{const b=e.target.closest(".vb");if(b)go(b.dataset.v,G,-1
 $("grSel").onchange=e=>go(V,e.target.value,-1);
 $("lesSel").onchange=e=>go(V,G,+e.target.value);
 $("tgl").onclick=()=>{const m=$("ctl").classList.toggle("min");$("tgl").textContent=m?"展開設定 ▼":"收合設定 ▲"};
+if(innerWidth<=600)$("tgl").onclick(); /* 手機先收合設定，畫面比較清爽 */
 window.addEventListener("hashchange",()=>{const p=location.hash.slice(1).split("-");if(p.length===3)go(p[0],p[1],+p[2],false)});
 
 /* ===== 分頁 ===== */
@@ -761,19 +831,53 @@ let pi=0,ghostOn=true;const cv=$("cv"),ctx=cv.getContext("2d");
 function buildWrite(){$("pGrid").innerHTML="";CH.forEach((o,i)=>{const d=document.createElement("div");d.className="pc";d.textContent=o.c;d.onclick=()=>setP(i);$("pGrid").appendChild(d)});setP(0,true)}
 function setP(i,q){pi=i;document.querySelectorAll(".pc").forEach((x,j)=>x.classList.toggle("on",j===i));const o=CH[i];
   $("ghost").textContent=o.c;$("pInfo").innerHTML=`${zyH(o.c,o.z)} <button class="spk sm" onclick="say('${o.c}')">🔊</button><span class="fact"><b>部首</b> ${o.b}</span><span class="fact"><b>部件</b> ${o.p.replace(/\+/g," ＋ ")}</span>`;
-  clearCv();if(!q)say(o.c)}
+  clearCv();if($("pMsg"))$("pMsg").textContent="";if(!q)say(o.c)}
 function sizeCanvas(){const r=cv.getBoundingClientRect();if(!r.width)return;const dpr=window.devicePixelRatio||1;
-  cv.width=r.width*dpr;cv.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#5A524D";ctx.lineWidth=Math.max(10,r.width/32)}
-function clearCv(){ctx.clearRect(0,0,cv.width,cv.height)}
+  strokes=[];cv.width=r.width*dpr;cv.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#5A524D";ctx.lineWidth=Math.max(10,r.width/32)}
+function clearCv(){ctx.clearRect(0,0,cv.width,cv.height);strokes=[]}
 let drawing=false,last=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-cv.addEventListener("pointerdown",e=>{drawing=true;last=pos(e);cv.setPointerCapture(e.pointerId);ctx.beginPath();ctx.arc(last.x,last.y,ctx.lineWidth/2,0,7);ctx.fillStyle=ctx.strokeStyle;ctx.fill()});
-cv.addEventListener("pointermove",e=>{if(!drawing)return;const p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p});
+cv.addEventListener("pointerdown",e=>{drawing=true;last=pos(e);strokes.push([last]);cv.setPointerCapture(e.pointerId);ctx.beginPath();ctx.arc(last.x,last.y,ctx.lineWidth/2,0,7);ctx.fillStyle=ctx.strokeStyle;ctx.fill()});
+cv.addEventListener("pointermove",e=>{if(!drawing)return;const p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;strokes[strokes.length-1].push(p)});
 ["pointerup","pointercancel","pointerleave"].forEach(t=>cv.addEventListener(t,()=>drawing=false));
 window.addEventListener("resize",()=>{if($("write").classList.contains("on"))sizeCanvas()});
-$("pClear").onclick=clearCv;
+$("pClear").onclick=()=>{clearCv();$("pMsg").textContent=""};
 $("pGhost").onclick=()=>{ghostOn=!ghostOn;$("ghost").style.visibility=ghostOn?"visible":"hidden";$("pGhost").textContent="👀 描紅："+(ghostOn?"開":"關")};
-$("pDone").onclick=()=>{const el=document.querySelectorAll(".pc")[pi];if(!el.classList.contains("fin")){el.classList.add("fin");addStar(1,el)}say("寫得好棒！")};
+/* 檢查寫的字：把孩子寫的和標準字都縮放到同樣大小再比對，亂畫、只點一下、寫歪掉都不會過 */
+/* 檢查寫的字：記下每一筆，把孩子寫的和標準字都縮放到同樣大小再比對。
+   亂畫（畫到字外面、塗滿、線太多）、只點一下、少寫很多筆畫都不會過。 */
+const PN=56;let strokes=[];
+/* 縮放：寬高各自撐滿格子，但不拉超過 1.7 倍，扁的字（一）不會被拉成方的 */
+function fitS(bw,bh){let sx=(PN-8)/bw,sy=(PN-8)/bh;const k=1.7;if(sy>sx*k)sy=sx*k;if(sx>sy*k)sx=sy*k;return[sx,sy]}
+function glyphMask(ch){const W=200,t=document.createElement("canvas");t.width=t.height=W;const x=t.getContext("2d");
+  x.font=`${W*0.8}px ${getComputedStyle($("ghost")).fontFamily}`;x.textAlign="center";x.textBaseline="middle";x.fillText(ch,W/2,W/2);
+  const d=x.getImageData(0,0,W,W).data;let x0=W,y0=W,x1=-1,y1=-1;for(let y=0;y<W;y++)for(let i=0;i<W;i++)if(d[(y*W+i)*4+3]>100){if(i<x0)x0=i;if(i>x1)x1=i;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0)return null;const bw=x1-x0+1,bh=y1-y0+1,[kx,ky]=fitS(bw,bh),ox=(PN-bw*kx)/2,oy=(PN-bh*ky)/2,m=new Uint8Array(PN*PN);
+  for(let y=0;y<PN;y++)for(let i=0;i<PN;i++){const sx=Math.floor(x0+(i-ox)/kx),sy=Math.floor(y0+(y-oy)/ky);if(sx>=x0&&sx<=x1&&sy>=y0&&sy<=y1&&d[(sy*W+sx)*4+3]>100)m[y*PN+i]=1}
+  return{m,ar:bw/bh,big:Math.max(bw,bh)/W}}
+function userMask(){const pts=strokes.flat();if(!pts.length)return null;const R=cv.getBoundingClientRect().width||1;
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y)});
+  const bw=Math.max(x1-x0,R*0.02),bh=Math.max(y1-y0,R*0.02),[kx,ky]=fitS(bw,bh),ox=(PN-bw*kx)/2-x0*kx,oy=(PN-bh*ky)/2-y0*ky;
+  const c=document.createElement("canvas");c.width=c.height=PN;const x=c.getContext("2d");x.lineWidth=2.2;x.lineCap=x.lineJoin="round";let len=0;
+  strokes.forEach(s=>{x.beginPath();s.forEach((p,i)=>{const X=p.x*kx+ox,Y=p.y*ky+oy;i?x.lineTo(X,Y):x.moveTo(X,Y);if(i)len+=Math.hypot((p.x-s[i-1].x)*kx,(p.y-s[i-1].y)*ky)});if(s.length==1)x.lineTo(s[0].x*kx+ox+.1,s[0].y*ky+oy);x.stroke()});
+  const d=x.getImageData(0,0,PN,PN).data,m=new Uint8Array(PN*PN);for(let i=0;i<PN*PN;i++)m[i]=d[i*4+3]>60?1:0;
+  return{m,len,ar:bw/bh,big:Math.max(x1-x0,y1-y0)/R}}
+function dilate(m,r){const o=new Uint8Array(PN*PN);for(let y=0;y<PN;y++)for(let x=0;x<PN;x++)if(m[y*PN+x])for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<PN&&Y<PN&&dx*dx+dy*dy<=r*r)o[Y*PN+X]=1}return o}
+function checkWrite(ch){
+  const U=userMask();if(!U||U.big<0.08)return{ok:false,why:"empty"};
+  const T=glyphMask(ch);if(!T)return{ok:true};
+  if(U.big<0.3&&T.big>0.4)return{ok:false,why:"small"};
+  const Td=dilate(T.m,2),Ud=dilate(U.m,3);let un=0,uin=0,tn=0,tin=0,per=0;
+  for(let i=0;i<PN*PN;i++){if(U.m[i]){un++;if(Td[i])uin++}if(T.m[i]){tn++;if(Ud[i])tin++;const y=i/PN|0,x=i%PN;if(!(x&&y&&x<PN-1&&y<PN-1&&T.m[i-1]&&T.m[i+1]&&T.m[i-PN]&&T.m[i+PN]))per++}}
+  const prec=uin/un,rec=tin/tn,tlen=per/2,lenR=U.len/tlen,cl=a=>Math.min(4,Math.max(.25,a)),arOk=Math.abs(Math.log(cl(U.ar)/cl(T.ar)))<Math.log(2.5);
+  const P={p:.7,r:.7,l:1.6};
+  const ok=prec>=P.p&&rec>=P.r&&lenR<=P.l&&arOk;
+  return{ok,prec,rec,lenR,why:ok?"":(prec<P.p||lenR>P.l?"messy":(!arOk?"messy":"missing"))}}
+function pMsg(t,ok){const m=$("pMsg");m.className="msg "+(ok?"ok":"bad");m.textContent=t}
+$("pDone").onclick=()=>{const el=document.querySelectorAll(".pc")[pi],ch=CH[pi].c,r=checkWrite(ch);
+  if(!r.ok){const tip={empty:"還沒有寫字喔！先寫寫看 ✏️",small:"字寫太小了，寫大一點，把格子填滿 📏",messy:"好像有多畫的地方，照著字的樣子再寫一次 🧽",missing:"好像少寫了一些筆畫，再看一看字 👀"}[r.why];
+    pMsg(tip,false);say(tip.replace(/[^一-鿿，！、]/g,""));const b=document.querySelector("#write .board");b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");return}
+  pMsg("寫對了！真棒 ⭐",true);if(!el.classList.contains("fin")){el.classList.add("fin");addStar(1,el)}say("寫得好棒！")};
 $("pNext").onclick=()=>setP((pi+1)%CH.length);
 
 /* 裝飾邊框與小幫手 */
