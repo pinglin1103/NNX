@@ -2280,6 +2280,8 @@ var SELF_TPL = null;
         if(w.length === L && TWW[w]){ TWW[w].forEach(function(z, k){ set(i+k, z); }); break; }
       }
     }
+    // 「學會了解決」不是「了解」
+    for(var i = 0; i < n; i++){ if(C(i) === "了" && C(i+1) === "解" && C(i+2) === "決" && toks[i].auto) toks[i].zy = "˙ㄌㄜ"; }
     // 1.5 破音字看前後文(動詞/名詞念法不同)
     for(var i = 0; i < n; i++){
       var t = toks[i]; if(!t.click || !t.auto || t.tww) continue;
@@ -2340,7 +2342,10 @@ var SELF_TPL = null;
         else z = "˙ㄉㄜ";
         t.zy = z; continue;
       }
+      // 了:「V不了、V得了、不得了」表示能不能做到,念 ㄌㄧㄠˇ(得了喉炎的「得」念 ㄉㄜˊ,了 仍念 ˙ㄌㄜ)
+      if(c === "了" && (p === "不" || (p === "得" && Z(i-1) === "˙ㄉㄜ") || (p === "得" && C(i-2) === "不"))){ t.zy = "ㄌㄧㄠˇ"; continue; }
       if(c === "一" && p === "第"){ t.zy = "ㄧ"; continue; }
+      if(c === "了" && t.zy === "ㄌㄧㄠˇ" && !(q === "解" || (q === "不" && C(i+2) === "起") || (q === "得" && !C(i+2)))){ t.zy = "˙ㄌㄜ"; continue; }
       if(c === "一" && t.zy[0] === "˙" && !(p && p === q && "口次個天步條張隻點片句聲下回遍".indexOf(p) < 0)){ var nz = Z(i+1); t.zy = !nz ? "ㄧ" : (/ˋ$/.test(nz) ? "ㄧˊ" : "ㄧˋ"); continue; }
     }
   }
