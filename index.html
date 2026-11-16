@@ -73,6 +73,7 @@
   .ch.done{background:#E6ECE6}
   .pu{font-size:var(--fs);line-height:1.15;color:var(--muted);padding:.1em 0;user-select:none;-webkit-user-select:none}
   /* 直式注音(像課本) */
+  .ch{scroll-margin:24px}
   .zy{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
     font-family:"BpmfGenSenRounded","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
     font-size:calc(var(--fs)*.34);line-height:1.02;color:var(--sage-d);padding:0 .5em 0 .08em;min-width:.9em}
@@ -209,7 +210,7 @@
     <div class="grp"><span>速度</span>
       <button class="seg" data-r="0.4" data-g="900">慢</button>
       <button class="seg on" data-r="0.85" data-g="320">中</button>
-      <button class="seg" data-r="0.85" data-g="0" data-mode="sent" title="一整句一起念，比較有感情">整句</button>
+      <button class="seg" data-r="0.65" data-g="0" data-mode="sent" title="一整句一起念，比較有感情">整句</button>
     </div>
     <div class="grp"><span>字</span>
       <button class="seg" id="fsm">小</button>
@@ -2572,7 +2573,25 @@ var SELF_TPL = null;
   function clearMarks(){ chars.forEach(function(b){ b.classList.remove("now","done"); }); }
   function mark(i, instant){
     chars.forEach(function(b,k){ b.classList.remove("now"); b.classList.toggle("done", k < i); });
-    var b = chars[i]; if(b){ b.classList.add("now"); try{ b.scrollIntoView({block:"center",inline:"center",behavior: instant ? "auto" : "smooth"}); }catch(e){} }
+    var b = chars[i]; if(b){ b.classList.add("now"); keepInView(b); }
+  }
+  // 念到的字快要跑出畫面才捲動,而且慢慢滑過去;不要每個字都把畫面拉到正中間(會一直跳)
+  function keepInView(b){
+    try{
+      var r = b.getBoundingClientRect(), vh = window.innerHeight, vw = window.innerWidth;
+      var host = $("text"), hr = host.getBoundingClientRect();
+      var bar = $("bar"), topLim = bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0;  // 上方固定的按鈕列會蓋住字
+      var left = Math.max(hr.left, 0), right = Math.min(hr.right, vw), pad = 16;
+      // 左右(直式換欄):目前這一欄跑出去才捲,而且把它放到最右邊,左邊留出後面要念的欄
+      if(r.left < left || r.right > right){
+        var dx = r.right - (right - pad);
+        if(host.scrollWidth > host.clientWidth + 4) host.scrollBy({left: dx, behavior: "smooth"});
+        else window.scrollBy({left: dx, behavior: "smooth"});
+      }
+      // 上下:被按鈕列蓋住或超出螢幕下緣才捲,只捲到剛好看得見的距離
+      if(r.top < topLim + 4) window.scrollBy({top: r.top - topLim - pad, behavior: "smooth"});
+      else if(r.bottom > vh - 4) window.scrollBy({top: vert ? (r.bottom - vh + pad) : (r.top - topLim - pad), behavior: "smooth"});
+    }catch(e){}
   }
   function setPick(i){ chars.forEach(function(b){ b.classList.remove("pick"); }); startIdx = i; if(chars[i]) chars[i].classList.add("pick"); }
 
@@ -2768,7 +2787,7 @@ var SELF_TPL = null;
       rate = parseFloat(s.getAttribute("data-r")); var g = parseInt(s.getAttribute("data-g"),10); gap = isNaN(g) ? 400 : g;
       document.querySelectorAll(".seg[data-r]").forEach(function(o){ o.classList.toggle("on", o === s); });
       sentMode = s.getAttribute("data-mode") === "sent";
-      sset("cr3|speed", s.getAttribute("data-r"));
+      sset("cr3|speed", sentMode ? "sent" : s.getAttribute("data-r"));
     });
   });
   $("restart").addEventListener("click", function(){ stopPlay(); setPick(0); startPlay(); });
@@ -2900,7 +2919,7 @@ var SELF_TPL = null;
     if(ASSIGN && getBuiltin(ASSIGN.v, ASSIGN.b, ASSIGN.l)){ ver = ASSIGN.v; book = ASSIGN.b; les = ASSIGN.l; }
   })();
   if(sget("cr3|vert") === "0") { vert = false; $("lyV").classList.remove("on"); $("lyH").classList.add("on"); }
-  (function(){ var sp = sget("cr3|speed"); if(sp){ var b = document.querySelector('.seg[data-r="' + sp + '"]'); if(b) b.click(); } })();
+  (function(){ var sp = sget("cr3|speed"); if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
   syncMenus(); saveSel(); setFs(parseFloat(sget("cr3|fs")) || 3); render();
   // 自動注音函式庫可能稍後才載入完成,載入後再畫一次
   window.addEventListener("load", function(){ if(HAS_PY() && !editing) render(); });
