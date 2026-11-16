@@ -726,7 +726,9 @@ let stars=0;function addStar(n,el){stars+=n;$("star").textContent=stars;if(el){c
 let tw=null;
 function pickVoice(){const vs=speechSynthesis.getVoices();tw=vs.find(v=>/zh[-_]TW/i.test(v.lang)&&/Hanhan|Yating|Zhiwei|HsiaoChen|HsiaoYu|Mei-Jia|Meijia|美佳|雅婷|曉臻/i.test(v.name))||vs.find(v=>/zh[-_]TW/i.test(v.lang))||null}
 if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
-function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="zh-TW";if(tw)u.voice=tw;u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
+/* 單獨念一個字時，語音會念錯的字改用同音字（什 單念會變成 ㄕˊ） */
+const ONE_SAY={"什":"神"};
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(ONE_SAY[t]||t);u.lang="zh-TW";if(tw)u.voice=tw;u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* ===== 目前課次 ===== */
