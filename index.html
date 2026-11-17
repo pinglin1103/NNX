@@ -209,7 +209,6 @@
     <button class="btn ghost" id="restart" title="從第一個字開始念">↺ 從頭</button>
     <button class="btn quiz" id="quizBtn" title="聽聲音，找出那個字">🎯 考考我</button>
     <button class="btn game" id="gameBtn" title="到互動識字小教室玩這一課的生字遊戲">🎮 生字遊戲</button>
-    <button class="btn ghost" id="zyBtn" aria-pressed="true" title="顯示或隱藏注音">ㄅ 隱藏注音</button>
     <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴</button>
     <div class="setgrp" id="setGrp">
     <div class="grp"><span>速度</span>
@@ -226,12 +225,22 @@
       <button class="seg" id="lyH">橫式</button>
     </div>
     <div class="grp"><span>注音</span>
-      <button class="seg on" id="zyOn">開</button>
-      <button class="seg" id="zyOff">關</button>
+      <button class="seg" id="zyBtn" aria-pressed="true" title="顯示或隱藏注音">ㄅ 隱藏注音</button>
     </div>
     <div class="grp"><span>聲音</span>
       <select id="selVoice" style="font-size:.95rem;padding:6px 8px;max-width:200px"></select>
       <button class="seg" id="vTest" title="試聽">▶ 試聽</button>
+    </div>
+    <div class="grp"><span>音源</span>
+      <button class="seg on" id="engB" title="用手機／電腦內建的語音">內建</button>
+      <button class="seg" id="engG" title="用 Google AI Studio 的 Gemini 語音（要自己的 API 金鑰）">Google AI</button>
+    </div>
+    <div class="grp" id="gemBox" style="display:none;flex-wrap:wrap;gap:6px">
+      <span>金鑰</span>
+      <input id="gemKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 的 API 金鑰" style="font-size:.95rem;padding:6px 8px;width:200px">
+      <span>聲音</span>
+      <select id="gemVoice" style="font-size:.95rem;padding:6px 8px"></select>
+      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="font-size:.85rem">取得金鑰</a>
     </div>
     <button class="btn ghost" id="qrBtn">▦ QR 碼</button>
     <button class="btn ghost" id="edit">✎ 改課文</button>
@@ -1894,6 +1903,10 @@ var SELF_TPL = null;
   }
 
   function speak(txt, done){
+    if(useGem()){ if(synth) synth.cancel(); gemSpeak(txt, done); return; }
+    browserSpeak(txt, done);
+  }
+  function browserSpeak(txt, done){
     if(!synth){ showAppWarn(); if(done) done(); return; }
     if(!voice) pickVoice();
     var u = new SpeechSynthesisUtterance(txt);
@@ -1909,6 +1922,94 @@ var SELF_TPL = null;
     if(synth.speaking || synth.pending){ synth.cancel(); setTimeout(go, 90); } else { go(); }
   }
   var speakSeq = 0;
+
+  // ================= Google AI Studio(Gemini)語音 =================
+  // 金鑰只存在這台裝置的瀏覽器裡,不會放進網站程式
+  var ENGINE = sget("cr3|engine") === "gemini" ? "gemini" : "browser";
+  // 語音模型:第一個找不到(Google 改名)就換下一個
+  var GEM_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"], gemMi = 0;
+  var GEM_VOICES = [["Kore","Kore（女聲，沉穩）"],["Leda","Leda（女聲，年輕）"],["Aoede","Aoede（女聲，輕快）"],["Zephyr","Zephyr（女聲，明亮）"],
+    ["Puck","Puck（男聲，活潑）"],["Charon","Charon（男聲，溫和）"],["Orus","Orus（男聲，穩重）"]];
+  var gemCache = {}, gemAudio = null, gemSeq = 0, gemFail = "";
+  function gemKey(){ return (sget("cr3|gemkey") || "").trim(); }
+  var gemOffUntil = 0;  // 出錯後先暫停一陣子,改用內建語音
+  function useGem(){ return ENGINE === "gemini" && !!gemKey() && Date.now() > gemOffUntil; }
+  function gemRate(){ return rate < 0.5 ? 0.75 : (rate < 0.75 ? 0.85 : 1); }
+  // iPhone/iPad 要在使用者按按鈕時先「解鎖」播放器,之後才能自動接著播
+  function gemUnlock(){
+    if(gemAudio) return;
+    gemAudio = new Audio(); gemAudio.preload = "auto";
+    try{ gemAudio.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA="; var pr = gemAudio.play(); if(pr && pr.catch) pr.catch(function(){}); }catch(e){}
+  }
+  document.addEventListener("click", function(){ if(ENGINE === "gemini") gemUnlock(); }, true);
+  function pcmToWav(b64){
+    var bin = atob(b64), n = bin.length, buf = new ArrayBuffer(44 + n), v = new DataView(buf), i;
+    function str(o, t){ for(var k = 0; k < t.length; k++) v.setUint8(o + k, t.charCodeAt(k)); }
+    str(0, "RIFF"); v.setUint32(4, 36 + n, true); str(8, "WAVE"); str(12, "fmt "); v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 24000, true); v.setUint32(28, 48000, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, "data"); v.setUint32(40, n, true);
+    for(i = 0; i < n; i++) v.setUint8(44 + i, bin.charCodeAt(i));
+    return URL.createObjectURL(new Blob([buf], {type: "audio/wav"}));
+  }
+  // 取得一段文字的語音(有快取,同一段字只向 Google 要一次)
+  function gemFetch(txt){
+    var voiceName = sget("cr3|gemvoice") || "Kore", key = voiceName + "|" + txt;
+    if(gemCache[key]) return gemCache[key];
+    var one = Array.from(txt.replace(/[，。！？、；：「」『』（）\s]/g, "")).length <= 1;
+    var prompt = (one ? "Say this single Chinese character in Taiwan Mandarin (臺灣國語), clearly: " : "Read aloud in Taiwan Mandarin (臺灣國語) with standard Taiwan pronunciation, clearly and gently, for young children: ") + txt;
+    function call(){
+      return fetch("https://generativelanguage.googleapis.com/v1beta/models/" + GEM_MODELS[gemMi] + ":generateContent", {
+        method: "POST", headers: {"Content-Type": "application/json", "x-goog-api-key": gemKey()},
+        body: JSON.stringify({contents: [{parts: [{text: prompt}]}], generationConfig: {responseModalities: ["AUDIO"],
+          speechConfig: {voiceConfig: {prebuiltVoiceConfig: {voiceName: voiceName}}}}})
+      }).then(function(r){
+        if(r.status === 404 && gemMi + 1 < GEM_MODELS.length){ gemMi++; return call(); }
+        if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + " " + t.slice(0, 200)); });
+        return r.json();
+      });
+    }
+    var p = call().then(function(j){
+      var parts = j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || [];
+      for(var k = 0; k < parts.length; k++){ if(parts[k].inlineData && parts[k].inlineData.data) return pcmToWav(parts[k].inlineData.data); }
+      throw new Error("沒有收到語音");
+    });
+    gemCache[key] = p; p.catch(function(){ delete gemCache[key]; });
+    return p;
+  }
+  function gemShowFail(err){
+    var m = String(err && err.message || err);
+    gemOffUntil = Date.now() + (/^(400|401|403)/.test(m) ? 600000 : 60000);
+    gemFail = /^(400|401|403)/.test(m) ? "Google AI 金鑰無法使用，請到「設定 → 音源」檢查金鑰。先改用內建語音。" :
+              /^429/.test(m) ? "Google AI 的免費額度暫時用完了（念得太多太快），先改用內建語音，過一陣子再試。" :
+              "連不到 Google AI 語音，先改用內建語音。";
+    updateNote();
+  }
+  // 播放一段文字;onStart(秒數) 在開始出聲時呼叫,done 在念完時呼叫
+  var gemPrevFin = null;
+  function gemSpeak(txt, done, onStart){
+    if(gemPrevFin){ var pf = gemPrevFin; gemPrevFin = null; pf(); }
+    var my = ++gemSeq, fired = false, wait = null;
+    function fin(){ if(fired) return; fired = true; if(wait) clearTimeout(wait); if(gemPrevFin === fin) gemPrevFin = null; if(done) done(); }
+    gemPrevFin = fin;
+    gemUnlock();
+    var timeout = new Promise(function(_, rej){ wait = setTimeout(function(){ rej(new Error("timeout")); }, 15000); });
+    Promise.race([gemFetch(txt), timeout]).then(function(url){
+      if(wait){ clearTimeout(wait); wait = null; }
+      if(my !== gemSeq){ fin(); return; }
+      gemFail = ""; 
+      var a = gemAudio; a.onended = fin; a.onerror = fin;
+      a.src = url; a.playbackRate = gemRate(); try{ a.preservesPitch = true; }catch(e){}
+      a.onloadedmetadata = function(){ if(onStart) onStart((a.duration || 1) / a.playbackRate); };
+      var pr = a.play(); if(pr && pr.catch) pr.catch(function(){ fin(); });
+    }).catch(function(err){
+      if(my !== gemSeq){ fin(); return; }
+      gemShowFail(err);
+      if(onStart) onStart(Array.from(txt).length * 0.3 / Math.max(rate, 0.4));
+      browserSpeak(txt, fin);
+    });
+  }
+  function gemStop(){ gemSeq++; if(gemAudio){ try{ gemAudio.pause(); }catch(e){} } }
+  function gemPrefetch(list){ if(!useGem()) return; list.forEach(function(t){ if(t) gemFetch(t).catch(function(){}); }); }
 
   // ================= 生字卡 =================
   // CARDS["版本|年級|課"] = [{c:字, z:注音, w:語詞, e:圖示}]
@@ -2570,6 +2671,8 @@ var SELF_TPL = null;
   function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
   function updateNote(){
     var m = [];
+    if(typeof gemFail !== "undefined" && gemFail && ENGINE === "gemini") m.push(gemFail);
+    if(ENGINE === "gemini" && !gemKey()) m.push("要用 Google AI 語音，請在「設定 → 音源」貼上 AI Studio 的 API 金鑰；沒有金鑰時先用內建語音。");
     if(noVoice) m.push("這台裝置沒找到「中文(台灣)」語音,先用手機內建的聲音念,可能會是其他口音。iPad:設定→輔助使用→朗讀內容→聲音→中文(台灣),下載「美佳(增強版)」;電腦:Windows 設定→時間與語言→語音→新增 中文(台灣)。");
     if(missingZy && showZy) m.push("有些字沒有注音(自動注音需要連網載入)。可重新整理,或在字後面手動加 字[ㄅㄛ]。");
     $("note").textContent = m.join(" ");
@@ -2618,12 +2721,14 @@ var SELF_TPL = null;
     stopPlay(); playing = true; var my = ++token;
     $("play").style.display = "none"; $("stop").style.display = ""; requestWake();
     var i = startIdx || 0; clearMarks();
-    if(sentMode && synth){ playSent(my, i); return; }
-    if(gap < 150 && synth){ playQueued(my, i); return; }
+    if(useGem() && sentMode){ playSentGem(my, i); return; }
+    if(sentMode && synth && !useGem()){ playSent(my, i); return; }
+    if(gap < 150 && synth && !useGem()){ playQueued(my, i); return; }
     (function step(){
       if(my !== token || !playing) return;
       if(i >= chars.length){ finished(); return; }
       mark(i); var cur = i;
+      gemPrefetch([1, 2, 3].map(function(d){ var c = chars[cur + d]; return c && c.getAttribute("data-one"); }));
       speak(chars[cur].getAttribute("data-one"), function(){
         if(my !== token) return;
         setTimeout(function(){ i = cur + 1; step(); }, gap);
@@ -2669,6 +2774,31 @@ var SELF_TPL = null;
     }
     setTimeout(function(){ if(my === token) next(); }, 90);
   }
+  // 整句模式(Google AI):一句一句要語音,字依照語音長度平均亮起
+  function playSentGem(my, from){
+    var si = 0;
+    for(var k = 0; k < segs.length; k++){ if(segs[k].idx[segs[k].idx.length - 1] >= from){ si = k; break; } }
+    function textOf(sg){ var t = ""; sg.idx.forEach(function(x){ if(x >= from) t += chars[x].getAttribute("data-say"); }); return t ? t + sg.tail : ""; }
+    function next(){
+      if(my !== token) return;
+      if(si >= segs.length){ finished(); return; }
+      var sg = segs[si++], idx = sg.idx.filter(function(x){ return x >= from; });
+      if(!idx.length){ next(); return; }
+      if(segs[si]) gemPrefetch([textOf(segs[si])]);
+      var timer = null, pos = 0;
+      mark(idx[0], true);
+      gemSpeak(textOf(sg), function(){
+        if(timer) clearTimeout(timer);
+        if(my !== token) return;
+        setTimeout(next, 150);
+      }, function(sec){
+        if(my !== token) return;
+        var per = Math.max(120, sec * 1000 / idx.length);
+        (function tick(){ if(my !== token || pos >= idx.length) return; mark(idx[pos], true); pos++; timer = setTimeout(tick, per); })();
+      });
+    }
+    next();
+  }
   // 快速模式:提前把後面幾個字排進語音佇列,不用等一個字念完才排下一個
   function playQueued(my, from){
     var queued = from, AHEAD = 5;
@@ -2694,7 +2824,7 @@ var SELF_TPL = null;
     $("fin").classList.add("on"); setTimeout(function(){ $("fin").classList.remove("on"); }, 4000);
   }
   function stopPlay(){
-    token++; playing = false; if(synth) synth.cancel();
+    token++; playing = false; if(synth) synth.cancel(); gemStop();
     $("play").style.display = ""; $("stop").style.display = "none";
     clearMarks(); releaseWake(); if(typeof clearCardMarks === "function") clearCardMarks();
   }
@@ -2805,6 +2935,21 @@ var SELF_TPL = null;
     sset("cr3|voice", n); stopPlay(); speak("你好，我們一起來讀課文。");
   });
   $("vTest").addEventListener("click", function(){ stopPlay(); speak("你好，我們一起來讀課文。"); });
+  (function(){
+    var gv = $("gemVoice"), saved = sget("cr3|gemvoice") || "Kore";
+    GEM_VOICES.forEach(function(v){ var o = document.createElement("option"); o.value = v[0]; o.textContent = v[1]; if(v[0] === saved) o.selected = true; gv.appendChild(o); });
+    $("gemKey").value = gemKey();
+    function setEngine(e){
+      ENGINE = e; sset("cr3|engine", e); stopPlay();
+      $("engB").classList.toggle("on", e !== "gemini"); $("engG").classList.toggle("on", e === "gemini");
+      $("gemBox").style.display = e === "gemini" ? "flex" : "none"; gemFail = ""; gemOffUntil = 0; updateNote();
+    }
+    $("engB").addEventListener("click", function(){ setEngine("browser"); });
+    $("engG").addEventListener("click", function(){ gemUnlock(); setEngine("gemini"); if(gemKey()) speak("你好，我們一起來讀課文。"); });
+    $("gemKey").addEventListener("change", function(){ sset("cr3|gemkey", this.value.trim()); gemCache = {}; gemFail = ""; gemOffUntil = 0; updateNote(); if(gemKey()){ gemUnlock(); speak("你好，我們一起來讀課文。"); } });
+    gv.addEventListener("change", function(){ sset("cr3|gemvoice", this.value); gemUnlock(); stopPlay(); speak("你好，我們一起來讀課文。"); });
+    setEngine(ENGINE);
+  })();
   function setFs(v){ fs = Math.max(1.6, Math.min(5.5, v)); document.documentElement.style.setProperty("--fs", fs + "rem"); sset("cr3|fs", String(fs)); if(vert && chars.length) scheduleRender(); else updateSwipe(); }
   $("fsm").addEventListener("click", function(){ setFs(fs - 0.4); });
   $("fsp").addEventListener("click", function(){ setFs(fs + 0.4); });
@@ -2896,14 +3041,13 @@ var SELF_TPL = null;
   $("lyV").addEventListener("click", function(){ setLy(true); });
   $("lyH").addEventListener("click", function(){ setLy(false); });
   function setZy(on){
-    showZy = on; $("zyOn").classList.toggle("on", on); $("zyOff").classList.toggle("on", !on);
+    showZy = on;
     var zb = $("zyBtn"); zb.textContent = on ? "ㄅ 隱藏注音" : "ㄅ 顯示注音"; zb.setAttribute("aria-pressed", on ? "true" : "false");
     sset("cr3|zy", on ? "1" : "0"); render();
   }
   $("zyBtn").addEventListener("click", function(){ setZy(!showZy); });
   if(sget("cr3|zy") === "0") setTimeout(function(){ setZy(false); }, 0);
-  $("zyOn").addEventListener("click", function(){ setZy(true); });
-  $("zyOff").addEventListener("click", function(){ setZy(false); });
+
 
   // ---------- 選課收合 ----------
   function setPickFold(f){ $("pickCard").classList.toggle("fold", f); $("pickFold").textContent = f ? "📚 換課 ▾" : "📚 選課 ▴"; $("pickFold").setAttribute("aria-expanded", f ? "false" : "true"); sset("cr3|pfold", f ? "1" : "0"); }
