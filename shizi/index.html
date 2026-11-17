@@ -44,7 +44,7 @@ section{display:none} section.on{display:block}
 /* 注音 */
 .w{display:inline-flex;align-items:center;gap:2px}
 .rb{display:inline-flex;align-items:center}
-.zy{writing-mode:vertical-rl;text-orientation:upright;font-size:.36em;line-height:1;letter-spacing:-1px;margin-left:2px;font-family:"Noto Sans TC","PingFang TC",sans-serif;font-weight:normal}
+.zy{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-size:.36em;line-height:1;margin-left:2px;margin-right:.45em;font-family:"Noto Sans TC","PingFang TC",sans-serif;font-weight:normal}
 .blank{display:inline-block;width:1em;height:1em;border:3px dashed var(--ochre);border-radius:6px;background:#FFF9EC;vertical-align:middle}
 /* 認識生字 */
 .learn{display:grid;grid-template-columns:.9fr 1.1fr 1.6fr;gap:16px}
@@ -251,6 +251,11 @@ h1 .u{color:#C9776E}
   .mascot{width:110px}
   .pals img{width:42px}
 }
+/* 注音：直式，聲調在最後一個符號的右上，輕聲點在上面（不靠 writing-mode，iPhone 才不會跑掉） */
+.zy b{display:block;font-weight:normal;position:relative;line-height:1.02}
+.zy em{position:absolute;left:100%;top:-.25em;font-style:normal;font-size:.9em;margin-left:.05em}
+.zy i.nt{font-style:normal;line-height:.55;display:block}
+.vc .zy{margin-right:.3em}
 /* 生字評量 */
 .track{position:relative;height:56px;margin:0 auto 6px;max-width:560px}
 .road{position:absolute;left:24px;right:40px;top:36px;height:10px;border-radius:999px;background:#EADBC4;box-shadow:inset 0 2px 3px rgba(150,110,70,.25);overflow:hidden}
@@ -824,9 +829,12 @@ const IMGS=["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQE
 const $=id=>document.getElementById(id);
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const esc=s=>s.replace(/'/g,"\\'");
-function zyH(text,z,blank){const zs=(z||"").split(" ");return `<span class="w kai">${[...text].map((c,i)=>`<span class="rb">${blank&&c===blank?'<span class="blank"></span><span class="zy"></span>':c+`<span class="zy">${zs[i]||""}</span>`}</span>`).join("")}</span>`}
+function zyIn(z){let s=z||"",nt="",tn="";if(!s)return "";if(s[0]==="˙"){nt='<i class="nt">˙</i>';s=s.slice(1)}else if(s.slice(-1)==="˙"){nt='<i class="nt">˙</i>';s=s.slice(0,-1)}
+  const l=s.slice(-1);if("ˊˇˋ".includes(l)){tn=l;s=s.slice(0,-1)}const a=[...s];
+  return nt+a.map((c,i)=>`<b>${c}${i===a.length-1&&tn?`<em>${tn}</em>`:""}</b>`).join("")}
+function zyH(text,z,blank){const zs=(z||"").split(" ");return `<span class="w kai">${[...text].map((c,i)=>`<span class="rb">${blank&&c===blank?'<span class="blank"></span><span class="zy"></span>':c+`<span class="zy">${zyIn(zs[i])}</span>`}</span>`).join("")}</span>`}
 function facts(o){return (o.b?`<span class="fact"><b>部首</b> ${o.b}</span>`:"")+(o.p?`<span class="fact"><b>部件</b> ${o.p.replace(/\+/g," ＋ ")}</span>`:"")}
-function zyV(text,z,blank){if([...text].length>3)return zyH(text,z,blank);const zs=(z||"").split(" ");return `<span class="vw kai">${[...text].map((c,i)=>blank&&c===blank?'<span class="vc"><span class="blank"></span></span>':`<span class="vc"><span class="ch">${c}</span><span class="zy">${zs[i]||""}</span></span>`).join("")}</span>`}
+function zyV(text,z,blank){if([...text].length>3)return zyH(text,z,blank);const zs=(z||"").split(" ");return `<span class="vw kai">${[...text].map((c,i)=>blank&&c===blank?'<span class="vc"><span class="blank"></span></span>':`<span class="vc"><span class="ch">${c}</span><span class="zy">${zyIn(zs[i])}</span></span>`).join("")}</span>`}
 function img(key){return IMG[key]?`<img src="${IMG[key]}" alt="${key}" class="im">`:""}
 function picOfChar(c){return img(c)||W[c]?.e||""}
 function picOfWord(w){return img(w.t)||w.p||""}
