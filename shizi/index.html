@@ -256,7 +256,12 @@ h1 .u{color:#C9776E}
 .goal{position:absolute;right:0;top:12px;font-size:34px}
 .tq{font-size:54px;margin:4px 0;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
 .tq .bigc{font-size:96px;line-height:1}
-.opt.zyo{font-size:34px;letter-spacing:2px}
+.opt.zyo{font-size:30px;padding:8px 4px}
+.zyv{display:inline-flex;flex-direction:column;align-items:center;position:relative;line-height:1.05;font-family:"Noto Sans TC","PingFang TC",sans-serif;font-weight:normal}
+.zyv .col{display:flex;flex-direction:column;align-items:center}
+.zyv b{font-weight:normal;position:relative}
+.zyv .nt{font-style:normal;line-height:.6}
+.zyv em{font-style:normal;position:absolute;left:100%;top:-.2em;margin-left:1px;font-size:.8em}
 .opt.bad{background:linear-gradient(180deg,#F6DCD8,#EBC1BB)!important;box-shadow:0 5px 0 #D29B93!important}
 .rep{max-width:720px;margin:0 auto;text-align:center}
 .rep h2{margin:6px 0;font-size:30px}
@@ -277,7 +282,7 @@ h1 .u{color:#C9776E}
 .pals img:first-child{margin-left:0}
 .cheer{position:fixed;left:50%;bottom:18px;z-index:30;display:flex;align-items:center;gap:8px;transform:translateX(-50%);animation:cheerUp 1.6s ease-out forwards;pointer-events:none}
 .cheer img{width:96px;filter:drop-shadow(0 6px 8px rgba(120,85,50,.3))}
-.cheer span{background:#fff;border-radius:999px;padding:8px 16px;font-size:24px;color:#C9776E;box-shadow:0 4px 0 #E2D0B8,0 8px 14px rgba(120,85,50,.2)}
+.cheer span{white-space:nowrap;background:#fff;border-radius:999px;padding:8px 16px;font-size:24px;color:#C9776E;box-shadow:0 4px 0 #E2D0B8,0 8px 14px rgba(120,85,50,.2)}
 @keyframes cheerUp{0%{transform:translate(-50%,140%)}20%,75%{transform:translate(-50%,0)}100%{transform:translate(-50%,140%);opacity:.6}}
 @media (max-width:600px){.pals{display:none}.cheer img{width:72px}.cheer span{font-size:19px}}
 /* 課文句子（比較長的語詞）：橫排、可以換行 */
@@ -995,7 +1000,7 @@ function showT(){const it=tList[ti];tProg();if(!it)return endT();const {o,type}=
   else{opts=shuffle([o,...shuffle(CH.filter(x=>x.c!==o.c&&x.z!==o.z)).slice(0,3)]);ask="聽一聽，是哪一個字？";
     $("tQ").innerHTML=`<button class="spk" style="width:84px;height:84px;font-size:38px" onclick="say('${o.c}')">🔊</button>`;setTimeout(()=>say(o.c),250);}
   $("tAsk").textContent=ask;$("tOpts").innerHTML="";
-  opts.forEach(x=>{const b=document.createElement("button");b.className=cls+" pop";b.textContent=lab(x);
+  opts.forEach(x=>{const b=document.createElement("button");b.className=cls+" pop";if(type==="zy")b.innerHTML=zyBox(x.z);else b.textContent=lab(x);
     b.onclick=()=>{document.querySelectorAll("#tOpts .opt").forEach(y=>y.disabled=true);
       const ok=same(x);tRes.push({c:o.c,z:o.z,type,ok,pick:lab(x)});
       if(ok){b.disabled=false;b.classList.add("ok");$("tMsg").className="msg ok";$("tMsg").textContent="答對了！✔";addStar(1,b);say(it.w?(it.w.s||it.w.t):o.c);ti++;setTimeout(showT,1300)}
@@ -1003,6 +1008,10 @@ function showT(){const it=tList[ti];tProg();if(!it)return endT();const {o,type}=
         $("tMsg").className="msg bad";$("tMsg").textContent=type==="zy"?`正確是「${o.z}」，記起來喔！`:`正確是「${o.c}」，記起來喔！`;say(o.c);$("tNext").style.display=""}};
     $("tOpts").appendChild(b)})}
 $("tNext").onclick=()=>{ti++;showT()};
+/* 直式注音（聲調在右邊，輕聲點在上面） */
+function zyBox(z){let s=z||"",nt="",tn="";if(s[0]==="˙"){nt='<i class="nt">˙</i>';s=s.slice(1)}
+  const l=s.slice(-1);if("ˊˇˋ".includes(l)){tn=l;s=s.slice(0,-1)}
+  const a=[...s];return `<span class="zyv">${nt}<span class="col">${a.map((c,i)=>`<b>${c}${i===a.length-1&&tn?`<em>${tn}</em>`:""}</b>`).join("")}</span></span>`}
 const TNAME={listen:"聽音選字",zy:"看字選注音",cloze:"語詞填空"};
 function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filter(r=>r.ok).length,pct=n?Math.round(k/n*100):0;
   const lv=pct>=90?"🏆 太厲害了！":pct>=70?"🌟 很棒喔！":pct>=50?"💪 再加油！":"🌱 我們再練習一下！";
