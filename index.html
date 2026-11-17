@@ -186,7 +186,11 @@
   .assign b{color:var(--sage-d)}
   .assign .btn{margin-top:6px}
   .tiny{font-size:.8rem;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
+  /* 放在「互動識字小教室」裡面時：選課交給外面，這裡只留課文 */
+  html.embed .wrap>h1,html.embed #pickCard,html.embed #gameBtn{display:none!important}
+  .btn.game{background:linear-gradient(180deg,#F0B5C8,#D98BA6);color:#fff}
 </style>
+<script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed");</script>
 
 <div class="wrap">
   <h1>逐字點讀課文<small>by NNX</small></h1>
@@ -204,6 +208,7 @@
     <button class="btn rose" id="stop" style="display:none">■ 停</button>
     <button class="btn ghost" id="restart" title="從第一個字開始念">↺ 從頭</button>
     <button class="btn quiz" id="quizBtn" title="聽聲音，找出那個字">🎯 考考我</button>
+    <button class="btn game" id="gameBtn" title="到互動識字小教室玩這一課的生字遊戲">🎮 生字遊戲</button>
     <button class="btn ghost" id="zyBtn" aria-pressed="true" title="顯示或隱藏注音">ㄅ 隱藏注音</button>
     <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴</button>
     <div class="setgrp" id="setGrp">
@@ -2923,6 +2928,11 @@ var SELF_TPL = null;
   syncMenus(); saveSel(); setFs(parseFloat(sget("cr3|fs")) || 3); render();
   // 自動注音函式庫可能稍後才載入完成,載入後再畫一次
   window.addEventListener("load", function(){ if(HAS_PY() && !editing) render(); });
+  // 「生字遊戲」：開互動識字小教室的同一課（康軒在那邊的代碼是 kx）
+  $("gameBtn").addEventListener("click", function(){
+    var c = codeOf(ver,book,les).replace(/^ks-/, "kx-");
+    location.href = "shizi/" + (/-0-/.test(c) ? "" : "#" + c);
+  });
   window.addEventListener("hashchange", function(){
     var d = decode(location.hash);
     if(!d || (d.v === ver && d.b === book && d.l === les)) return;

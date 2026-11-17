@@ -145,6 +145,13 @@ nav button:nth-child(1){background:linear-gradient(180deg,#E7A59C,#D18A81)} nav 
 nav button:nth-child(3){background:linear-gradient(180deg,#9CCABD,#79AD9F)} nav button:nth-child(4){background:linear-gradient(180deg,#A3AFD9,#8190C2)}
 nav button:nth-child(5){background:linear-gradient(180deg,#CBA9D4,#AD88B9)}
 nav button:nth-child(6){background:linear-gradient(180deg,#F0B5C8,#D98BA6)}
+nav button[data-t="read"]{background:linear-gradient(180deg,#B9C98E,#97AE68)!important}
+nav button[data-t="learn"]{background:linear-gradient(180deg,#E7A59C,#D18A81)!important}
+nav button[data-t="match"]{background:linear-gradient(180deg,#EDBA7B,#DA9C55)!important}
+nav button[data-t="quiz"]{background:linear-gradient(180deg,#9CCABD,#79AD9F)!important}
+nav button[data-t="recall"]{background:linear-gradient(180deg,#A3AFD9,#8190C2)!important}
+nav button[data-t="write"]{background:linear-gradient(180deg,#CBA9D4,#AD88B9)!important}
+nav button[data-t="test"]{background:linear-gradient(180deg,#F0B5C8,#D98BA6)!important}
 .detail{background:linear-gradient(180deg,#FBF4EA,#F3E7D6);border:none;border-radius:26px;box-shadow:0 8px 0 #E2D0B8,0 16px 28px rgba(130,95,60,.2),inset 0 2px 2px #fff}
 .big{border-radius:22px!important;padding:6px 20px}
 .spk{background:radial-gradient(circle at 35% 30%,#F7C987,#E09A45);box-shadow:0 4px 0 #C27E35,0 8px 12px rgba(160,100,40,.3),inset 0 2px 2px rgba(255,255,255,.6)}
@@ -365,6 +372,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
   #write .bar{display:grid;grid-template-columns:1fr 1fr}
   #write .bar .btn{padding:10px 6px}
 }
+@media (max-width:600px){nav button{font-size:11.5px!important;letter-spacing:-.5px}nav{gap:3px!important}}
 @media (max-width:360px){nav button{font-size:12px}h1{font-size:17px}}
 </style>
 </head>
@@ -394,6 +402,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
   <div class="hright"><div class="pals" id="pals"></div><div class="stars">⭐ <span id="star">0</span></div></div>
 </header>
 <nav id="nav">
+  <button data-t="read">📖 <span>課文點讀</span></button>
   <button data-t="learn" class="on">🔊 <span>認識生字</span></button>
   <button data-t="match">🖐️ <span>看圖配對</span></button>
   <button data-t="quiz">❓ <span>語詞測驗</span></button>
@@ -402,6 +411,10 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
   <button data-t="test">🏆 <span>生字評量</span></button>
 </nav>
 <main>
+<section id="read">
+  <iframe id="readFrame" title="逐字點讀課文" style="width:100%;height:max(560px,calc(100vh - 210px));border:0;border-radius:18px;background:#fff" allow="autoplay"></iframe>
+  <p class="tip" style="text-align:center;margin:8px 0 0">點哪個字，就念哪個字。也可以 <a id="readOpen" href="../" target="_blank" rel="noopener">另開一頁看課文 ↗</a></p>
+</section>
 <section id="learn" class="on">
   <p class="tip">點一點生字或語詞，看圖、聽聲音、認識字的故事。</p>
   <div class="learn">
@@ -873,7 +886,7 @@ function go(v,g,l,push=true){
   document.title=`互動識字小教室 ${BOOKS[V].name}${BOOKS[V].g[G].name}${lab(L)} by 恩緹老師`;
   store.set("nnxLit",`${V}-${G}-${L}`);
   if(push){try{history.replaceState(null,"",`#${V}-${G}-${L}`)}catch(e){location.hash=`${V}-${G}-${L}`}}
-  buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();}
+  buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();syncRead();}
 $("verBox").onclick=e=>{const b=e.target.closest(".vb");if(b)go(b.dataset.v,G,-1)};
 $("grSel").onchange=e=>go(V,e.target.value,-1);
 $("lesSel").onchange=e=>go(V,G,+e.target.value);
@@ -885,7 +898,13 @@ window.addEventListener("hashchange",()=>{const p=location.hash.slice(1).split("
 $("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
   document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.t));
-  if(b.dataset.t==="write")sizeCanvas()};
+  if(b.dataset.t==="write")sizeCanvas();if(b.dataset.t==="read")syncRead()};
+/* 課文點讀：把逐字點讀放進來，跟著這裡選的課走（康軒在逐字點讀的代碼是 ks） */
+function readCode(){return `${V==="kx"?"ks":V}-${G}-${L}`}
+function syncRead(){const f=$("readFrame"),c=readCode(),u=`../?embed=1#${c}`;$("readOpen").href=`../#${c}`;
+  if(!$("read").classList.contains("on")&&!f.dataset.loaded)return;
+  if(!f.dataset.loaded){f.src=u;f.dataset.loaded="1";return}
+  try{if(f.contentWindow.location.hash!=="#"+c)f.contentWindow.location.hash=c}catch(e){f.src=u}}
 
 /* ===== 1 認識生字 ===== */
 function showChar(o,btn,quiet){
