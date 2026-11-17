@@ -231,17 +231,6 @@
       <select id="selVoice" style="font-size:.95rem;padding:6px 8px;max-width:200px"></select>
       <button class="seg" id="vTest" title="試聽">▶ 試聽</button>
     </div>
-    <div class="grp"><span>音源</span>
-      <button class="seg on" id="engB" title="用手機／電腦內建的語音">內建</button>
-      <button class="seg" id="engG" title="用 Google AI Studio 的 Gemini 語音（要自己的 API 金鑰）">Google AI</button>
-    </div>
-    <div class="grp" id="gemBox" style="display:none;flex-wrap:wrap;gap:6px">
-      <span>金鑰</span>
-      <input id="gemKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 的 API 金鑰" style="font-size:.95rem;padding:6px 8px;width:200px">
-      <span>聲音</span>
-      <select id="gemVoice" style="font-size:.95rem;padding:6px 8px"></select>
-      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="font-size:.85rem">取得金鑰</a>
-    </div>
     <button class="btn ghost" id="qrBtn">▦ QR 碼</button>
     <button class="btn ghost" id="edit">✎ 改課文</button>
     </div>
@@ -1925,7 +1914,8 @@ var SELF_TPL = null;
 
   // ================= Google AI Studio(Gemini)語音 =================
   // 金鑰只存在這台裝置的瀏覽器裡,不會放進網站程式
-  var ENGINE = sget("cr3|engine") === "gemini" ? "gemini" : "browser";
+  // Google AI 音源先停用:一律用內建語音,並清掉之前存在這台裝置的金鑰
+  var ENGINE = "browser"; sdel("cr3|engine"); sdel("cr3|gemkey"); sdel("cr3|gemvoice");
   // 語音模型:第一個找不到(Google 改名)就換下一個
   var GEM_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"], gemMi = 0;
   var GEM_VOICES = [["Kore","Kore（女聲，沉穩）"],["Leda","Leda（女聲，年輕）"],["Aoede","Aoede（女聲，輕快）"],["Zephyr","Zephyr（女聲，明亮）"],
@@ -2935,21 +2925,6 @@ var SELF_TPL = null;
     sset("cr3|voice", n); stopPlay(); speak("你好，我們一起來讀課文。");
   });
   $("vTest").addEventListener("click", function(){ stopPlay(); speak("你好，我們一起來讀課文。"); });
-  (function(){
-    var gv = $("gemVoice"), saved = sget("cr3|gemvoice") || "Kore";
-    GEM_VOICES.forEach(function(v){ var o = document.createElement("option"); o.value = v[0]; o.textContent = v[1]; if(v[0] === saved) o.selected = true; gv.appendChild(o); });
-    $("gemKey").value = gemKey();
-    function setEngine(e){
-      ENGINE = e; sset("cr3|engine", e); stopPlay();
-      $("engB").classList.toggle("on", e !== "gemini"); $("engG").classList.toggle("on", e === "gemini");
-      $("gemBox").style.display = e === "gemini" ? "flex" : "none"; gemFail = ""; gemOffUntil = 0; updateNote();
-    }
-    $("engB").addEventListener("click", function(){ setEngine("browser"); });
-    $("engG").addEventListener("click", function(){ gemUnlock(); setEngine("gemini"); if(gemKey()) speak("你好，我們一起來讀課文。"); });
-    $("gemKey").addEventListener("change", function(){ sset("cr3|gemkey", this.value.trim()); gemCache = {}; gemFail = ""; gemOffUntil = 0; updateNote(); if(gemKey()){ gemUnlock(); speak("你好，我們一起來讀課文。"); } });
-    gv.addEventListener("change", function(){ sset("cr3|gemvoice", this.value); gemUnlock(); stopPlay(); speak("你好，我們一起來讀課文。"); });
-    setEngine(ENGINE);
-  })();
   function setFs(v){ fs = Math.max(1.6, Math.min(5.5, v)); document.documentElement.style.setProperty("--fs", fs + "rem"); sset("cr3|fs", String(fs)); if(vert && chars.length) scheduleRender(); else updateSwipe(); }
   $("fsm").addEventListener("click", function(){ setFs(fs - 0.4); });
   $("fsp").addEventListener("click", function(){ setFs(fs + 0.4); });
