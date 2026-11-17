@@ -898,7 +898,7 @@ window.addEventListener("hashchange",()=>{const p=location.hash.slice(1).split("
 $("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
   document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.t));
-  if(b.dataset.t==="write")sizeCanvas();if(b.dataset.t==="read")syncRead()};
+  if(b.dataset.t==="write")sizeCanvas();if(b.dataset.t==="test"&&$("tNext").style.display==="none"&&!document.querySelector("#tOpts .ok,#tOpts .bad"))document.querySelectorAll("#tOpts .opt").forEach(y=>y.disabled=false);if(b.dataset.t==="read")syncRead()};
 /* 課文點讀：把逐字點讀放進來，跟著這裡選的課走（康軒在逐字點讀的代碼是 ks） */
 function readCode(){return `${V==="kx"?"ks":V}-${G}-${L}`}
 function syncRead(){const f=$("readFrame"),c=readCode(),u=`../?embed=1#${c}`;$("readOpen").href=`../#${c}`;
@@ -975,11 +975,11 @@ function showQ(){const it=qList[qi];if(!it)return;const {o,w}=it;
   const wrong=new Set();
   const render=()=>{$("qOpts").innerHTML="";shuffle([o,...dis]).forEach(x=>{const b=document.createElement("button");b.className="opt pop";b.innerHTML=zyH(x.c,x.z);
     if(wrong.has(x.c))b.disabled=true;
-    b.onclick=()=>{if(x.c===o.c){b.classList.add("ok");document.querySelectorAll(".opt").forEach(y=>{if(y!==b)y.disabled=true});b.onclick=null;
+    b.onclick=()=>{if(x.c===o.c){b.classList.add("ok");document.querySelectorAll("#qOpts .opt").forEach(y=>{if(y!==b)y.disabled=true});b.onclick=null;
         $("qWord").innerHTML=`${zyV(w.t,w.z)}<button class="spk" onclick="say('${w.s||w.t}')">🔊</button>`;
         $("qMsg").className="msg ok";$("qMsg").textContent="答對了！✔";say(w.s||w.t);addStar(wrong.size?0:1,b);if(wrong.size)$("qMsg").textContent="答對了！✔ 下次一次就選對喔！";$("qNext").style.display=""}
       else{if(!wrong.size)qMiss.push(it);wrong.add(x.c);say(x.c);$("qMsg").className="msg bad";$("qMsg").textContent="不是這個字喔！選項重新洗牌，再仔細看一次！";
-        document.querySelectorAll(".opt").forEach(y=>{y.disabled=true;y.classList.add("shuf")});setTimeout(render,650)}};
+        document.querySelectorAll("#qOpts .opt").forEach(y=>{y.disabled=true;y.classList.add("shuf")});setTimeout(render,650)}};
     $("qOpts").appendChild(b)})};
   render();}
 $("qNext").onclick=()=>{qi++;if(qi<qList.length)return showQ();
