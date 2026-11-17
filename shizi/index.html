@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>互動識字小教室 by NNX</title>
+<title>互動識字小教室 by 恩緹老師</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="互動識字">
@@ -371,7 +371,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
 <body>
 <div class="deco" id="deco"></div>
 <div class="ctl" id="ctl">
-  <span class="brand">互動識字小教室 by NNX</span>
+  <span class="brand">互動識字小教室 by 恩緹老師</span>
   <div class="grp"><b>版本</b><span id="verBox"></span></div>
   <div class="grp"><b>年級</b><select id="grSel"></select></div>
   <div class="grp"><b>課次</b><select id="lesSel"></select></div>
@@ -390,7 +390,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
  </div></div>
 <div class="wrap">
 <header>
-  <h1><span class="u" id="hUnit"></span><span id="hName"></span><span class="slogan">－我會認字，也會玩遊戲！</span><small>by NNX</small></h1>
+  <h1><span class="u" id="hUnit"></span><span id="hName"></span><span class="slogan">－我會認字，也會玩遊戲！</span><small>by 恩緹老師</small></h1>
   <div class="hright"><div class="pals" id="pals"></div><div class="stars">⭐ <span id="star">0</span></div></div>
 </header>
 <nav id="nav">
@@ -870,7 +870,7 @@ function go(v,g,l,push=true){
   V=v;G=g;L=+l;fillSelectors();lessonData();
   const les=BOOKS[V].g[G].les[L];
   $("hUnit").textContent=`${BOOKS[V].name}${BOOKS[V].g[G].name}　${lab(L)}`;$("hName").textContent=les[0]?"　"+les[0]:"";
-  document.title=`互動識字小教室 ${BOOKS[V].name}${BOOKS[V].g[G].name}${lab(L)} by NNX`;
+  document.title=`互動識字小教室 ${BOOKS[V].name}${BOOKS[V].g[G].name}${lab(L)} by 恩緹老師`;
   store.set("nnxLit",`${V}-${G}-${L}`);
   if(push){try{history.replaceState(null,"",`#${V}-${G}-${L}`)}catch(e){location.hash=`${V}-${G}-${L}`}}
   buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();}
