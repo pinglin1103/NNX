@@ -141,6 +141,7 @@ nav button{border-radius:22px 22px 0 0;text-shadow:0 2px 2px rgba(0,0,0,.18);box
 nav button:nth-child(1){background:linear-gradient(180deg,#E7A59C,#D18A81)} nav button:nth-child(2){background:linear-gradient(180deg,#EDBA7B,#DA9C55)}
 nav button:nth-child(3){background:linear-gradient(180deg,#9CCABD,#79AD9F)} nav button:nth-child(4){background:linear-gradient(180deg,#A3AFD9,#8190C2)}
 nav button:nth-child(5){background:linear-gradient(180deg,#CBA9D4,#AD88B9)}
+nav button:nth-child(6){background:linear-gradient(180deg,#F0B5C8,#D98BA6)}
 .detail{background:linear-gradient(180deg,#FBF4EA,#F3E7D6);border:none;border-radius:26px;box-shadow:0 8px 0 #E2D0B8,0 16px 28px rgba(130,95,60,.2),inset 0 2px 2px #fff}
 .big{border-radius:22px!important;padding:6px 20px}
 .spk{background:radial-gradient(circle at 35% 30%,#F7C987,#E09A45);box-shadow:0 4px 0 #C27E35,0 8px 12px rgba(160,100,40,.3),inset 0 2px 2px rgba(255,255,255,.6)}
@@ -247,6 +248,28 @@ h1 .u{color:#C9776E}
   .mascot{width:110px}
   .pals img{width:42px}
 }
+/* 生字評量 */
+.track{position:relative;height:56px;margin:0 auto 6px;max-width:560px}
+.road{position:absolute;left:24px;right:40px;top:36px;height:10px;border-radius:999px;background:#EADBC4;box-shadow:inset 0 2px 3px rgba(150,110,70,.25);overflow:hidden}
+.road i{display:block;height:100%;width:0;background:linear-gradient(90deg,#9CCABD,#79AD9F);transition:width .5s}
+#tRunner{position:absolute;top:0;left:0;width:46px;transition:left .5s;filter:drop-shadow(0 3px 3px rgba(120,85,50,.3))}
+.goal{position:absolute;right:0;top:12px;font-size:34px}
+.tq{font-size:54px;margin:4px 0;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.tq .bigc{font-size:96px;line-height:1}
+.opt.zyo{font-size:34px;letter-spacing:2px}
+.opt.bad{background:linear-gradient(180deg,#F6DCD8,#EBC1BB)!important;box-shadow:0 5px 0 #D29B93!important}
+.rep{max-width:720px;margin:0 auto;text-align:center}
+.rep h2{margin:6px 0;font-size:30px}
+.rep .score{font-size:56px;color:#C9776E;margin:4px 0}
+.rep .sub{color:var(--soft);font-size:17px}
+.rgrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.rc{width:64px;padding:4px 0 6px;border-radius:14px;font-size:34px;background:#E3F0DD;box-shadow:0 4px 0 #A7C69A}
+.rc.no{background:#F6DCD8;box-shadow:0 4px 0 #D29B93}
+.rc small{display:block;font-size:12px;color:var(--soft)}
+.hist{margin:16px auto 0;max-width:520px;text-align:left;font-size:15px;color:var(--soft);font-weight:normal}
+.hist b{color:var(--ink)}
+@media print{.ctl,nav,header .hright,.deco,.bar,.hist button{display:none!important}section{display:none!important}#test{display:block!important}#tPlay{display:none!important}}
+@media (max-width:600px){.tq{font-size:40px}.tq .bigc{font-size:76px}.opt.zyo{font-size:26px}.rc{width:52px;font-size:28px}}
 /* 同學們頭像 */
 .hright{display:flex;align-items:center;gap:10px}
 .pals{display:flex}
@@ -363,6 +386,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
   <button data-t="quiz">❓ <span>語詞測驗</span></button>
   <button data-t="recall">💭 <span>回想記憶</span></button>
   <button data-t="write">✏️ <span>生字練習</span></button>
+  <button data-t="test">🏆 <span>生字評量</span></button>
 </nav>
 <main>
 <section id="learn" class="on">
@@ -405,6 +429,18 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
     </div>
     <div class="msg" id="rMsg"></div>
   </div>
+</section>
+<section id="test">
+  <div class="q" id="tPlay">
+    <div class="track"><div class="road"><i id="tFill"></i></div><img id="tRunner" alt=""><span class="goal">🏆</span></div>
+    <div class="qnum" id="tNum"></div>
+    <div class="tq" id="tQ"></div>
+    <p class="tip" id="tAsk"></p>
+    <div class="opts" id="tOpts"></div>
+    <div class="msg" id="tMsg"></div>
+    <div class="bar"><button class="btn" id="tNext" style="display:none">下一題 ➜</button></div>
+  </div>
+  <div id="tEnd" style="display:none"></div>
 </section>
 <section id="write">
   <p class="tip" style="text-align:center">選一個字，用手指或滑鼠照著淡淡的字描寫；關掉描紅就自己寫。</p>
@@ -821,7 +857,7 @@ function go(v,g,l,push=true){
   document.title=`互動識字小教室 ${BOOKS[V].name}${BOOKS[V].g[G].name}${lab(L)} by NNX`;
   store.set("nnxLit",`${V}-${G}-${L}`);
   if(push){try{history.replaceState(null,"",`#${V}-${G}-${L}`)}catch(e){location.hash=`${V}-${G}-${L}`}}
-  buildLearn();newMatch();newQuiz();newRecall();buildWrite();}
+  buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();}
 $("verBox").onclick=e=>{const b=e.target.closest(".vb");if(b)go(b.dataset.v,G,-1)};
 $("grSel").onchange=e=>go(V,e.target.value,-1);
 $("lesSel").onchange=e=>go(V,G,+e.target.value);
@@ -935,6 +971,56 @@ $("rTip").onclick=()=>{const {o}=rList[ri];rLv++;
 $("rNext").onclick=()=>{ri++;if(ri<rList.length)return showR();
   if(rMiss.length){rList=shuffle(rMiss);rMiss=[];ri=0;rRe=true;showR();$("rMsg").className="msg bad";$("rMsg").textContent=`有 ${rList.length} 題要再練一次，加油！💪`}
   else{newRecall();$("rMsg").className="msg ok";$("rMsg").textContent="全部自己寫對了！🎉 再來一輪"}};
+
+/* ===== 6 生字評量（每個生字考一次，只有一次機會，最後有成績單） ===== */
+let tList=[],ti=0,tRes=[];
+function testTypes(o){const t=["listen"];
+  if(o.z&&CH.filter(x=>x.z&&x.z!==o.z).length>=3)t.push("zy");
+  const ws=(W[o.c]?.w||[]).filter(w=>[...w.t].length<=6);if(ws.length)t.push("cloze");return t}
+function newTest(only){const src=only||CH;
+  tList=shuffle(src).map(o=>{const ty=testTypes(o);return{o,type:shuffle(ty)[0]}});ti=0;tRes=[];
+  $("tPlay").style.display="";$("tEnd").style.display="none";$("tRunner").src=MASCOT;showT()}
+function tProg(){const n=tList.length,k=Math.min(ti,n);$("tFill").style.width=(n?k/n*100:0)+"%";
+  const tr=$("tRunner").parentElement;$("tRunner").style.left=`calc(${n?k/n:0} * (100% - 86px))`}
+function showT(){const it=tList[ti];tProg();if(!it)return endT();const {o,type}=it;
+  $("tNum").textContent=`第 ${ti+1} / ${tList.length} 題`;$("tMsg").textContent="";$("tNext").style.display="none";
+  let opts,ask,lab=x=>x.c,cls="opt kai";
+  const same=x=>x.c===o.c;
+  if(type==="zy"){const pool=shuffle(CH.filter(x=>x.z&&x.z!==o.z));const seen=new Set([o.z]);const ds=[];pool.forEach(x=>{if(ds.length<3&&!seen.has(x.z)){seen.add(x.z);ds.push(x)}});
+    opts=shuffle([o,...ds]);lab=x=>x.z;cls="opt zyo";ask="這個字怎麼念？選出對的注音。";
+    $("tQ").innerHTML=`<span class="bigc kai">${o.c}</span>`;}
+  else if(type==="cloze"){const ws=(W[o.c].w).filter(w=>[...w.t].length<=6);const w=shuffle(ws.filter(w=>!w.sent).length?ws.filter(w=>!w.sent):ws)[0];it.w=w;
+    opts=shuffle([o,...shuffle(CH.filter(x=>x.c!==o.c&&!w.t.includes(x.c))).slice(0,3)]);ask="空格裡要放哪個字？";
+    $("tQ").innerHTML=`${zyV(w.t,w.z,o.c)}<button class="spk" onclick="say('${w.s||w.t}')">🔊</button>`;}
+  else{opts=shuffle([o,...shuffle(CH.filter(x=>x.c!==o.c&&x.z!==o.z)).slice(0,3)]);ask="聽一聽，是哪一個字？";
+    $("tQ").innerHTML=`<button class="spk" style="width:84px;height:84px;font-size:38px" onclick="say('${o.c}')">🔊</button>`;setTimeout(()=>say(o.c),250);}
+  $("tAsk").textContent=ask;$("tOpts").innerHTML="";
+  opts.forEach(x=>{const b=document.createElement("button");b.className=cls+" pop";b.textContent=lab(x);
+    b.onclick=()=>{document.querySelectorAll("#tOpts .opt").forEach(y=>y.disabled=true);
+      const ok=same(x);tRes.push({c:o.c,z:o.z,type,ok,pick:lab(x)});
+      if(ok){b.disabled=false;b.classList.add("ok");$("tMsg").className="msg ok";$("tMsg").textContent="答對了！✔";addStar(1,b);say(it.w?(it.w.s||it.w.t):o.c);ti++;setTimeout(showT,1300)}
+      else{b.disabled=false;b.classList.add("bad");const r=[...document.querySelectorAll("#tOpts .opt")].find(y=>y.textContent===lab(o));if(r){r.disabled=false;r.classList.add("ok")}
+        $("tMsg").className="msg bad";$("tMsg").textContent=type==="zy"?`正確是「${o.z}」，記起來喔！`:`正確是「${o.c}」，記起來喔！`;say(o.c);$("tNext").style.display=""}};
+    $("tOpts").appendChild(b)})}
+$("tNext").onclick=()=>{ti++;showT()};
+const TNAME={listen:"聽音選字",zy:"看字選注音",cloze:"語詞填空"};
+function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filter(r=>r.ok).length,pct=n?Math.round(k/n*100):0;
+  const lv=pct>=90?"🏆 太厲害了！":pct>=70?"🌟 很棒喔！":pct>=50?"💪 再加油！":"🌱 我們再練習一下！";
+  const les=BOOKS[V].g[G].les[L],name=`${BOOKS[V].name}${BOOKS[V].g[G].name} ${lab(L)}${les[0]?" "+les[0]:""}`;
+  let hist=[];try{hist=JSON.parse(store.get("nnxLitTest")||"[]")}catch(e){}
+  const d=new Date();hist.unshift({t:`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`,n:name,k,c:n,miss:tRes.filter(r=>!r.ok).map(r=>r.c).join("")});hist=hist.slice(0,20);store.set("nnxLitTest",JSON.stringify(hist));
+  const miss=tRes.filter(r=>!r.ok);
+  $("tEnd").innerHTML=`<div class="rep"><h2>生字評量成績單</h2><div class="sub">${name}　${hist[0].t}</div>
+   <div class="score">${k} / ${n}</div><div style="font-size:24px">${lv}（${pct} 分）</div>
+   <div class="rgrid">${tRes.map(r=>`<div class="rc kai${r.ok?"":" no"}" title="${TNAME[r.type]}">${r.c}<small>${r.ok?"✔":"✘ 選"+r.pick}</small></div>`).join("")}</div>
+   <div class="sub">綠色＝會了　紅色＝要再練（題型：${[...new Set(tRes.map(r=>TNAME[r.type]))].join("、")}）</div>
+   <div class="bar">${miss.length?`<button class="btn rose" id="tRetry">🔁 只考錯的 ${miss.length} 個字</button>`:""}<button class="btn" id="tAgain">🔄 全部再考一次</button><button class="btn alt" id="tPrint">🖨️ 列印成績單</button></div>
+   <div class="hist"><b>最近紀錄（這台裝置）</b><br>${hist.slice(0,6).map(h=>`${h.t}　${h.n}　<b>${h.k}/${h.c}</b>${h.miss?"　錯："+h.miss:""}`).join("<br>")}</div></div>`;
+  $("tEnd").style.display="";tProg();
+  if(pct>=70)for(let i=0;i<6;i++)setTimeout(()=>addStar(0,$("tEnd").querySelector(".score")),i*150);
+  say(pct>=90?"太厲害了！":pct>=70?"很棒喔！":"再加油！");
+  if(miss.length)$("tRetry").onclick=()=>newTest(CH.filter(o=>miss.some(m=>m.c===o.c)));
+  $("tAgain").onclick=()=>newTest();$("tPrint").onclick=()=>window.print()}
 
 /* ===== 5 生字練習 ===== */
 let pi=0,ghostOn=true;const cv=$("cv"),ctx=cv.getContext("2d");
