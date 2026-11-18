@@ -742,7 +742,7 @@ function renderEstimate(){
     const mc=m.rounds.reduce((s,r)=>s+r.matches.length,0);
     html+=`<div class="ok">有空再抽籤：${m.start} 起，${total} 人 → ${m.teams.length} 組，共 ${m.rounds.length} 輪，每組約打 ${Math.round(mc*2/Math.max(1,m.teams.length)*10)/10} 場${m.split?'（依程度分開）':''}。</div>`;
   }
-  m.notes.forEach(n=>{html+=`<div class="warn">${esc(n)}</div>`});
+  m.notes.filter(n=>f.notes.indexOf(n)<0).forEach(n=>{html+=`<div class="warn">${esc(n)}</div>`});
   el.innerHTML=html;
 }
 
