@@ -547,7 +547,7 @@ function buildFormal(S){
     fa.forEach(pa=>fb.forEach(pb=>reqs.push({ev,ri,a,b,pa,pb})));
   })});
   for(let i=reqs.length-1;i>=0;i--){const q=reqs[i];const vs=(si,ps)=>ps.some(n=>{const v=S.schools[si].meta[n].vs;return v&&v!==S.schools[si===q.a?q.b:q.a].name});if(vs(q.a,q.pa)||vs(q.b,q.pb))reqs.splice(i,1)}
-  const two=sz.filter(n=>n>=2).length===2&&reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');const half=Math.ceil(S.courts/2);
+  const two=sz.filter(n=>n>=2).length===2&&reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');const half=Math.ceil(S.courts/2);const both=reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');
   let slot=0;let pending=reqs.slice();const last={};
   while(pending.length&&slot<60){
     const curT=fStart(S)+slot*S.min2;
@@ -559,7 +559,7 @@ function buildFormal(S){
       let best=null,bs=-1e9;
       const isCons=q=>q.pa.some(n=>last[q.a+'|'+n]===slot-1)||q.pb.some(n=>last[q.b+'|'+n]===slot-1);
       const pickBest=(allow,lim)=>{for(let k=0;k<pending.length;k++){
-        const q=pending[k];if(!fit(q))continue;if(lim&&two&&(ec[q.ev]||0)>=half)continue;if(!allow&&isCons(q))continue;
+        const q=pending[k];if(!fit(q))continue;if(lim&&(two||(slot===0&&both))&&(ec[q.ev]||0)>=half)continue;if(!allow&&isCons(q))continue;
         let rem=0;const cntRem=(si,ps)=>ps.forEach(n=>{pending.forEach(z=>{if((z.a===si&&z.pa.indexOf(n)>=0)||(z.b===si&&z.pb.indexOf(n)>=0))rem++})});
         cntRem(q.a,q.pa);cntRem(q.b,q.pb);
         let rest=0;const rs=(si,ps)=>ps.forEach(n=>{const l=last[si+'|'+n];const d=l==null?3:slot-l;rest+=d<=1?-3000:(d===2?30:40+(Math.min(d,6)-2)*10)});
