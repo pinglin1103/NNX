@@ -173,6 +173,7 @@ li{margin:3px 0}
     <div class="muted">三校互打，每回合依設定打男雙、女雙、混雙。成績分兩種算法：<b>積分制</b>＝所有羽球分數加總；<b>勝局制</b>＝每贏一局得 1 分（第 3 局 1:1 才打）。</div>
     <div style="max-width:320px;margin:8px 0"><label>每點打幾局（改了不會清除比分）</label><select id="h2sets"><option value="1">只打 1 局（單局決勝）</option><option value="3">三戰兩勝</option></select></div>
     <div id="h2info"></div>
+    <div id="teamMgr"></div>
     <div id="h2body"></div>
     <button class="btn alt" id="regen2">重新排（會清除比分）</button>
     <button class="btn ghost" id="copy2">轉成文字（貼 LINE）</button>
@@ -834,7 +835,7 @@ function updRound(ri){
 }
 function renderH2(){
   const h=S.h2,el=$('#h2body');
-  if(!h){el.innerHTML='<p class="muted">尚未產生。請先到「設定」頁填名單並按「排好賽程（先對打）」。</p>';$('#h2info').innerHTML='';return}
+  if(!h){el.innerHTML='<p class="muted">尚未產生。請先到「設定」頁填名單並按「排好賽程（先對打）」。</p>';$('#h2info').innerHTML='';renderTeams();return}
   const need=h.total*h.min2;
   const start=h.start;
   let info=`<div class="ok">${tm(start,-h.warm)}–${start}：全體熱身、寫名字、講解規則（${h.warm} 分鐘）。<br>正式賽共 ${h.total} 個時段 × ${h.min2} 分 = ${need} 分鐘，預計 ${start}–${tm(start,need)} 打完；打不完可續打。</div>`;
@@ -858,9 +859,60 @@ function renderH2(){
     html+='</div>';
   }
   html+='<div class="card" style="background:#fff"><b>各校戰績</b>'+h.rounds.map((r,ri)=>`<div class="rhead"><span class="tag sch${r.a}">${esc(h.names[r.a])}</span> vs <span class="tag sch${r.b}">${esc(h.names[r.b])}</span><span class="rsum" id="rs-${ri}">${rtext(h,r)}</span></div>`).join('')+'</div>';
-  el.innerHTML=html;
+  el.innerHTML=html;renderTeams();
 }
 
+function teamKey(p){return p.slice().sort().join('+')}
+function renderTeams(){
+  const h=S.h2,el=$('#teamMgr');if(!el)return;
+  if(!h){el.innerHTML='';return}
+  const m={};
+  h.rounds.forEach(r=>r.games.forEach(g=>{[[r.a,g.a],[r.b,g.b]].forEach(([si,p])=>{const k=si+'|'+teamKey(p);(m[k]=m[k]||{si,p:p.slice(),n:0}).n++})}));
+  let html='<div class="card" style="background:#fff"><h3 style="margin-top:0">隊伍管理</h3><div class="muted">刪除隊伍：該隊所有場次都會拿掉（比分一起清除）。新增隊伍：會自動排進空場地，跟其他學校同項目的每一組各打一場。</div><div style="margin:8px 0">';
+  Object.values(m).sort((a,b)=>a.si-b.si).forEach(t=>{html+=`<span style="display:inline-block;margin:2px 0"><span class="chip sch${t.si}">${esc(t.p.join('＋'))}<small>${esc(h.names[t.si])}・${t.n}場</small></span><button type="button" class="btn ghost" style="padding:2px 8px;font-size:13px;margin:0 10px 0 0" data-delteam="${esc(t.si+'|'+teamKey(t.p))}">刪除</button></span>`});
+  html+='</div><div class="grid2"><div><label>學校</label><select id="atSch">'+h.names.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('')+'</select></div><div><label>選手 1</label><input type="text" id="atP1"></div><div><label>選手 2</label><input type="text" id="atP2"></div><div><label>項目</label><select id="atEv"><option>男雙</option><option>女雙</option><option>混雙</option><option>雙打</option></select></div></div><button type="button" class="btn" id="atBtn">＋ 新增隊伍</button></div>';
+  el.innerHTML=html;
+}
+function delTeam(key,btn){
+  armed(btn,()=>{
+    const [si,k]=[+key.split('|')[0],key.split('|').slice(1).join('|')];
+    S.h2.rounds.forEach(r=>{r.games=r.games.filter(g=>!((r.a===si&&teamKey(g.a)===k)||(r.b===si&&teamKey(g.b)===k)))});
+    let t=0;S.h2.rounds.forEach(r=>r.games.forEach(g=>{t=Math.max(t,g.slot+1)}));S.h2.total=t;
+    save();renderH2();toast('已刪除隊伍');
+  },true);
+}
+function addTeam(){
+  const h=S.h2;if(!h)return;
+  const si=+$('#atSch').value,p1=$('#atP1').value.trim(),p2=$('#atP2').value.trim(),ev=$('#atEv').value;
+  if(!p1||!p2||p1===p2){toast('請填兩位不同的選手');return}
+  const p=[p1,p2];let n=0;
+  const place=(g,ra,rb)=>{
+    for(let s=0;s<=h.total;s++){
+      const used={},courts=new Set();
+      h.rounds.forEach(r=>r.games.forEach(x=>{if(x.slot!==s)return;courts.add(x.court);x.a.forEach(q=>used[r.a+'|'+q]=1);x.b.forEach(q=>used[r.b+'|'+q]=1)}));
+      if(g.a.some(q=>used[ra+'|'+q])||g.b.some(q=>used[rb+'|'+q]))continue;
+      let c=1;while(courts.has(c))c++;
+      if(c>h.courts)continue;
+      g.slot=s;g.court=c;if(s>=h.total)h.total=s+1;return;
+    }
+  };
+  h.rounds.forEach(r=>{
+    if(r.a!==si&&r.b!==si)return;
+    const oi=r.a===si?r.b:r.a;const seen={};
+    r.games.forEach(g=>{if(g.ev!==ev)return;const op=oi===r.a?g.a:g.b;seen[teamKey(op)]=op});
+    Object.values(seen).forEach(op=>{
+      const g={ev,a:(r.a===si?p:op).slice(),b:(r.b===si?p:op).slice(),slot:0,court:0,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''};
+      place(g,r.a,r.b);r.games.push(g);n++;
+    });
+  });
+  if(!n){toast('找不到同項目的對手組');return}
+  const cnt={};h.rounds.forEach(r=>r.games.forEach(g=>{cnt[g.slot]=(cnt[g.slot]||0)+1;h.maxC=Math.max(h.maxC||0,cnt[g.slot])}));
+  save();renderH2();toast('已新增隊伍，排了 '+n+' 場');
+}
+document.addEventListener('click',e=>{
+  const d=e.target.closest('[data-delteam]');if(d){delTeam(d.dataset.delteam,d);return}
+  if(e.target.id==='atBtn')addTeam();
+});
 function renderStand(){
   const R=computeStand(S);
   const el=$('#standBody');
