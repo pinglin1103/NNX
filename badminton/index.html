@@ -853,7 +853,7 @@ function renderH2(){
         for(let k=1;k<=(h.sets===1?1:3);k++){
           sets+=`<div class="setrow"><span>${h.sets===1?'比分':'第'+k+'局'+(k===3?'(1:1才打)':'')}</span><input class="sc" type="number" inputmode="numeric" min="0" data-k="h2" data-r="${ri}" data-g="${gi}" data-s="${k}a" value="${esc(g['s'+k+'a'])}"><span>:</span><input class="sc" type="number" inputmode="numeric" min="0" data-k="h2" data-r="${ri}" data-g="${gi}" data-s="${k}b" value="${esc(g['s'+k+'b'])}"></div>`;
         }
-        html+=`<div class="game"><div class="court">場${g.court}${g.ev?'<br><small>'+g.ev+'</small>':''}</div><div class="side">${swapHtml(g.a,r.a,ri,gi,'a')}</div><div class="sets">${sets}<div class="gstat" id="gs-${ri}-${gi}">${gtext(h,r,g)}</div></div><div class="side">${swapHtml(g.b,r.b,ri,gi,'b')}</div></div>`;
+        html+=`<div class="game"><div class="court">場${g.court}${g.ev?'<br><small>'+g.ev+'</small>':''}</div><div class="side">${swapHtml(g.a,r.a,ri,gi,'a')}</div><div class="sets">${sets}<div class="gstat" id="gs-${ri}-${gi}">${gtext(h,r,g)}</div>${g.manual?`<button type="button" class="btn ghost" style="padding:2px 8px;font-size:13px;margin:0" data-delgame="${ri}|${gi}">刪除這場</button>`:''}</div><div class="side">${swapHtml(g.b,r.b,ri,gi,'b')}</div></div>`;
       });
     });
     html+='</div>';
@@ -868,10 +868,12 @@ function renderTeams(){
   if(!h){el.innerHTML='';return}
   const m={};
   h.rounds.forEach(r=>r.games.forEach(g=>{[[r.a,g.a],[r.b,g.b]].forEach(([si,p])=>{const k=si+'|'+teamKey(p);(m[k]=m[k]||{si,p:p.slice(),n:0}).n++})}));
-  let html='<div class="card" style="background:#fff"><h3 style="margin-top:0">隊伍管理</h3><div class="muted">刪除隊伍：該隊所有場次都會拿掉（比分一起清除）。新增隊伍：會自動排進空場地，跟其他學校同項目的每一組各打一場。</div><div style="margin:8px 0">';
+  let html='<div class="card" style="background:#fff"><h3 style="margin-top:0">隊伍管理</h3><div class="muted">刪除隊伍：該隊所有場次都會拿掉（比分一起清除）。</div><div style="margin:8px 0">';
   Object.values(m).sort((a,b)=>a.si-b.si).forEach(t=>{html+=`<span style="display:inline-block;margin:2px 0"><span class="chip sch${t.si}">${esc(t.p.join('＋'))}<small>${esc(h.names[t.si])}・${t.n}場</small></span><button type="button" class="btn ghost" style="padding:2px 8px;font-size:13px;margin:0 10px 0 0" data-delteam="${esc(t.si+'|'+teamKey(t.p))}">刪除</button></span>`});
-  html+='</div><div class="grid2"><div><label>學校</label><select id="atSch">'+h.names.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('')+'</select></div><div><label>選手 1</label><input type="text" id="atP1"></div><div><label>選手 2</label><input type="text" id="atP2"></div><div><label>項目</label><select id="atEv"><option>男雙</option><option>女雙</option><option>混雙</option><option>雙打</option></select></div></div><button type="button" class="btn" id="atBtn">＋ 新增隊伍</button></div>';
+  const so=h.names.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('');
+  html+='</div><h3>臨時加一場（有人臨時來打：填名字，再填比分）</h3><div class="grid2"><div><label>一方學校</label><select id="mgA">'+so+'</select></div><div><label>選手 1</label><input type="text" id="mgA1"></div><div><label>選手 2</label><input type="text" id="mgA2"></div><div><label>另一方學校</label><select id="mgB">'+so+'</select></div><div><label>選手 1</label><input type="text" id="mgB1"></div><div><label>選手 2</label><input type="text" id="mgB2"></div><div><label>項目</label><select id="mgEv"><option>男雙</option><option>女雙</option><option>混雙</option><option>雙打</option><option>單打</option></select></div></div><button type="button" class="btn" id="mgBtn">＋ 加入這一場</button></div>';
   el.innerHTML=html;
+  {const b=$('#mgB');if(b&&h.names.length>1)b.value='1'}
 }
 function delTeam(key,btn){
   armed(btn,()=>{
@@ -881,37 +883,30 @@ function delTeam(key,btn){
     save();renderH2();toast('已刪除隊伍');
   },true);
 }
-function addTeam(){
+function addManual(){
   const h=S.h2;if(!h)return;
-  const si=+$('#atSch').value,p1=$('#atP1').value.trim(),p2=$('#atP2').value.trim(),ev=$('#atEv').value;
-  if(!p1||!p2||p1===p2){toast('請填兩位不同的選手');return}
-  const p=[p1,p2];let n=0;
-  const place=(g,ra,rb)=>{
-    for(let s=0;s<=h.total;s++){
-      const used={},courts=new Set();
-      h.rounds.forEach(r=>r.games.forEach(x=>{if(x.slot!==s)return;courts.add(x.court);x.a.forEach(q=>used[r.a+'|'+q]=1);x.b.forEach(q=>used[r.b+'|'+q]=1)}));
-      if(g.a.some(q=>used[ra+'|'+q])||g.b.some(q=>used[rb+'|'+q]))continue;
-      let c=1;while(courts.has(c))c++;
-      if(c>h.courts)continue;
-      g.slot=s;g.court=c;if(s>=h.total)h.total=s+1;return;
-    }
-  };
-  h.rounds.forEach(r=>{
-    if(r.a!==si&&r.b!==si)return;
-    const oi=r.a===si?r.b:r.a;const seen={};
-    r.games.forEach(g=>{if(g.ev!==ev)return;const op=oi===r.a?g.a:g.b;seen[teamKey(op)]=op});
-    Object.values(seen).forEach(op=>{
-      const g={ev,a:(r.a===si?p:op).slice(),b:(r.b===si?p:op).slice(),slot:0,court:0,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''};
-      place(g,r.a,r.b);r.games.push(g);n++;
-    });
-  });
-  if(!n){toast('找不到同項目的對手組');return}
-  const cnt={};h.rounds.forEach(r=>r.games.forEach(g=>{cnt[g.slot]=(cnt[g.slot]||0)+1;h.maxC=Math.max(h.maxC||0,cnt[g.slot])}));
-  save();renderH2();toast('已新增隊伍，排了 '+n+' 場');
+  const A=+$('#mgA').value,B=+$('#mgB').value,ev=$('#mgEv').value;
+  const pa=[$('#mgA1').value.trim(),$('#mgA2').value.trim()].filter(Boolean),pb=[$('#mgB1').value.trim(),$('#mgB2').value.trim()].filter(Boolean);
+  if(A===B){toast('兩邊要選不同學校');return}
+  if(!pa.length||!pb.length){toast('每邊至少填一位選手');return}
+  const r=h.rounds.find(r=>(r.a===A&&r.b===B)||(r.a===B&&r.b===A));if(!r)return;
+  const g={ev,manual:true,a:(r.a===A?pa:pb),b:(r.a===A?pb:pa),slot:0,court:0,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''};
+  let base=0;h.rounds.forEach(x=>x.games.forEach(y=>{if(!y.manual)base=Math.max(base,y.slot+1)}));
+  for(let s=base;;s++){
+    const used={},courts=new Set();
+    h.rounds.forEach(x=>x.games.forEach(y=>{if(y.slot!==s)return;courts.add(y.court);y.a.forEach(q=>used[x.a+'|'+q]=1);y.b.forEach(q=>used[x.b+'|'+q]=1)}));
+    if(g.a.some(q=>used[r.a+'|'+q])||g.b.some(q=>used[r.b+'|'+q]))continue;
+    let c=1;while(courts.has(c))c++;
+    if(c>h.courts)continue;
+    g.slot=s;g.court=c;break;
+  }
+  r.games.push(g);h.total=Math.max(h.total,g.slot+1);h.maxC=Math.max(h.maxC||0,g.court);
+  save();renderH2();toast('已加入，往下找這一場填比分');
 }
 document.addEventListener('click',e=>{
   const d=e.target.closest('[data-delteam]');if(d){delTeam(d.dataset.delteam,d);return}
-  if(e.target.id==='atBtn')addTeam();
+  if(e.target.id==='mgBtn'){addManual();return}
+  const dg=e.target.closest('[data-delgame]');if(dg){const [ri,gi]=dg.dataset.delgame.split('|').map(Number);armed(dg,()=>{S.h2.rounds[ri].games.splice(gi,1);let t=0;S.h2.rounds.forEach(r=>r.games.forEach(g=>{t=Math.max(t,g.slot+1)}));S.h2.total=t;save();renderH2()},true)}
 });
 function renderStand(){
   const R=computeStand(S);
