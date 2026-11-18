@@ -370,7 +370,7 @@ function makeTeams(S,all){
     M.forEach(p=>{cm[p.si]=(cm[p.si]||0)+1});W.forEach(p=>{cw[p.si]=(cw[p.si]||0)+1});
     const mi=M.map((p,i)=>i).sort((x,y)=>cm[M[y].si]-cm[M[x].si])[0];
     const m=M.splice(mi,1)[0];
-    let cand=W.map((p,i)=>i).filter(i=>W[i].si!==m.si);
+    let cand=W.map((p,i)=>i).filter(i=>W[i].si===m.si);
     if(!cand.length)cand=W.map((p,i)=>i);
     const wi=cand.sort((x,y)=>cw[W[y].si]-cw[W[x].si])[0];
     const w=W.splice(wi,1)[0];
@@ -432,7 +432,7 @@ function buildRotation(S,all,courts,R,offset,split,avail){
         while(un.length>1){
           const t=un.shift();let best=0;
           for(let i=1;i<un.length;i++)if(met[t][un[i]]<met[t][un[best]])best=i;
-          const o=un.splice(best,1)[0];c+=met[t][o]*10+(teams[t].grp===teams[o].grp?0:1);ps.push([t,o]);
+          const o=un.splice(best,1)[0];c+=met[t][o]*10+(teams[t].grp===teams[o].grp?0:1)+(teams[t].members[0].si===teams[o].members[0].si?4:0);ps.push([t,o]);
         }
         if(c<bc){bc=c;bestP=ps}
       }
