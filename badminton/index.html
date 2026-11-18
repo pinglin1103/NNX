@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>羽球交流賽 by NNX</title>
+<style>
+:root{--bg:#EFE9F5;--card:#FBF9FD;--ink:#2E1F3F;--muted:#6F5F85;--line:#DACFE6;--sage:#F4B6C8;--rose:#F4C08E;--blue:#9CCBEB;--mustard:#E3EC7A;--mauve:#8A4FB0;--deep:#6C2D91;--court:#6C2D91;--cork:#D9A066}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6;font-size:16px}
+header{padding:18px 16px 14px;max-width:980px;margin:0 auto;background:var(--court);color:#fff;border-radius:0 0 18px 18px;position:relative;overflow:hidden;background-image:linear-gradient(90deg,transparent 0 calc(100% - 46px),rgba(255,255,255,.55) calc(100% - 46px) calc(100% - 44px),transparent calc(100% - 44px)),linear-gradient(transparent calc(100% - 10px),rgba(255,255,255,.55) calc(100% - 10px) calc(100% - 8px),transparent calc(100% - 8px));box-shadow:inset 0 0 0 3px rgba(255,255,255,.5)}
+header .muted{color:#E9DDF4}
+header h1 small{color:#E3EC7A!important}
+h1{font-size:22px;margin:0}
+h1 small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:980px;margin:0 auto}
+nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:999px;font-size:15px;cursor:pointer;font-family:inherit}
+nav button.on{background:var(--deep);color:#fff;border-color:var(--deep);box-shadow:0 0 0 2px var(--mustard)}
+main{max-width:980px;margin:0 auto;padding:14px 16px 60px}
+section{display:none}
+section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:18px;margin:0 0 8px}
+[id^="ev-"]{scroll-margin-top:70px}
+.card h3{font-size:16px;margin:12px 0 4px}
+.muted{color:var(--muted);font-size:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+@media(max-width:640px){.grid3{grid-template-columns:1fr}}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:3px}
+input[type=text],input[type=number],input[type=time],textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-family:inherit;font-size:16px}
+textarea{min-height:150px;resize:vertical}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-size:16px;font-family:inherit;cursor:pointer;background:var(--deep);color:#fff;margin:4px 6px 4px 0}
+.btn.alt{background:var(--mustard);color:#2E1F3F}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.sch0{--c:var(--sage)}.sch1{--c:var(--rose)}.sch2{--c:var(--blue)}
+.tag{display:inline-block;padding:1px 10px;border-radius:999px;background:var(--c,var(--line));color:#1F3A2E;font-size:13px}
+.rhead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.rhead b{font-size:17px}
+.sub{font-size:13px;color:var(--muted);margin:10px 0 4px;border-left:4px solid var(--cork);padding-left:8px}
+.game{display:grid;grid-template-columns:54px 1fr auto 1fr;gap:8px;align-items:center;padding:8px 0;border-top:1px dashed var(--line)}
+.game .court{font-size:13px;background:var(--court);color:#fff;border-radius:6px;text-align:center;padding:2px 0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.75)}
+.game .side{font-size:16px}
+.game .side.r{text-align:right}
+.score{display:flex;align-items:center;gap:4px}
+.score input{width:58px;text-align:center;padding:8px 4px}
+@media(max-width:560px){.game{grid-template-columns:44px minmax(0,1fr);row-gap:6px}.game>*{min-width:0}.game .court{grid-row:span 3;align-self:start}.game .score,.game .sets{grid-column:2;justify-items:start}.game .gstat{text-align:left}.game .side.r{text-align:left}.rsum{margin-left:0;width:100%}}
+.chip{display:inline-block;margin:2px 3px 2px 0;padding:2px 9px;border-radius:10px;background:var(--c,var(--line));color:#1F3A2E;font-size:15px;white-space:nowrap}
+.chip small{font-size:11px;opacity:.7;margin-left:4px}
+.team{display:inline-block;font-size:12px;color:#fff;background:var(--deep);border-radius:6px;padding:0 6px;margin-right:4px}
+.warn{background:#FCEFD9;border:1px solid #EBCB9A;color:#7A4E1D;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+.ok{background:#EBE2F3;border:1px solid #CDB9E2;color:#4B2370;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center}
+th{color:var(--muted);font-weight:500;font-size:13px;background:#EEE6F5}
+td.l,th.l{text-align:left}
+.rest{font-size:13px;color:var(--muted);margin-top:4px}
+select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-family:inherit;font-size:16px}
+.sets{display:grid;gap:4px;justify-items:center}
+.setrow{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
+.setrow input{width:48px;text-align:center;padding:6px 2px}
+.gstat{font-size:13px;color:var(--deep);text-align:center;min-height:20px}
+.rsum{font-size:14px;color:var(--deep);margin-left:auto}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2E1F3F;color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20;max-width:90vw}
+#toast.on{opacity:1}
+button.chip{border:0;font-family:inherit;cursor:pointer;line-height:1.5}
+button.chip::after{content:'✎';font-size:11px;opacity:.55;margin-left:3px}
+#swapBg{position:fixed;inset:0;background:rgba(40,20,60,.5);z-index:30;display:none;align-items:flex-end;justify-content:center;padding:16px}
+#swapBg.on{display:flex}
+#swapBox{background:var(--card);border-radius:16px;padding:16px;width:100%;max-width:420px;max-height:85vh;overflow:auto}
+#swapBox h2{font-size:18px;margin:0 0 6px}
+.swopts{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.swopts button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font-size:16px;font-family:inherit;color:var(--ink);cursor:pointer}
+.swopts button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.swopts button small{font-size:11px;opacity:.7;margin-left:3px}
+#draw{display:none;text-align:center;padding:26px 10px}
+#draw.on{display:block}
+#flick{font-size:34px;font-weight:700;letter-spacing:2px;color:var(--deep);min-height:52px}
+.pop{animation:pop .45s both}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.tbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+textarea.out{min-height:120px;font-size:14px}
+ul,ol{padding-left:22px;margin:6px 0}
+li{margin:3px 0}
+.tl td:first-child{white-space:nowrap;color:var(--deep);font-weight:600}
+.tl td{text-align:left}
+.evbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.evbar button{font-family:inherit;cursor:pointer;padding:6px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:15px}
+.saverow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.saverow input{flex:1 1 180px;width:auto}
+.sitem{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed var(--line)}.sitem:first-child{border-top:0}.sitem .nm{flex:1;min-width:0}.sitem .nm b{display:block;color:var(--ink);font-weight:600;overflow-wrap:anywhere}.sitem .btn{padding:8px 12px;font-size:15px;margin:0}.sitem.cur{background:#EBE2F3;border-radius:10px;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏸 羽球交流賽 <small>by NNX</small></h1>
+  <div class="muted">先對打：校際正式賽（積分制）→ 打不完續打 → 有空再抽籤混搭</div>
+</header>
+<nav id="nav">
+  <button data-tab="setup" class="on">① 設定</button>
+  <button data-tab="h2">② 先對打</button>
+  <button data-tab="h1">③ 有空抽籤</button>
+  <button data-tab="stand">④ 成績</button>
+  <button data-tab="manual">📖 說明書</button>
+</nav>
+<main>
+
+<!-- 設定 -->
+<section id="tab-setup" class="on">
+  <div class="card">
+    <h2>學校與選手名單</h2>
+    <div class="muted">每行一位選手，名字後面可加：<b>男／女</b>（性別）、<b>程度</b>：沒寫＝比賽組（程度最好）、寫「中」＝中階組、寫「休」＝休閒組。例如「王小明 男」「李小花 女 中」「陳大華 男 休」。遲到的人在名字後面加「@到場時間」，例如「冠堯 男 @16:00」，工具只會在他到場之後的那一小時排他。固定雙打搭檔：用「＊」連起來（例如「致朋*建良 男」，或寫成「致朋 男 * 建良 男」）＝兩個小時都綁在一起；用「＋」連起來＝只有第二小時優先當搭檔，第一小時會重新配對。不想第一個上場的人，名字後面加「後」，例如「恩緹*雅琦 女 後」，正式賽第一個時段不會排他。只想跟某一校對打：名字後面加「對○○」，例如「麗美*瓊娟 女 對成功」。某校人數不夠（0 或 1 人）也可以，正式賽就不排那一校，其餘學校照排。</div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="sch0"><label>學校 1 名稱</label><input type="text" id="sn0" value="碧華"><label style="margin-top:8px">正式賽項目</label><select id="only0"><option value="" selected>全部項目</option><option value="男雙">只打男雙（每場 1 點）</option><option value="女雙">只打女雙（每場 1 點）</option><option value="混雙">只打混雙（每場 1 點）</option></select><label style="margin-top:8px">選手名單 <span id="cnt0" class="tag">0 人</span></label><textarea id="pl0" placeholder="王小明 男&#10;李小花 女&#10;陳大華 男 休&#10;…"></textarea></div>
+      <div class="sch1"><label>學校 2 名稱</label><input type="text" id="sn1" value="蘆洲"><label style="margin-top:8px">正式賽項目</label><select id="only1"><option value="">全部項目</option><option value="男雙" selected>只打男雙（每場 1 點）</option><option value="女雙">只打女雙（每場 1 點）</option><option value="混雙">只打混雙（每場 1 點）</option></select><label style="margin-top:8px">選手名單 <span id="cnt1" class="tag">0 人</span></label><textarea id="pl1" placeholder="每行一位，例：張小美 女"></textarea></div>
+      <div class="sch2"><label>學校 3 名稱</label><input type="text" id="sn2" value="成功"><label style="margin-top:8px">正式賽項目</label><select id="only2"><option value="" selected>全部項目</option><option value="男雙">只打男雙（每場 1 點）</option><option value="女雙">只打女雙（每場 1 點）</option><option value="混雙">只打混雙（每場 1 點）</option></select><label style="margin-top:8px">選手名單 <span id="cnt2" class="tag">0 人</span></label><textarea id="pl2" placeholder="每行一位，例：林小強 男"></textarea></div>
+    </div>
+    <button class="btn ghost" id="sample">還原預設名單</button>
+  </div>
+  <div class="card">
+    <h2>場地與時間</h2>
+    <div class="grid2">
+      <div><label>球場數（可同時開打幾面）</label><input type="number" id="courts" min="1" max="12" value="4"></div>
+      <div><label>活動開始時間</label><input type="time" id="start" value="14:00"></div>
+      <div><label>開場熱身／寫名字／講規則（分鐘）</label><input type="number" id="warm" min="0" max="60" value="15"></div>
+      <div><label>活動總長度（分鐘）</label><input type="number" id="span" min="60" max="300" value="180"></div>
+      <div><label>男雙：填 0＝不打；有打就每組搭檔都會排到（打遍對手每組）</label><input type="number" id="e1" min="0" max="6" value="3"></div>
+      <div><label>女雙：填 0＝不打；有打就每組搭檔都會排到（打遍對手每組）</label><input type="number" id="e2" min="0" max="6" value="3"></div>
+      <div><label>混雙：填 0＝不打；有打就每組搭檔都會排到</label><input type="number" id="e3" min="0" max="6" value="0"></div>
+      <div><label>抽籤混搭：每組打幾場</label><input type="number" id="mixn" min="1" max="6" value="1"></div>
+      <div><label>正式賽每「點」預留分鐘數</label><input type="number" id="min2" min="8" max="60" value="12"></div>
+      <div><label>正式賽每「點」打幾局</label><select id="sets"><option value="1" selected>只打 1 局（單局決勝）</option><option value="3">三戰兩勝</option></select></div>
+      <div><label>有空再抽籤（混搭）每輪分鐘數</label><input type="number" id="min1" min="5" max="30" value="12"></div>
+    </div>
+    <label style="margin-top:10px;display:flex;gap:8px;align-items:center;color:var(--ink);font-size:15px"><input type="checkbox" id="split2" checked style="width:20px;height:20px"> 抽籤混搭時依程度（比賽組／中階組／休閒組）分開抽籤、分開對戰（程度落差大時建議勾選）</label>
+    <div class="muted" style="margin-top:8px">流程：先打校際正式賽（比賽組上場，積分制；每點預設只打 1 局，可在設定頁改成三戰兩勝）；正式賽打完後若還有時間，全部人再抽籤混搭暖身。打不完就續打，不夠時間就不抽籤。時間範圍＝活動開始時間＋總長度。</div>
+    <div id="estimate"></div>
+    <button class="btn" id="gen1">排好賽程（先對打）→</button>
+  </div>
+  <div class="card savedCard"><h2>💾 已儲存的賽程</h2><div class="savedList muted">讀取中…</div></div>
+  <div class="card">
+    <button class="btn ghost" id="resetAll">全部重來（清空資料）</button>
+    <span class="muted">資料只存在這台裝置的瀏覽器，換裝置不會同步。</span>
+  </div>
+</section>
+
+<!-- 第一小時 -->
+<section id="tab-h1">
+  <div class="card">
+    <h2>有空再抽籤｜混搭暖身（正式賽打完後）</h2>
+    <div class="muted">全部選手一起抽籤，優先配成混雙（男女搭配），男生或女生剩下才配男雙、女雙；搭檔盡量來自不同學校，並依程度分組、輪流對戰，每個人都有球打。單數人時會有一組 3 人，輪流 2 人上場。</div>
+    <button class="btn" id="drawBtn">🎲 開始抽籤</button>
+    <button class="btn ghost" id="copy1">轉成文字（貼 LINE）</button>
+    <button class="btn" id="pdf1">⬇ 下載 PDF（名單＋記分表）</button>
+    <div id="draw"><div class="muted">抽籤中…</div><div id="flick">…</div></div>
+    <div id="h1info"></div>
+    <div id="h1teams"></div>
+  </div>
+  <div id="h1rounds"></div>
+  <textarea class="out" id="out1" style="display:none"></textarea>
+</section>
+
+<!-- 第二小時 -->
+<section id="tab-h2">
+  <div class="card">
+    <div class="saverow"><input type="text" id="saveName" placeholder="賽程名稱（可不填）"><button class="btn" id="saveBtn">💾 儲存賽程</button><button class="btn ghost" id="saveNew" style="display:none">＋ 另存一份</button></div>
+    <div id="saveMsg" class="muted"></div>
+  </div>
+  <div class="card savedCard"><h2>💾 已儲存的賽程</h2><div class="savedList muted">讀取中…</div></div>
+  <div class="card">
+    <h2>先對打｜校際正式賽</h2>
+    <div class="muted">三校互打，每回合依設定打男雙、女雙、混雙。成績分兩種算法：<b>積分制</b>＝所有羽球分數加總；<b>勝局制</b>＝每贏一局得 1 分（第 3 局 1:1 才打）。</div>
+    <div style="max-width:320px;margin:8px 0"><label>每點打幾局（改了不會清除比分）</label><select id="h2sets"><option value="1">只打 1 局（單局決勝）</option><option value="3">三戰兩勝</option></select></div>
+    <div id="h2info"></div>
+    <div id="h2body"></div>
+    <button class="btn alt" id="regen2">重新排（會清除比分）</button>
+    <button class="btn ghost" id="copy2">轉成文字（貼 LINE）</button>
+    <button class="btn" id="pdf2">⬇ 下載 PDF（名單＋記分表）</button>
+    <textarea class="out" id="out2" style="display:none"></textarea>
+  </div>
+</section>
+
+<!-- 成績 -->
+<section id="tab-stand">
+  <div id="standBody"></div>
+</section>
+
+<!-- 說明書 -->
+<section id="tab-manual">
+  <div class="card">
+    <h2>📖 活動說明書</h2>
+    <h3>一、賽前準備</h3>
+    <ul>
+      <li>收集三校名單，貼進「設定」頁，按「排好賽程」。</li>
+      <li>確認場地數量、活動開始時間，並先在 LINE 群組公告時間表。</li>
+      <li>物品：羽球（每場約 1～2 顆）、計時器或手機、紙筆（備用記分）、飲水、小獎品。</li>
+      <li>名單先整理好性別與程度分組，並徵求大家同意。</li>
+      <li>建議安排 1 位總召，負責看時間、喊換場、輸入成績。</li>
+    </ul>
+
+    <h3>二、當天流程範例（開始時間 14:00，活動 3 小時）</h3>
+    <table class="tl">
+      <tr><td>13:45</td><td>報到、說明規則</td></tr>
+      <tr><td>14:00</td><td>先對打：校際正式賽（積分制看總分、三戰兩勝看勝場），打不完就續打</td></tr>
+      <tr><td>正式賽打完後</td><td>有空再抽籤：全部人混搭對戰（依剩餘時間決定輪數）</td></tr>
+      <tr><td>17:00</td><td>公布成績、頒獎、合照</td></tr>
+    </table>
+
+    <h3>三、分組與名單格式</h3>
+    <ul>
+      <li>程度落差大，所以名單要標<b>性別</b>與<b>組別</b>。格式：每行一位，名字後面空一格寫「男」或「女」；休閒組再加「休」。</li>
+      <li>程度分三級：沒寫＝<b>比賽組</b>，寫「中」＝<b>中階組</b>，寫「休」＝<b>休閒組</b>。</li>
+      <li>範例：<br>王小明 男<br>李小花 女 中<br>陳大華 男 休</li>
+      <li><b>先對打</b>：比賽組代表學校打正式賽（男雙、女雙為主）。中階組、休閒組擔任記分、裁判、加油，或到空場自由打。</li>
+      <li><b>有空再抽籤</b>：正式賽打完後，全部人依程度分組，各組自己抽籤、自己對戰；任一程度不足 4 人會自動併入相鄰程度。</li>
+      <li>某校比賽組缺人時，工具會優先借用該校同性別的中階組、休閒組選手；再不夠就取消那一場並提醒你。某校只有 0～1 人時，正式賽直接不排那一校。</li>
+      <li>名單完全沒標性別時，會改排不分性別的「雙打」。</li>
+      <li><b>遲到</b>：名字後面加「@到場時間」，例如「冠堯 男 @16:00」。工具只會排已經到場的人。</li>
+      <li><b>不要先上場</b>：名字後面加「後」，正式賽第一個時段不排他（固定搭檔會一起往後排）。</li>
+      <li><b>只對某一校</b>：名字後面加「對成功」，這組在正式賽只會對成功。</li>
+      <li><b>固定搭檔</b>：名字用「＊」連起來並標性別，例如「致朋*建良 男」，正式賽優先派去打男雙或女雙，抽籤混搭時不沿用。</li>
+    </ul>
+
+    <h3>四、先對打：校際正式賽</h3>
+    <ul>
+      <li>三校互打：每一組搭檔都會打遍其他學校的每一組，男雙、女雙為主，混雙預設 0 點，可在設定頁調整。</li>
+      <li>每「點」預設只打 <b>1 局</b>（單局決勝），勝一點得 1 分。</li>
+      <li><b>積分制</b>：把每一場打到的羽球分數全部加起來，總得分最多的學校第一。</li>
+      <li><b>勝局制</b>：每贏一局得 1 分（每點可選單局或三戰兩勝，第 3 局 1:1 才打）。</li>
+      <li>盡量四面場同時開打，排時優先不連打，場地空著才讓連打的人補上。只有兩校上場時，兩面場打男雙、兩面場打女雙。</li>
+      <li>打不完就續打：工具會依「每點預留分鐘」算出預計結束時間。</li>
+    </ul>
+
+    <h3>五、有空再抽籤：混搭暖身</h3>
+    <ul>
+      <li>正式賽打完後，若離活動結束還有時間，按「開始抽籤」。時間不夠一輪就不用抽。</li>
+      <li>全部選手一起抽籤，優先配成<b>混雙</b>，搭檔盡量來自不同學校，每組預設只打一次。</li>
+      <li>單數時會出現 1 組 3 人，每場輪流 1 人休息。</li>
+      <li>這段是暖身交流，勝負輕鬆看待，<b>不算進成績</b>。</li>
+    </ul>
+
+    <h3>六、成績與獎項</h3>
+    <ul>
+      <li><b>校際正式賽冠軍</b>：總積分第一名。</li>
+      <li><b>校際總勝場</b>：把每位選手贏的場數加總（只算正式賽），並附人均勝場。</li>
+      <li>也可加碼趣味獎：最佳默契、最佳氣氛、全勤小天使等。</li>
+    </ul>
+
+    <h3>七、工具操作步驟</h3>
+    <ol>
+      <li><b>設定</b>：填學校名稱、名單、場地數、時間 → 按「排好賽程（先對打）」。</li>
+      <li><b>先對打</b>：照時間表開打，每一點填比分，積分自動計算。</li>
+      <li><b>有空再抽籤</b>：正式賽打完後，按「開始抽籤」，照輪次開打並填比分。</li>
+      <li><b>成績</b>：隨時查看，自動更新。</li>
+      <li>「轉成文字」可以複製對戰表貼到 LINE 群組；「下載 PDF」可印出名單與記分表。</li>
+      <li><b>換人</b>：在「先對打」頁點選手名字就能換成別人，比分不會被清掉。</li>
+      <li><b>儲存賽程</b>：按「💾 儲存賽程」，之後在「已儲存的賽程」點一下就能打開。</li>
+    </ol>
+
+    <h3>八、常見問題</h3>
+    <ul>
+      <li><b>有人臨時缺席或遲到？</b>回「設定」頁修改名單，再按「重新排」。</li>
+      <li><b>時間不夠？</b>縮短「每點預留分鐘數」，或減少男雙／女雙場數。</li>
+      <li><b>怎麼保存成績？</b>資料存在這台裝置的瀏覽器；活動結束請截圖或用「轉成文字」「下載 PDF」備份。</li>
+      <li><b>誰輸誰贏有爭議？</b>建議事先說好：邊線球看接球方判定，有爭議就重打一球。</li>
+    </ul>
+  </div>
+</section>
+</main>
+<div id="toast"></div>
+<div id="swapBg"><div id="swapBox">
+  <h2>換人</h2>
+  <div class="muted" id="swInfo"></div>
+  <div class="swopts" id="swOpts"></div>
+  <label>或直接輸入新名字</label><input type="text" id="swName" placeholder="例：新來的老師">
+  <label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:15px;margin-top:10px"><input type="checkbox" id="swAll" checked style="width:20px;height:20px"> <span id="swAllTxt">他所有的場次都一起換</span></label>
+  <div style="margin-top:10px"><button class="btn" id="swOk">確定換人</button><button class="btn ghost" id="swCancel">取消</button></div>
+</div></div>
+
+<script>
+//<LOGIC>
+
+function rnd(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function uniq(arr){const seen={};return arr.map(n=>{if(seen[n]){seen[n]++;return n+seen[n]}seen[n]=1;return n})}
+const FG={'男':'男','m':'男','M':'男','♂':'男','女':'女','f':'女','F':'女','w':'女','W':'女','♀':'女'};
+const NF={'後':1,'晚':1,'不先':1,'後上':1,'不先上':1};
+const FP={'中':'中','中階':'中','中階組':'中','休':'休','休閒':'休','交流':'休','樂':'休','賽':'賽','比賽':'賽','非休':'賽','非休閒':'賽','非休閒組':'賽','比賽組':'賽','休閒組':'休'};
+function parseEntries(t){
+  const out=[];let grp=[];let link=null;
+  String(t||'').replace(/[（(][^）)]*[）)]/g,' ').split(/[\n;；、]+/).forEach(line=>{
+    line.split(/[\s,，]+/).filter(Boolean).forEach(x=>{
+      if(/^[+＋*＊]+$/.test(x)){link={bind:/[*＊]/.test(x)};return}
+      if(/^[+＋*＊]/.test(x)&&x.length>1){link={bind:/[*＊]/.test(x[0])};x=x.slice(1)}
+      const am=/^@(\d{1,2})[:：](\d{2})$/.exec(x);
+      if(grp.length&&am){grp.forEach(c=>{c.arr=(+am[1])*60+(+am[2])});return}
+      if(grp.length&&NF[x]){grp.forEach(c=>{c.nf=true});return}
+      {const vm=/^[對对](.+)$/.exec(x);if(grp.length&&vm){grp.forEach(c=>{c.vs=vm[1]});return}}
+      if(grp.length&&FG[x]){grp.forEach(c=>{c.g=FG[x]})}
+      else if(grp.length&&FP[x]){grp.forEach(c=>{c.grp=FP[x]})}
+      else{
+        const bind=/[*＊]/.test(x);
+        const parts=x.split(/[+＋*＊]/).filter(Boolean);
+        const ng=parts.map(n=>({n,g:'',grp:'賽',pair:'',bind:false}));
+        if(ng.length===2){ng[0].pair=ng[1].n;ng[1].pair=ng[0].n;ng[0].bind=ng[1].bind=bind}
+        ng.forEach(c=>out.push(c));
+        if(link&&ng.length===1&&out.length>=2){
+          const prev=out[out.length-2];
+          prev.pair=ng[0].n;ng[0].pair=prev.n;prev.bind=ng[0].bind=link.bind;
+        }
+        link=null;grp=ng;
+      }
+    });
+  });
+  return out;
+}
+function tm(base,add){const p=String(base||'14:00').split(':').map(Number);const t=(p[0]||0)*60+(p[1]||0)+add;return String(Math.floor(t/60)%24).padStart(2,'0')+':'+String(t%60).padStart(2,'0')}
+function fStart(S){return startMin(S)+(S.warm==null?15:S.warm)}
+function startMin(S){const p=String(S.start||'14:00').split(':').map(Number);return (p[0]||0)*60+(p[1]||0)}
+function arrOk(S,si,n,t){const a=S.schools[si].meta[n].arr;return a==null||a<=t+10}
+function arrText(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+function num(v){return v===''||v==null||isNaN(+v)?null:+v}
+
+const GL={'賽':'比賽組','中':'中階組','休':'休閒組','all':''};
+function pickPair(S,si,ev,plays,used){
+  const sc=S.schools[si];
+  const cnt=n=>plays[si+'|'+n]||0;
+  const okp=n=>!S._avail||S._avail(si,n);
+  const take=(g,k)=>{
+    const av=grp=>rnd(sc.players.filter(n=>!used.has(n)&&okp(n)&&(g===''||sc.meta[n].g===g)&&sc.meta[n].grp===grp)).sort((x,y)=>cnt(x)-cnt(y));
+    const out=av('賽').slice(0,k);
+    if(out.length<k)av('中').slice(0,k-out.length).forEach(x=>out.push(x));
+    if(out.length<k)av('休').slice(0,k-out.length).forEach(x=>out.push(x));
+    return out.length===k?out:null;
+  };
+  const fixed=(g,compOnly)=>{
+    let best=null,bs=1e9;
+    rnd(sc.players).forEach(n=>{
+      const q=sc.meta[n].pair;
+      if(!q||!sc.meta[q]||used.has(n)||used.has(q)||!okp(n)||!okp(q)||sc.meta[n].g!==g||sc.meta[q].g!==g)return;
+      if(compOnly&&(sc.meta[n].grp!=='賽'||sc.meta[q].grp!=='賽'))return;
+      const s=cnt(n)+cnt(q);if(s<bs){bs=s;best=[n,q]}
+    });
+    return best;
+  };
+  if(ev==='男雙'||ev==='女雙'){
+    const g=ev==='男雙'?'男':'女';
+    return fixed(g,true)||take(g,2)||fixed(g,false);
+  }
+  if(ev==='混雙'){const m=take('男',1);if(!m)return null;const w=take('女',1);return w?[m[0],w[0]]:null}
+  return take('',2);
+}
+function schoolPairs(S,list){
+  const pools=S.schools.map(()=>[]);rnd(list).forEach(p=>pools[p.si].push(p));
+  const pairs=[];const total=()=>pools.reduce((s,p)=>s+p.length,0);
+  while(total()>=2){
+    const idx=[0,1,2].sort((x,y)=>pools[y].length-pools[x].length);
+    const p1=pools[idx[0]].pop();
+    const q=pools[idx[1]].length?pools[idx[1]].pop():pools[idx[0]].pop();
+    pairs.push({members:[p1,q]});
+  }
+  return {pairs,left:[].concat(pools[0],pools[1],pools[2])[0]};
+}
+function makeTeams(S,all){
+  const mOf=p=>(S.schools[p.si].meta||{})[p.n]||{};
+  const gOf=p=>mOf(p).g||'';
+  const teams=[];
+  const M=rnd(all.filter(p=>gOf(p)==='男')),W=rnd(all.filter(p=>gOf(p)==='女')),U=rnd(all.filter(p=>!gOf(p)));
+  U.forEach(p=>{(M.length<=W.length?M:W).push(p)});
+  while(M.length&&W.length){
+    const cm={},cw={};
+    M.forEach(p=>{cm[p.si]=(cm[p.si]||0)+1});W.forEach(p=>{cw[p.si]=(cw[p.si]||0)+1});
+    const mi=M.map((p,i)=>i).sort((x,y)=>cm[M[y].si]-cm[M[x].si])[0];
+    const m=M.splice(mi,1)[0];
+    let cand=W.map((p,i)=>i).filter(i=>W[i].si!==m.si);
+    if(!cand.length)cand=W.map((p,i)=>i);
+    const wi=cand.sort((x,y)=>cw[W[y].si]-cw[W[x].si])[0];
+    const w=W.splice(wi,1)[0];
+    teams.push({members:[m,w]});
+  }
+  const sp=schoolPairs(S,M.concat(W));
+  sp.pairs.forEach(t=>teams.push(t));
+  const left=sp.left;
+  if(left&&teams.length){
+    let cand=teams.filter(t=>t.members.length===2&&!t.members.some(m=>m.si===left.si));
+    if(!cand.length)cand=teams.filter(t=>t.members.length===2);
+    if(!cand.length)cand=teams;
+    rnd(cand)[0].members.push(left);
+  }
+  return rnd(teams);
+}
+function levelMap(all,courts,split){
+  const order=['賽','中','休'];const to={'賽':'賽','中':'中','休':'休'};
+  if(split){
+    for(;;){
+      const cnt={};all.forEach(p=>{const k=to[p.grp];cnt[k]=(cnt[k]||0)+1});
+      const keys=order.filter(k=>cnt[k]);
+      if(keys.length<=1)break;
+      let bad=keys.find(k=>cnt[k]<4);
+      if(!bad&&keys.length>courts)bad=keys.slice().sort((x,y)=>cnt[x]-cnt[y])[0];
+      if(!bad)break;
+      const i=keys.indexOf(bad);const tgt=i+1<keys.length?keys[i+1]:keys[i-1];
+      Object.keys(to).forEach(l=>{if(to[l]===bad)to[l]=tgt});
+    }
+  }
+  const keys=order.filter(k=>all.some(p=>to[p.grp]===k));
+  if(!split||keys.length<=1)return {keys:['all'],key:()=>'all'};
+  return {keys,key:p=>to[p.grp]};
+}
+function buildRotation(S,all,courts,R,offset,split,avail){
+  const lm=levelMap(all,courts,split);
+  const teams=[];
+  lm.keys.forEach(gk=>{makeTeams(S,all.filter(p=>lm.key(p)===gk)).forEach(t=>{t.grp=gk;teams.push(t)})});
+  const idx={};lm.keys.forEach(gk=>{idx[gk]=teams.map((t,i)=>i).filter(i=>teams[i].grp===gk)});
+  const alloc={};lm.keys.forEach(gk=>alloc[gk]=1);
+  if(lm.keys.length===1)alloc[lm.keys[0]]=courts;
+  else{
+    for(let left=courts-lm.keys.length;left>0;left--){
+      const c=lm.keys.filter(gk=>Math.floor(idx[gk].length/2)>alloc[gk]).sort((x,y)=>idx[y].length/alloc[y]-idx[x].length/alloc[x])[0];
+      if(!c)break;alloc[c]++;
+    }
+  }
+  const g=teams.map(()=>0);const met=teams.map(()=>teams.map(()=>0));
+  const rounds=[];
+  for(let r=0;r<R;r++){
+    const matches=[];let rest=[];let base=offset;
+    lm.keys.forEach(gk=>{
+      const ids=idx[gk];const M=Math.min(alloc[gk],Math.floor(ids.length/2));
+      const order=rnd(ids.filter(i=>!avail||avail(teams[i],r))).sort((x,y)=>g[x]-g[y]);
+      const chosen=order.slice(0,2*M);rest=rest.concat(order.slice(2*M));
+      let bestP=null,bc=1e9;
+      for(let tr=0;tr<60&&bc>0;tr++){
+        const un=rnd(chosen);const ps=[];let c=0;
+        while(un.length>1){
+          const t=un.shift();let best=0;
+          for(let i=1;i<un.length;i++)if(met[t][un[i]]<met[t][un[best]])best=i;
+          const o=un.splice(best,1)[0];c+=met[t][o]*10+(teams[t].grp===teams[o].grp?0:1);ps.push([t,o]);
+        }
+        if(c<bc){bc=c;bestP=ps}
+      }
+      let k=0;
+      (bestP||[]).forEach(([t,o])=>{
+        const ra=teams[t].members.length===3?g[t]%3:-1;
+        const rb=teams[o].members.length===3?g[o]%3:-1;
+        k++;
+        matches.push({a:t,b:o,court:base+k,grp:gk,sa:'',sb:'',ra,rb});
+        met[t][o]++;met[o][t]++;g[t]++;g[o]++;
+      });
+      base+=alloc[gk];
+    });
+    rounds.push({r,matches,rest});
+  }
+  return {teams,rounds,split:lm.keys.length>1,keys:lm.keys,alloc,min:0};
+}
+function lateNote(S){
+  const out=[];
+  S.schools.forEach((s,si)=>{const l=s.players.filter(n=>s.meta[n].arr!=null&&s.meta[n].arr>startMin(S)+5);if(l.length)out.push(s.name+'：'+l.map(n=>n+'（'+arrText(s.meta[n].arr)+' 到）').join('、')+' 到場前不排');});
+  return out;
+}
+function buildMixed(S,fm){
+  fm=fm||S.h2||buildFormal(S);
+  const st=startMin(S),end=st+S.span;
+  const mixStart=fStart(S)+fm.total*S.min2;
+  const R=Math.floor((end-mixStart)/S.min1);
+  const all=[];S.schools.forEach((s,si)=>s.players.forEach(n=>{const m=s.meta[n]||{};if(m.arr==null||m.arr<=end-S.min1)all.push({n,si,grp:m.grp||'賽'})}));
+  const notes=lateNote(S);
+  if(R<1){
+    notes.push('正式賽預計打到 '+arrText(mixStart)+'，已接近或超過活動結束時間（'+arrText(end)+'），沒有時間抽籤混搭。');
+    return {teams:[],rounds:[],split:false,keys:['all'],alloc:{},notes,names:S.schools.map(s=>s.name),sizes:S.schools.map(s=>s.players.length),start:arrText(mixStart),min1:S.min1,courts:S.courts};
+  }
+  const avail=(team,r)=>team.members.every(m=>arrOk(S,m.si,m.n,mixStart+r*S.min1));
+  const rot=all.length>=2?buildRotation(S,all,S.courts,R,0,!!S.split2,avail):{teams:[],rounds:[],split:false,keys:['all'],alloc:{}};
+  const mixn=Math.max(1,S.mixn||1);
+  if(rot.rounds&&rot.rounds.length){
+    const pc={};let keep=rot.rounds.length;
+    for(let i=0;i<rot.rounds.length;i++){
+      rot.rounds[i].matches.forEach(m=>{pc[m.a]=(pc[m.a]||0)+1;pc[m.b]=(pc[m.b]||0)+1});
+      const ids=rot.teams.map((t,j)=>j).filter(j=>rot.rounds.some(r=>r.matches.some(m=>m.a===j||m.b===j)));
+      if(ids.every(j=>(pc[j]||0)>=mixn)){keep=i+1;break}
+    }
+    rot.rounds=rot.rounds.slice(0,keep);
+  }
+  const levels=['賽','中','休'].filter(k=>all.some(p=>p.grp===k)).length;
+  if(S.split2&&levels>1&&!rot.split)notes.push('各程度組人數不足 4 人（或場地不夠分），抽籤混搭改為全部一起。');
+  return Object.assign(rot,{notes,names:S.schools.map(s=>s.name),sizes:S.schools.map(s=>s.players.length),start:arrText(mixStart),min1:S.min1,courts:S.courts});
+}
+function buildFormal(S){
+  const sz=S.schools.map(s=>s.players.length);
+  const hasG=S.schools.some(s=>s.players.some(n=>s.meta[n].g));
+  const only=S.schools.map(s=>hasG?(s.only||''):'');
+  const base=hasG?{'男雙':S.e1,'女雙':S.e2,'混雙':S.e3}:{'雙打':S.e1+S.e2+S.e3};
+  const pairs=[[0,1],[0,2],[1,2]];
+  const cons=pr=>(only[pr[0]]?1:0)+(only[pr[1]]?1:0);
+  pairs.sort((x,y)=>cons(y)-cons(x));
+  const rounds=pairs.map(([a,b])=>({a,b,games:[]}));
+  const notes=lateNote(S);
+  const evs=['男雙','女雙','混雙','雙打'];
+  const need={};
+  evs.forEach(ev=>{need[ev]=[0,0,0];pairs.forEach(([a,b])=>{
+    let cnt=base[ev]||0;if(!cnt)return;
+    if((only[a]&&only[a]!==ev)||(only[b]&&only[b]!==ev))return;
+    need[ev][a]=Math.max(need[ev][a],cnt);need[ev][b]=Math.max(need[ev][b],cnt)})});
+  const plays={};const loan={};
+  const chkT=fStart(S)+Math.max(30,S.min2*3);
+  S._avail=(si,n)=>arrOk(S,si,n,chkT);
+  const fixed={};
+  evs.forEach(ev=>{fixed[ev]=[[],[],[]];for(let si=0;si<3;si++){
+    const used=new Set();
+    if(only[si]===ev&&hasG){
+      const sc=S.schools[si];const av=g=>rnd(sc.players.filter(n=>sc.meta[n].g===g&&arrOk(S,si,n,fStart(S))));
+      const m=av('男'),w=av('女');const lst=[];
+      if(m.length===1&&w.length>=2){w.forEach(x=>lst.push([m[0],x]));m.length=0;w.length=0}
+      while(m.length&&w.length)lst.push([m.shift(),w.shift()]);
+      while(m.length>1)lst.push([m.shift(),m.shift()]);
+      while(w.length>1)lst.push([w.shift(),w.shift()]);
+      {const lf=m.concat(w);if(lf.length===1&&lst.length)lst.push([lf[0],lst[0][0]])}
+      fixed[ev][si]=lst.slice(0,need[ev][si]);
+      lst.slice(0,need[ev][si]).forEach(pr=>pr.forEach(n=>{plays[si+'|'+n]=(plays[si+'|'+n]||0)+1;if(sc.meta[n].grp!=='賽')loan[si]=1}));
+      continue;
+    }
+    for(let k=0;k<(need[ev][si]>0?Math.max(need[ev][si],6):0);k++){
+      const pr=pickPair(S,si,ev,plays,used);if(!pr)break;
+      pr.forEach(n=>{used.add(n);plays[si+'|'+n]=(plays[si+'|'+n]||0)+1;if(S.schools[si].meta[n].grp!=='賽')loan[si]=1});
+      fixed[ev][si].push(pr);
+    }
+    if(hasG&&!only[si]&&need[ev][si]&&(ev==='男雙'||ev==='女雙')){
+      const sc=S.schools[si],g=ev==='男雙'?'男':'女';
+      sc.players.forEach(n=>{
+        const m=sc.meta[n];
+        if(m.g!==g||used.has(n)||!arrOk(S,si,n,chkT))return;
+        const cand=sc.players.filter(x=>x!==n&&sc.meta[x].g===g&&arrOk(S,si,x,chkT)).sort((x,y)=>((used.has(x)?100:0)+(plays[si+'|'+x]||0))-((used.has(y)?100:0)+(plays[si+'|'+y]||0)));
+        if(!cand.length){notes.push(sc.name+'：'+n+' 晚到且沒有還沒排的搭檔，正式賽沒有排他（可在「先對打」頁點名字換人）');return}
+        used.add(n);used.add(cand[0]);plays[si+'|'+n]=(plays[si+'|'+n]||0)+1;plays[si+'|'+cand[0]]=(plays[si+'|'+cand[0]]||0)+1;
+        fixed[ev][si].push([n,cand[0]]);
+      });
+    }}});
+  S._avail=null;
+  const reqs=[];
+  evs.forEach(ev=>{pairs.forEach(([a,b],ri)=>{
+    if(!(base[ev]||0))return;
+    if((only[a]&&only[a]!==ev)||(only[b]&&only[b]!==ev))return;
+    const fa=fixed[ev][a],fb=fixed[ev][b];
+    if(!fa.length||!fb.length){if(sz[a]>=2&&sz[b]>=2)notes.push(S.schools[a].name+' vs '+S.schools[b].name+'：'+ev+' 人數不足，已取消');return}
+    const rotS=(si,f)=>only[si]&&f.length>1&&f.every(p=>p[0]===f[0][0]);
+    if(rotS(a,fa)){fb.forEach((pb,i)=>reqs.push({ev,ri,a,b,pa:fa[i%fa.length],pb}));return}
+    if(rotS(b,fb)){fa.forEach((pa,i)=>reqs.push({ev,ri,a,b,pa,pb:fb[i%fb.length]}));return}
+    fa.forEach(pa=>fb.forEach(pb=>reqs.push({ev,ri,a,b,pa,pb})));
+  })});
+  for(let i=reqs.length-1;i>=0;i--){const q=reqs[i];const vs=(si,ps)=>ps.some(n=>{const v=S.schools[si].meta[n].vs;return v&&v!==S.schools[si===q.a?q.b:q.a].name});if(vs(q.a,q.pa)||vs(q.b,q.pb))reqs.splice(i,1)}
+  const two=sz.filter(n=>n>=2).length===2&&reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');const half=Math.ceil(S.courts/2);
+  let slot=0;let pending=reqs.slice();const last={};
+  while(pending.length&&slot<60){
+    const curT=fStart(S)+slot*S.min2;
+    const used=[new Set(),new Set(),new Set()];let court=0;const ec={};
+    const cov=[false,false,false];
+    const nfOk=(si,n)=>!(slot===0&&S.schools[si].meta[n].nf);
+    const fit=q=>q.pa.every(n=>!used[q.a].has(n)&&arrOk(S,q.a,n,curT)&&nfOk(q.a,n))&&q.pb.every(n=>!used[q.b].has(n)&&arrOk(S,q.b,n,curT)&&nfOk(q.b,n));
+    while(court<S.courts){
+      let best=null,bs=-1e9;
+      const isCons=q=>q.pa.some(n=>last[q.a+'|'+n]===slot-1)||q.pb.some(n=>last[q.b+'|'+n]===slot-1);
+      const pickBest=(allow,lim)=>{for(let k=0;k<pending.length;k++){
+        const q=pending[k];if(!fit(q))continue;if(lim&&two&&(ec[q.ev]||0)>=half)continue;if(!allow&&isCons(q))continue;
+        let rem=0;const cntRem=(si,ps)=>ps.forEach(n=>{pending.forEach(z=>{if((z.a===si&&z.pa.indexOf(n)>=0)||(z.b===si&&z.pb.indexOf(n)>=0))rem++})});
+        cntRem(q.a,q.pa);cntRem(q.b,q.pb);
+        let rest=0;const rs=(si,ps)=>ps.forEach(n=>{const l=last[si+'|'+n];const d=l==null?3:slot-l;rest+=d<=1?-3000:(d===2?30:40+(Math.min(d,6)-2)*10)});
+        rs(q.a,q.pa);rs(q.b,q.pb);
+        const sc=rem*100+((cov[q.a]?0:1)+(cov[q.b]?0:1))*30+rest;
+        if(sc>bs){bs=sc;best={k,q}}
+      }};
+      pickBest(false,true);
+      if(!best)pickBest(true,true);
+      if(!best)pickBest(false,false);
+      if(!best)pickBest(true,false);
+      if(!best)break;
+      const {k,q}=best;
+      court++;ec[q.ev]=(ec[q.ev]||0)+1;cov[q.a]=cov[q.b]=true;
+      q.pa.forEach(n=>{used[q.a].add(n);last[q.a+'|'+n]=slot});q.pb.forEach(n=>{used[q.b].add(n);last[q.b+'|'+n]=slot});
+      rounds[q.ri].games.push({ev:q.ev,a:q.pa,b:q.pb,slot,court,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''});
+      pending.splice(k,1);
+    }
+    if(court===0&&curT>startMin(S)+S.span){break}
+    slot++;
+  }
+  pending.forEach(q=>notes.push(S.schools[q.a].name+' vs '+S.schools[q.b].name+'：'+q.ev+' 排不進時段，已取消'));
+  Object.keys(loan).forEach(i=>notes.push(S.schools[i].name+' 比賽組人數不足，部分點借用了中階組／休閒組選手'));
+  let total=0,maxC=0;
+  const cnt={};
+  rounds.forEach(r=>r.games.forEach(g=>{total=Math.max(total,g.slot+1);cnt[g.slot]=(cnt[g.slot]||0)+1;maxC=Math.max(maxC,cnt[g.slot])}));
+  return {rounds,total,notes,names:S.schools.map(s=>s.name),sizes:sz,start:arrText(fStart(S)),warm:S.warm==null?15:S.warm,min2:S.min2,courts:S.courts,maxC,sets:S.sets===3?3:1};
+}
+function gameStatus(g,sets){
+  if(sets===1){
+    const a=num(g.s1a),b=num(g.s1b);
+    if(a==null||b==null)return {wa:0,wb:0,da:0,db:0,done:false,pa:0,pb:0};
+    const done=a!==b;
+    return {wa:a>b?1:0,wb:b>a?1:0,da:a,db:b,done,pa:done&&a>b?1:0,pb:done&&b>a?1:0};
+  }
+  let wa=0,wb=0,da=0,db=0;
+  for(let k=1;k<=3;k++){
+    if(k===3&&wa!==wb)continue;
+    const a=num(g['s'+k+'a']),b=num(g['s'+k+'b']);
+    if(a==null||b==null)continue;
+    da+=a;db+=b;if(a>b)wa++;else if(b>a)wb++;
+  }
+  const done=wa>=2||wb>=2;
+  let pa=0,pb=0;
+  if(done){if(wa>=2)pa=1;else pb=1}
+  return {wa,wb,da,db,done,pa,pb};
+}
+function activeOf(team,rest){return team.members.filter((_,i)=>i!==rest)}
+function evStand(S,ev){
+  const st=S.h2.names.map((n,i)=>({si:i,name:n,sw:0,sl:0,diff:0,w3:0,l3:0,pf:0,pa:0,g3:0,gl3:0}));
+  S.h2.rounds.forEach(r=>r.games.forEach(g=>{
+    if(ev&&g.ev!==ev)return;
+    const q=gameStatus(g,S.h2.sets);
+    st[r.a].sw+=q.wa;st[r.a].sl+=q.wb;st[r.b].sw+=q.wb;st[r.b].sl+=q.wa;
+    st[r.a].diff+=q.da-q.db;st[r.b].diff+=q.db-q.da;
+    st[r.a].pf+=q.da;st[r.a].pa+=q.db;st[r.b].pf+=q.db;st[r.b].pa+=q.da;
+    const q3=gameStatus(g,3);
+    st[r.a].g3+=q3.wa;st[r.a].gl3+=q3.wb;st[r.b].g3+=q3.wb;st[r.b].gl3+=q3.wa;
+    if(q3.done){if(q3.wa>q3.wb){st[r.a].w3++;st[r.b].l3++}else{st[r.b].w3++;st[r.a].l3++}}
+  }));
+  return {fm:st.slice().sort((x,y)=>y.pf-x.pf||y.diff-x.diff),fm3:st.slice().sort((x,y)=>y.g3-x.g3||y.w3-x.w3||y.diff-x.diff)};
+}
+function computeStand(S){
+  const indiv={};
+  const ip=(si,n)=>indiv[si+'|'+n]||(indiv[si+'|'+n]={n,si,p:0,w:0});
+  let mix=[],fm=[],fm3=[];
+  if(S.h2){
+    const st=S.h2.names.map((n,i)=>({si:i,name:n,pts:0,pw:0,pl:0,sw:0,sl:0,diff:0,p3:0,w3:0,l3:0,pf:0,pa:0}));
+    S.h2.rounds.forEach(r=>r.games.forEach(g=>{
+      const q=gameStatus(g,S.h2.sets);
+      st[r.a].sw+=q.wa;st[r.a].sl+=q.wb;st[r.b].sw+=q.wb;st[r.b].sl+=q.wa;
+      st[r.a].diff+=q.da-q.db;st[r.b].diff+=q.db-q.da;
+      st[r.a].pf+=q.da;st[r.a].pa+=q.db;st[r.b].pf+=q.db;st[r.b].pa+=q.da;
+      const q3=gameStatus(g,3);
+      if(q3.done){st[r.a].p3+=q3.pa;st[r.b].p3+=q3.pb;if(q3.wa>q3.wb){st[r.a].w3++;st[r.b].l3++}else{st[r.b].w3++;st[r.a].l3++}}
+      if(q.done){
+        st[r.a].pts+=q.pa;st[r.b].pts+=q.pb;
+        g.a.forEach(n=>ip(r.a,n).p++);g.b.forEach(n=>ip(r.b,n).p++);
+        if(q.wa>q.wb){st[r.a].pw++;st[r.b].pl++;g.a.forEach(n=>ip(r.a,n).w++)}
+        else{st[r.b].pw++;st[r.a].pl++;g.b.forEach(n=>ip(r.b,n).w++)}
+      }
+    }));
+    fm=st.slice().sort((x,y)=>y.pf-x.pf||y.diff-x.diff);
+    fm3=st.slice().sort((x,y)=>y.w3-x.w3||(y.sw-y.sl)-(x.sw-x.sl)||y.diff-x.diff);
+  }
+  const sizes=(S.h2&&S.h2.sizes)||(S.h1&&S.h1.sizes)||[0,0,0];
+  const names=(S.h2&&S.h2.names)||(S.h1&&S.h1.names)||['','',''];
+  const list=Object.values(indiv).sort((x,y)=>y.w-x.w||x.p-y.p);
+  const school=[0,1,2].map(si=>{
+    const pts=list.filter(x=>x.si===si).reduce((s,x)=>s+x.w,0);
+    return {si,name:names[si],pts,avg:sizes[si]?pts/sizes[si]:0};
+  }).sort((x,y)=>y.avg-x.avg);
+  return {mix,fm,fm3,list,school};
+}
+//</LOGIC>
+
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const KEY='badminton-nnx26';
+const DEFAULT_RAW=[
+'春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*校長 男\n俊欽*東霖 男\n士弘*偉碩 男\n冠堯 男 @16:00',
+'明憲 男\n佳穎 女 休\n瓊娃 女 休\n孟哲 男\n玠諭 女\n溫師 男 @15:30 後',
+'致朋*建良 男\n俊程*正偉 男\n阿榮*裕豐 男\n藝方*倫蕙 女\n若凡*若菁 女\n曜如*素菁 女'];
+function freshS(){return {schools:[{name:'碧華',players:[],meta:{}},{name:'蘆洲',players:[],meta:{}},{name:'成功',players:[],meta:{}}],raw:DEFAULT_RAW.slice(),courts:4,start:'14:00',e1:3,e2:3,e3:0,split2:true,span:180,sets:1,min1:12,min2:12,h1:null,h2:null}}
+let S=freshS();
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice()}}}catch(e){}}
+
+function readSetup(){
+  S.raw=[0,1,2].map(i=>$('#pl'+i).value);
+  S.schools=[0,1,2].map(i=>{
+    const ent=parseEntries($('#pl'+i).value);
+    const names=uniq(ent.map(e=>e.n));const meta={};
+    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||''}});
+    return {name:$('#sn'+i).value.trim()||('學校'+(i+1)),players:names,meta,only:$('#only'+i).value};
+  });
+  S.courts=Math.max(1,Math.min(12,+$('#courts').value||1));
+  S.start=$('#start').value||'14:00';
+  S.warm=Math.max(0,Math.min(60,+$('#warm').value||0));
+  const ev=id=>Math.max(0,Math.min(6,Math.floor(+$(id).value||0)));
+  S.e1=ev('#e1');S.e2=ev('#e2');S.e3=ev('#e3');
+  if(S.e1+S.e2+S.e3===0)S.e3=1;
+  S.split2=$('#split2').checked;
+  S.min1=Math.max(5,+$('#min1').value||12);
+  S.min2=Math.max(8,+$('#min2').value||12);
+  S.mixn=Math.max(1,Math.min(6,+$('#mixn').value||1));
+  S.sets=+$('#sets').value===3?3:1;
+  S.onlyArr=[0,1,2].map(i=>$('#only'+i).value);
+  S.span=Math.max(60,+$("#span").value||180);
+}
+function writeSetup(){
+  [0,1,2].forEach(i=>{$('#only'+i).value=(S.onlyArr&&S.onlyArr[i]!=null)?S.onlyArr[i]:(i===1?'男雙':'');$('#sn'+i).value=S.schools[i].name;$('#pl'+i).value=(S.raw&&S.raw[i])||S.schools[i].players.join('\n')});
+  $('#courts').value=S.courts;$('#start').value=S.start;$('#warm').value=S.warm==null?15:S.warm;$('#e1').value=S.e1;$('#e2').value=S.e2;$('#e3').value=S.e3;$('#split2').checked=!!S.split2;$('#min1').value=S.min1;$('#min2').value=S.min2;$('#mixn').value=S.mixn||1;$('#sets').value=String(S.sets===3?3:1);$('#span').value=S.span||120;
+}
+function showTab(t){
+  $$('section').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  if(t==='stand')renderStand();
+  window.scrollTo(0,0);
+}
+function chip(name,si,school){return `<span class="chip sch${si}">${esc(name)}${school?`<small>${esc(school)}</small>`:''}</span>`}
+function hasScores(){
+  const a=S.h1&&S.h1.rounds.some(r=>r.matches.some(m=>m.sa!==''||m.sb!==''));
+  const b=S.h2&&S.h2.rounds.some(r=>r.games.some(g=>['s1a','s1b','s2a','s2b','s3a','s3b'].some(k=>g[k]!=='')));
+  return !!(a||b);
+}
+function armed(btn,fn,need){
+  if(!need){fn();return}
+  if(btn.dataset.arm){clearTimeout(btn._t);btn.textContent=btn.dataset.orig;delete btn.dataset.arm;fn();return}
+  btn.dataset.orig=btn.textContent;btn.dataset.arm='1';btn.textContent='再按一次確認（會清除比分）';
+  btn._t=setTimeout(()=>{btn.textContent=btn.dataset.orig;delete btn.dataset.arm},4000);
+}
+
+function renderEstimate(){
+  readSetup();
+  const sz=S.schools.map(s=>s.players.length);
+  [0,1,2].forEach(i=>{
+    const s=S.schools[i];const m=s.players.filter(n=>s.meta[n].g==='男').length,w=s.players.filter(n=>s.meta[n].g==='女').length;
+    const lv=k=>s.players.filter(n=>s.meta[n].grp===k).length;
+    $('#cnt'+i).textContent=sz[i]+'人｜男'+m+' 女'+w+'｜賽'+lv('賽')+' 中'+lv('中')+' 休'+lv('休');
+  });
+  const el=$('#estimate');
+  if(sz.filter(n=>n>=2).length<2){el.innerHTML='<div class="warn">至少要有 2 所學校各有 2 位以上選手才能排賽。</div>';return}
+  const lowS=S.schools.filter((s,i)=>sz[i]<2).map(s=>s.name);
+  const noG=!S.schools.some(s=>s.players.some(n=>s.meta[n].g));
+  const f=buildFormal(S);const need=f.total*S.min2;
+  const rem=S.span-S.warm-need;
+  let html='';
+  if(lowS.length)html+=`<div class="warn">${esc(lowS.join('、'))} 人數不足 2 人，正式賽不排該校（其餘學校照排）。</div>`;
+  if(noG)html+='<div class="warn">名單裡還沒有標性別，正式賽會排成不分性別的「雙打」。要排男雙／女雙／混雙，請在名字後面加「男」或「女」。</div>';
+  html+=`<div class="${rem<0?'warn':'ok'}">先對打（校際正式賽）：共 ${f.total} 個時段 × ${S.min2} 分 = ${need} 分鐘，開場 ${S.start}–${tm(S.start,S.warm)} 熱身、寫名字、講規則；正式賽 ${tm(S.start,S.warm)}–${tm(S.start,S.warm+need)} 打完${rem<0?`，超過活動總長度 ${-rem} 分鐘！建議每點預留縮短，或減少男雙／女雙／混雙場數。`:`，之後還剩 ${rem} 分鐘。`}　同時最多用 ${f.maxC} 面場地。</div>`;
+  f.notes.forEach(n=>{html+=`<div class="warn">${esc(n)}</div>`});
+  const total=sz[0]+sz[1]+sz[2];
+  const m=buildMixed(S,f);
+  if(m.rounds.length){
+    const mc=m.rounds.reduce((s,r)=>s+r.matches.length,0);
+    html+=`<div class="ok">有空再抽籤：${m.start} 起，${total} 人 → ${m.teams.length} 組，共 ${m.rounds.length} 輪，每組約打 ${Math.round(mc*2/Math.max(1,m.teams.length)*10)/10} 場${m.split?'（依程度分開）':''}。</div>`;
+  }
+  m.notes.forEach(n=>{html+=`<div class="warn">${esc(n)}</div>`});
+  el.innerHTML=html;
+}
+
+function memberChips(names,team,rest){
+  return team.members.map((m,i)=>`<span style="${i===rest?'opacity:.35':''}">${chip(m.n,m.si,names[m.si])}</span>`).join('');
+}
+function pairType(t){
+  if(t.members.length!==2)return '';
+  const g=t.members.map(m=>((S.schools[m.si].meta||{})[m.n]||{}).g||'');
+  if(!g[0]||!g[1])return '';
+  const k=g[0]===g[1]?(g[0]==='男'?'男雙':'女雙'):'混雙';
+  return `<span class="tag" style="background:var(--mustard)">${k}</span> `;
+}
+function rotHtml(rot,names,base,min,kind,reveal){
+  let t=`<h3>配對結果：共 ${rot.teams.length} 組</h3><div class="teams">`;
+  rot.teams.forEach((x,i)=>{
+    t+=`<div class="tbox ${reveal?'pop':''}" style="${reveal?'animation-delay:'+(i*90)+'ms':''}"><span class="team">第${i+1}組</span>${rot.split?`<span class="tag">${GL[x.grp]}</span> `:''}${pairType(x)}${x.members.map(m=>chip(m.n,m.si,names[m.si])).join('')}${x.members.length===3?'<div class="rest">3 人組，每場輪流 1 人休息</div>':''}</div>`;
+  });
+  t+='</div>';
+  let r='';
+  rot.rounds.forEach((rd,ri)=>{
+    r+=`<div class="sub">第 ${ri+1} 輪　${tm(base,ri*min)}–${tm(base,(ri+1)*min)}</div>`;
+    rd.matches.forEach((m,mi)=>{
+      r+=`<div class="game"><div class="court">場${m.court}${rot.split?'<br><small>'+GL[m.grp].replace('組','')+'</small>':''}</div><div class="side"><span class="team">第${m.a+1}組</span>${memberChips(names,rot.teams[m.a],m.ra)}</div><div class="score"><input class="sc" type="number" inputmode="numeric" min="0" data-k="${kind}" data-r="${ri}" data-g="${mi}" data-s="a" value="${esc(m.sa)}"><span>:</span><input class="sc" type="number" inputmode="numeric" min="0" data-k="${kind}" data-r="${ri}" data-g="${mi}" data-s="b" value="${esc(m.sb)}"></div><div class="side r"><span class="team">第${m.b+1}組</span>${memberChips(names,rot.teams[m.b],m.rb)}</div></div>`;
+    });
+    if(rd.rest.length)r+=`<div class="rest">本輪休息：${rd.rest.map(i=>'第'+(i+1)+'組').join('、')}</div>`;
+  });
+  return {t,r};
+}
+function renderH1(reveal){
+  const h=S.h1;
+  if(!h){$('#h1info').innerHTML='';$('#h1teams').innerHTML='<p class="muted">尚未抽籤。請先在「設定」頁填名單，再按「開始抽籤」。</p>';$('#h1rounds').innerHTML='';return}
+  $('#h1info').innerHTML=(h.notes||[]).map(n=>`<div class="warn">${esc(n)}</div>`).join('');
+  if(!h.rounds.length){$('#h1teams').innerHTML='<p class="muted">目前沒有可排的輪次（時間已排滿或人數不足）。</p>';$('#h1rounds').innerHTML='';return}
+  const x=rotHtml(h,h.names,h.start,h.min1,'h1',reveal);
+  $('#h1teams').innerHTML=x.t;
+  $('#h1rounds').innerHTML='<div class="card">'+x.r+'</div>';
+}
+
+function gtext(h,r,g){
+  const q=gameStatus(g,h.sets);
+  if(q.done)return `${q.wa}:${q.wb}　${h.names[r.a]} +${q.pa}分／${h.names[r.b]} +${q.pb}分`;
+  if(q.wa||q.wb||q.da||q.db)return `目前 ${q.wa}:${q.wb}`;
+  return h.sets===1?'單局決勝':'三戰兩勝';
+}
+function rtext(h,r){
+  let pa=0,pb=0;r.games.forEach(g=>{const q=gameStatus(g,h.sets);if(q.done){pa+=q.pa;pb+=q.pb}});
+  return `積分 ${esc(h.names[r.a])} ${pa} : ${pb} ${esc(h.names[r.b])}`;
+}
+function updRound(ri){
+  const h=S.h2,r=h.rounds[ri];
+  r.games.forEach((g,gi)=>{const e=document.getElementById('gs-'+ri+'-'+gi);if(e)e.textContent=gtext(h,r,g)});
+  const e=document.getElementById('rs-'+ri);if(e)e.innerHTML=rtext(h,r);
+}
+function renderH2(){
+  const h=S.h2,el=$('#h2body');
+  if(!h){el.innerHTML='<p class="muted">尚未產生。請先到「設定」頁填名單並按「排好賽程（先對打）」。</p>';$('#h2info').innerHTML='';return}
+  const need=h.total*h.min2;
+  const start=h.start;
+  let info=`<div class="ok">${tm(start,-h.warm)}–${start}：全體熱身、寫名字、講解規則（${h.warm} 分鐘）。<br>正式賽共 ${h.total} 個時段 × ${h.min2} 分 = ${need} 分鐘，預計 ${start}–${tm(start,need)} 打完；打不完可續打。</div>`;
+  (h.notes||[]).forEach(n=>{info+=`<div class="warn">${esc(n)}</div>`});
+  if(h.maxC<h.courts)info+=`<div class="ok">場${h.maxC+1}${h.courts>h.maxC+1?'–場'+h.courts:''} 沒有正式賽，可讓非比賽組自由打。</div>`;
+  info+=`<div class="muted">非比賽組（中階組、休閒組）請擔任記分、裁判與加油。</div><div class="ok">✏️ 要換人：直接點選手名字，就能換成別人（比分不會被清掉）。</div>`;
+  $('#h2info').innerHTML=info;$('#h2sets').value=String(h.sets===3?3:1);
+  let html='';
+  for(let s=0;s<h.total;s++){
+    html+=`<div class="card" style="background:#fff"><div class="rhead"><b>${tm(start,s*h.min2)}–${tm(start,(s+1)*h.min2)}</b></div>`;
+    h.rounds.forEach((r,ri)=>{
+      r.games.forEach((g,gi)=>{
+        if(g.slot!==s)return;
+        let sets='';
+        for(let k=1;k<=(h.sets===1?1:3);k++){
+          sets+=`<div class="setrow"><span>${h.sets===1?'比分':'第'+k+'局'+(k===3?'(1:1才打)':'')}</span><input class="sc" type="number" inputmode="numeric" min="0" data-k="h2" data-r="${ri}" data-g="${gi}" data-s="${k}a" value="${esc(g['s'+k+'a'])}"><span>:</span><input class="sc" type="number" inputmode="numeric" min="0" data-k="h2" data-r="${ri}" data-g="${gi}" data-s="${k}b" value="${esc(g['s'+k+'b'])}"></div>`;
+        }
+        html+=`<div class="game"><div class="court">場${g.court}${g.ev?'<br><small>'+g.ev+'</small>':''}</div><div class="side">${swapHtml(g.a,r.a,ri,gi,'a')}</div><div class="sets">${sets}<div class="gstat" id="gs-${ri}-${gi}">${gtext(h,r,g)}</div></div><div class="side">${swapHtml(g.b,r.b,ri,gi,'b')}</div></div>`;
+      });
+    });
+    html+='</div>';
+  }
+  html+='<div class="card" style="background:#fff"><b>各校戰績</b>'+h.rounds.map((r,ri)=>`<div class="rhead"><span class="tag sch${r.a}">${esc(h.names[r.a])}</span> vs <span class="tag sch${r.b}">${esc(h.names[r.b])}</span><span class="rsum" id="rs-${ri}">${rtext(h,r)}</span></div>`).join('')+'</div>';
+  el.innerHTML=html;
+}
+
+function renderStand(){
+  const R=computeStand(S);
+  const el=$('#standBody');
+  if(!S.h2){el.innerHTML='<div class="card"><p class="muted">還沒有正式賽資料。（抽籤混搭不算成績）</p></div>';return}
+  let html='';
+  if(R.fm.length){
+    const evs=['男雙','女雙','混雙','雙打'].filter(ev=>S.h2.rounds.some(r=>r.games.some(g=>g.ev===ev)));
+    const groups=evs.length>1?evs.concat(['']):[evs[0]||''];
+    const icon={'男雙':'👨','女雙':'👩','混雙':'👫','雙打':'🏸','':'🏆'};
+    html+='<div class="evbar">'+groups.map(ev=>`<button type="button" data-jump="ev-${ev||'all'}">${ev||'合計'}</button>`).join('')+'</div>';
+    groups.forEach(ev=>{
+      const E=evStand(S,ev||null);
+      html+=`<div class="card" id="ev-${ev||'all'}"><h2>${icon[ev]} ${ev?ev:'全部合計'}</h2>`;
+      html+='<h3>積分制（羽球分數加總）</h3><table><tr><th>名次</th><th class="l">學校</th><th>總得分</th></tr>';
+      E.fm.forEach((s,i)=>{html+=`<tr><td>${i+1}</td><td class="l"><span class="tag sch${s.si}">${esc(s.name)}</span></td><td><b>${s.pf}</b></td></tr>`});
+      html+='</table><h3 style="margin-top:14px">勝局制（贏一局得 1 分）</h3><table><tr><th>名次</th><th class="l">學校</th><th>積分（贏的局數）</th><th>輸的局數</th></tr>';
+      E.fm3.forEach((s,i)=>{html+=`<tr><td>${i+1}</td><td class="l"><span class="tag sch${s.si}">${esc(s.name)}</span></td><td><b>${s.g3}</b></td><td>${s.gl3}</td></tr>`});
+      html+='</table></div>';
+    });
+    html+='<div class="muted" style="margin:-4px 4px 14px">積分制：所有羽球分數加總。勝局制：每贏一局得 1 分。</div>';
+  }
+  html+='<div class="card"><h2>🏫 校際總勝場（正式賽）</h2><table><tr><th>名次</th><th class="l">學校</th><th>總勝場（人次）</th><th>人均勝場</th></tr>';
+  R.school.forEach((s,i)=>{html+=`<tr><td>${i+1}</td><td class="l"><span class="tag sch${s.si}">${esc(s.name)}</span></td><td>${s.pts}</td><td>${(Math.round(s.avg*100)/100)}</td></tr>`});
+  html+='</table><div class="muted">每位選手贏一場，為該校加 1 分；以人均勝場排名。這張表是趣味總表，正式名次以上面的積分制／勝局制為準。</div></div>';
+  if(R.list.length){
+    const nm=S.h2.names;
+    html+='<div class="card"><h2>🏸 個人勝場榜</h2><table><tr><th>名次</th><th class="l">選手</th><th>出賽</th><th>勝</th></tr>';
+    R.list.slice(0,15).forEach((x,i)=>{html+=`<tr><td>${i+1}</td><td class="l">${chip(x.n,x.si,nm[x.si])}</td><td>${x.p}</td><td>${x.w}</td></tr>`});
+    html+='</table></div>';
+  }
+  el.innerHTML=html;
+}
+
+/* 文字匯出 */
+function pn(p){return p.join('＋')}
+function rotText(rot,names,base,min){
+  let t='';
+  rot.teams.forEach((x,i)=>{t+=`第${i+1}組${rot.split?'('+GL[x.grp]+')':''}：${x.members.map(m=>m.n+'('+names[m.si]+')').join('＋')}\n`});
+  rot.rounds.forEach((r,ri)=>{
+    t+=`\n▍第${ri+1}輪 ${tm(base,ri*min)}\n`;
+    r.matches.forEach(m=>{t+=`  場${m.court}${rot.split?'['+GL[m.grp]+']':''}：第${m.a+1}組 vs 第${m.b+1}組\n`});
+    if(r.rest.length)t+=`  休息：${r.rest.map(i=>'第'+(i+1)+'組').join('、')}\n`;
+  });
+  return t;
+}
+function text1(){
+  const h=S.h1;if(!h)return '';
+  return `【羽球交流賽｜有空再抽籤 混搭】\n\n`+rotText(h,h.names,h.start,h.min1);
+}
+function text2(){
+  const h=S.h2;if(!h)return '';
+  const st=h.start;
+  let t=`【羽球交流賽｜先對打 校際正式賽】\n`+(h.sets===1?'每點只打 1 局；積分制＝所有羽球分數加總\n':'每點三戰兩勝（贏一局得 1 分）\n');
+  t+=`\n${tm(st,-h.warm)}–${st} 熱身、寫名字、講解規則\n`;
+  for(let s=0;s<h.total;s++){
+    t+=`\n▍${tm(st,s*h.min2)}–${tm(st,(s+1)*h.min2)}\n`;
+    h.rounds.forEach(r=>r.games.forEach(g=>{if(g.slot===s)t+=`  場${g.court}[${g.ev}] ${h.names[r.a]} ${pn(g.a)} vs ${h.names[r.b]} ${pn(g.b)}\n`}));
+  }
+  return t;
+}
+/* PDF 下載：名單＋記分表 */
+const PCOL=['#E0759C','#D08A45','#4E95C4'];
+const PFONT='font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+function pTag(name,si){return `<span style="display:inline-block;padding:0 5px;border-radius:3px;color:#fff;font-size:11px;margin-right:3px;background:${PCOL[si]}">${esc(name)}</span>`}
+function pPair(p,si,names){return pTag(names[si],si)+p.map(esc).join('＋')}
+const PBLANK='<span style="display:inline-block;width:30px;border-bottom:1px solid #4a4540;height:15px"></span>';
+function pScore(g,sets){
+  if(sets===1){return (g.s1a!==''&&g.s1b!=='')?`<b>${esc(g.s1a)} : ${esc(g.s1b)}</b>`:`${PBLANK} : ${PBLANK}`}
+  return [1,2,3].map(k=>(g['s'+k+'a']!==''&&g['s'+k+'b']!=='')?`<b>${esc(g['s'+k+'a'])}:${esc(g['s'+k+'b'])}</b>`:`<small>${k}局</small>${PBLANK}:${PBLANK}`).join('<br>');
+}
+function sheetPages(){
+  const T='border-collapse:collapse;width:100%;margin-bottom:8px',C='border:1px solid #BFB3CC;padding:5px 6px;text-align:center;font-size:12px',TH=C+';background:#E4D8EE;';
+  const page=(title,sub,body)=>`<div class="pdfpage" style="width:794px;height:1123px;padding:36px 40px;background:#fff;color:#2E1F3F;${PFONT};overflow:hidden"><div style="font-size:20px;font-weight:bold;color:#6C2D91">${title}</div><div style="color:#6F5F85;font-size:12px;margin:3px 0 10px">${sub}</div>${body}</div>`;
+  const h2=S.h2,h1=S.h1,names=S.schools.map(s=>s.name),pages=[];
+  let r='<div style="display:flex;gap:8px">';
+  S.schools.forEach((s,si)=>{
+    r+=`<div style="flex:1"><div style="background:${PCOL[si]};color:#fff;font-weight:bold;text-align:center;padding:5px">${esc(s.name)}（${s.players.length} 人）${s.only?'　只打'+esc(s.only):''}</div><table style="${T}"><tr><th style="${TH}">姓名</th><th style="${TH}">性別</th><th style="${TH}">備註</th></tr>`;
+    s.players.forEach(n=>{
+      const m=s.meta[n]||{},note=[];
+      if(m.arr!=null)note.push(arrText(m.arr)+' 到');
+      if(m.grp==='休')note.push('休閒組');if(m.grp==='中')note.push('中階組');
+      if(m.bind&&m.pair)note.push('固定搭檔 '+m.pair);if(m.nf)note.push('不排第一場');if(m.vs)note.push('只對'+m.vs);
+      r+=`<tr><td style="${C}">${esc(n)}</td><td style="${C}">${esc(m.g||'')}</td><td style="${C};text-align:left;font-size:11px;color:#6F5F85">${esc(note.join('、'))}</td></tr>`;
+    });
+    r+='</table></div>';
+  });
+  r+='</div><div style="color:#6F5F85;font-size:12px">規則：正式賽每點打 1 局（勝 1 分），同分比勝點、得分差。非比賽組請擔任記分、裁判與加油。</div>';
+  pages.push(page('羽球交流賽 by NNX　名單',`活動 ${esc(S.start)} 開始｜開場 ${S.warm==null?15:S.warm} 分鐘熱身、寫名字、講解規則｜${S.courts} 面球場`,r));
+  if(h2){
+    const rows=[],games=[];
+    h2.rounds.forEach(rd=>rd.games.forEach(g=>games.push({g,rd})));
+    games.sort((x,y)=>x.g.slot-y.g.slot||x.g.court-y.g.court);
+    let cur=-1;
+    games.forEach(({g,rd})=>{
+      if(g.slot!==cur){cur=g.slot;rows.push({h:`${tm(h2.start,cur*h2.min2)}–${tm(h2.start,(cur+1)*h2.min2)}`})}
+      rows.push({g,rd});
+    });
+    const PER=24,chunks=[];let c=[];
+    rows.forEach(x=>{
+      if(c.length>=PER||(c.length>=PER-1&&x.h)){chunks.push(c);c=[]}
+      c.push(x);
+    });
+    if(c.length)chunks.push(c);
+    chunks.forEach((ch,ci)=>{
+      let t=`<table style="${T}"><tr><th style="${TH};width:44px">場地</th><th style="${TH}">項目</th><th style="${TH}">一方</th><th style="${TH};width:110px">比數</th><th style="${TH}">另一方</th></tr>`;
+      ch.forEach(x=>{
+        if(x.h)t+=`<tr><td colspan="5" style="${C};background:#EEE6F4;font-weight:bold;text-align:left">${x.h}</td></tr>`;
+        else t+=`<tr><td style="${C}">場${x.g.court}</td><td style="${C}">${esc(x.g.ev||'')}</td><td style="${C};text-align:left">${pPair(x.g.a,x.rd.a,names)}</td><td style="${C}">${pScore(x.g,h2.sets===1?1:3)}</td><td style="${C};text-align:left">${pPair(x.g.b,x.rd.b,names)}</td></tr>`;
+      });
+      t+='</table>';
+      pages.push(page('先對打：校際正式賽　記分表'+(chunks.length>1?`（${ci+1}/${chunks.length}）`:''),`每點 ${h2.min2} 分鐘，${h2.sets===1?'每點 1 局':'三戰兩勝'}`,t));
+    });
+  }
+  let tt=`<table style="${T}"><tr><th style="${TH}">學校</th><th style="${TH}">勝點</th><th style="${TH}">負點</th><th style="${TH}">得分差</th><th style="${TH}">積分</th><th style="${TH}">名次</th></tr>`;
+  names.forEach((n,si)=>{tt+=`<tr><td style="${C};background:${PCOL[si]};color:#fff;font-weight:bold;height:34px">${esc(n)}</td><td style="${C}"></td><td style="${C}"></td><td style="${C}"></td><td style="${C}"></td><td style="${C}"></td></tr>`});
+  tt+=`</table><div style="font-weight:bold;color:#6C2D91;margin:12px 0 6px">個人勝場</div><table style="${T}"><tr>`+['姓名','學校','勝場','姓名','學校','勝場'].map(x=>`<th style="${TH}">${x}</th>`).join('')+'</tr>';
+  for(let i=0;i<14;i++)tt+=`<tr>${('<td style="'+C+';height:24px"></td>').repeat(6)}</tr>`;
+  tt+='</table>';
+  pages.push(page('校際積分總表','每勝 1 點得 1 分；同分比勝點、得分差。',tt));
+  if(h1&&h1.teams&&h1.teams.length){
+    let m=`<div style="font-weight:bold;color:#6C2D91;margin:4px 0 6px">組合名單</div><table style="${T}"><tr><th style="${TH};width:56px">組別</th><th style="${TH}">成員</th></tr>`;
+    h1.teams.forEach((t,i)=>{m+=`<tr><td style="${C}">第${i+1}組</td><td style="${C};text-align:left">${t.members.map(x=>pTag(names[x.si],x.si)+esc(x.n)).join('　')}</td></tr>`});
+    m+='</table>';
+    pages.push(page('有空再抽籤：混搭',`${esc(h1.start)} 起，每輪 ${h1.min1} 分鐘`,m));
+    const nm=k=>h1.teams[k].members.map(x=>x.n).join('＋');
+    let q=`<table style="${T}"><tr><th style="${TH}">場地</th><th style="${TH}">一方</th><th style="${TH};width:110px">比數</th><th style="${TH}">另一方</th></tr>`;
+    h1.rounds.forEach((rd,ri)=>{
+      q+=`<tr><td colspan="4" style="${C};background:#EEE6F4;font-weight:bold;text-align:left">第${ri+1}輪　${tm(h1.start,ri*h1.min1)}–${tm(h1.start,(ri+1)*h1.min1)}</td></tr>`;
+      rd.matches.forEach(x=>{
+        const sc=(x.sa!==''&&x.sa!=null&&x.sb!==''&&x.sb!=null)?`<b>${esc(x.sa)} : ${esc(x.sb)}</b>`:`${PBLANK} : ${PBLANK}`;
+        q+=`<tr><td style="${C}">場${x.court}</td><td style="${C};text-align:left">第${x.a+1}組 <small style="color:#6F5F85">${esc(nm(x.a))}</small></td><td style="${C}">${sc}</td><td style="${C};text-align:left">第${x.b+1}組 <small style="color:#6F5F85">${esc(nm(x.b))}</small></td></tr>`;
+      });
+    });
+    q+='</table>';
+    pages.push(page('有空再抽籤：混搭　記分表','',q));
+  }
+  return pages;
+}
+function loadLib(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+let pdfBusy=false;
+async function exportPdf(){
+  if(pdfBusy)return;
+  readSetup();
+  if(!S.h2){toast('請先排好正式賽程');return}
+  let dl=null;
+  try{dl=await (window.claude&&claude.use?claude.use('downloads'):null)}catch(e){}
+  pdfBusy=true;toast('產生 PDF 中…');
+  const holder=document.createElement('div');holder.style.cssText='position:fixed;left:-10000px;top:0;width:794px';document.body.appendChild(holder);
+  try{
+    if(!window.html2canvas)await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    if(!(window.jspdf&&window.jspdf.jsPDF))await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    holder.innerHTML=sheetPages().join('');
+    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+    const els=holder.querySelectorAll('.pdfpage');
+    for(let i=0;i<els.length;i++){
+      const cv=await window.html2canvas(els[i],{scale:2,backgroundColor:'#ffffff'});
+      if(i)pdf.addPage();
+      pdf.addImage(cv.toDataURL('image/jpeg',0.92),'JPEG',0,0,210,297);
+    }
+    if(dl)await dl.save({filename:'羽球交流賽_名單與記分表.pdf',data:pdf.output('arraybuffer')});
+    else pdf.save('羽球交流賽_名單與記分表.pdf');
+    toast('已送出下載');
+  }catch(e){
+    toast(e&&e.code==='declined'?'已取消下載':'PDF 產生失敗，請再試一次');
+  }
+  holder.remove();pdfBusy=false;
+}
+function copyOut(id,text){
+  const ta=$(id);ta.style.display='block';ta.value=text;ta.select();
+  let ok=false;
+  try{navigator.clipboard.writeText(text).then(()=>toast('已複製'),()=>toast('請長按文字框選取複製'));ok=true}catch(e){}
+  if(!ok)toast('請長按文字框選取複製');
+}
+
+/* 動作 */
+function gen2(){
+  readSetup();
+  const sz=S.schools.map(s=>s.players.length);
+  if(sz.filter(n=>n>=2).length<2){toast('至少要有 2 所學校各有 2 位以上選手');return}
+  S.h2=buildFormal(S);S.h1=null;save();renderH2();renderH1();showTab('h2');
+  toast('正式賽已排好；打完後再到「有空抽籤」頁抽籤');
+}
+function drawH1(){
+  readSetup();
+  const total=S.schools.reduce((s,x)=>s+x.players.length,0);
+  if(total<4){toast('全部至少要 4 位選手');return}
+  const all=[];S.schools.forEach(s=>s.players.forEach(n=>all.push(n)));
+  const box=$('#draw'),fl=$('#flick');
+  box.classList.add('on');$('#h1teams').innerHTML='';$('#h1rounds').innerHTML='';$('#h1info').innerHTML='';
+  const iv=setInterval(()=>{fl.textContent=all[Math.floor(Math.random()*all.length)]},70);
+  setTimeout(()=>{
+    clearInterval(iv);box.classList.remove('on');
+    if(!S.h2){S.h2=buildFormal(S);renderH2()}
+    S.h1=buildMixed(S,S.h2);save();renderH1(true);
+  },1500);
+}
+
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.classList&&t.classList.contains('sc')){
+    const k=t.dataset.k,r=+t.dataset.r,g=+t.dataset.g,s=t.dataset.s;
+    if(k==='h2'){S.h2.rounds[r].games[g]['s'+s]=t.value;updRound(r)}
+    else{S.h1.rounds[r].matches[g][s==='a'?'sa':'sb']=t.value}
+    save();return;
+  }
+  if(t.closest&&t.closest('#tab-setup')){renderEstimate();save()}
+});
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)showTab(b.dataset.tab)});
+$('#sample').addEventListener('click',()=>{
+  [0,1,2].forEach(i=>{$('#pl'+i).value=DEFAULT_RAW[i]});
+  $('#sn0').value='碧華';$('#sn1').value='蘆洲';$('#sn2').value='成功';renderEstimate();save();toast('已還原預設名單');
+});
+$('#gen1').addEventListener('click',function(){armed(this,gen2,!!S.h2&&hasScores())});
+$('#regen2').addEventListener('click',function(){armed(this,gen2,!!S.h2&&hasScores())});
+$('#drawBtn').addEventListener('click',function(){armed(this,drawH1,!!S.h1&&hasScores())});
+$('#copy1').addEventListener('click',()=>{$('#out2').style.display='none';copyOut('#out1',text1())});
+$('#copy2').addEventListener('click',()=>copyOut('#out2',text2()));
+$('#pdf1').addEventListener('click',exportPdf);
+$('#pdf2').addEventListener('click',exportPdf);
+$('#resetAll').addEventListener('click',function(){
+  armed(this,()=>{
+    S=freshS();
+    try{localStorage.removeItem(KEY)}catch(e){}
+    writeSetup();renderEstimate();renderH1();renderH2();toast('已清空');
+  },true);
+});
+
+load();writeSetup();renderEstimate();renderH1();renderH2();
+
+/* 正式賽換人 */
+function swapHtml(pair,si,ri,gi,side){return pair.map((n,k)=>`<button type="button" class="chip sch${si}" data-sw="${ri}|${gi}|${side}|${k}">${esc(n)}</button>`).join('＋')}
+let SW=null;
+function openSwap(key){
+  const [ri,gi,side,k]=key.split('|');const r=S.h2.rounds[+ri],g=r.games[+gi];
+  const si=side==='a'?r.a:r.b,old=(side==='a'?g.a:g.b)[+k];
+  SW={ri:+ri,gi:+gi,side,k:+k,si,old,pick:''};
+  const cnt=S.h2.rounds.reduce((c,rr)=>c+rr.games.filter(x=>(rr.a===si?x.a:rr.b===si?x.b:[]).includes(old)).length,0);
+  $('#swInfo').textContent=`${S.h2.names[si]}｜把「${old}」換成：`;
+  $('#swAllTxt').textContent=`「${old}」所有的場次都一起換（共 ${cnt} 場）`;
+  $('#swAll').checked=true;$('#swName').value='';
+  const sc=S.schools[si]||{players:[],meta:{}};
+  const busy=new Set((side==='a'?g.a:g.b));
+  const lv={'中':'中階','休':'休閒'};
+  $('#swOpts').innerHTML=sc.players.filter(n=>!busy.has(n)).map(n=>{const m=sc.meta[n]||{};return `<button type="button" data-pick="${esc(n)}">${esc(n)}<small>${esc(m.g||'')}${lv[m.grp]?' '+lv[m.grp]:''}</small></button>`}).join('')||'<span class="muted">名單裡沒有其他人，請在下面輸入名字。</span>';
+  $('#swapBg').classList.add('on');
+}
+function closeSwap(){$('#swapBg').classList.remove('on');SW=null}
+function doSwap(){
+  if(!SW)return;
+  const nn=($('#swName').value.trim()||SW.pick).trim();
+  if(!nn){toast('請選一位或輸入名字');return}
+  if(nn===SW.old){closeSwap();return}
+  const h=S.h2,si=SW.si,all=$('#swAll').checked;let n=0;
+  h.rounds.forEach((r,ri)=>r.games.forEach((g,gi)=>{
+    ['a','b'].forEach(sd=>{
+      if((sd==='a'?r.a:r.b)!==si)return;
+      const arr=sd==='a'?g.a:g.b;
+      arr.forEach((x,k)=>{
+        if(x!==SW.old)return;
+        if(!all&&!(ri===SW.ri&&gi===SW.gi&&sd===SW.side&&k===SW.k))return;
+        if(arr.includes(nn))return;
+        arr[k]=nn;n++;
+      });
+    });
+  }));
+  const clash=[];
+  h.rounds.forEach(r=>r.games.forEach(g=>{
+    const ps=(r.a===si?g.a:[]).concat(r.b===si?g.b:[]);
+    if(ps.includes(nn))clash.push(g.slot);
+  }));
+  const dup=clash.filter((t,i)=>clash.indexOf(t)!==i);
+  save();renderH2();closeSwap();
+  toast(dup.length?`已換 ${n} 場；注意：${nn} 在 ${tm(h.start,dup[0]*h.min2)} 同時段有兩場`:`已換成「${nn}」，共 ${n} 場`);
+}
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-sw]');if(c){openSwap(c.dataset.sw);return}
+  const pk=e.target.closest('[data-pick]');if(pk&&SW){SW.pick=pk.dataset.pick;$('#swName').value='';$$('#swOpts button').forEach(b=>b.classList.toggle('on',b===pk));return}
+});
+$('#swOk').addEventListener('click',doSwap);
+$('#swCancel').addEventListener('click',closeSwap);
+$('#swapBg').addEventListener('click',e=>{if(e.target.id==='swapBg')closeSwap()});
+$('#swName').addEventListener('input',()=>{if(SW){SW.pick='';$$('#swOpts button').forEach(b=>b.classList.remove('on'))}});
+
+document.addEventListener('click',e=>{const j=e.target.closest('[data-jump]');if(j){const t=document.getElementById(j.dataset.jump);if(t)window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-70,behavior:'smooth'})}});
+/* 儲存賽程（存在這台裝置的瀏覽器） */
+let SAVED=[];
+const LKEY='badminton-nnx26-saved';
+function snap(){const o=JSON.parse(JSON.stringify(S));delete o.savedId;delete o.savedName;return o}
+function fmtT(ms){const d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function localList(){try{return JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){return []}}
+function localPut(arr){try{localStorage.setItem(LKEY,JSON.stringify(arr))}catch(e){}}
+function renderSaved(){
+  const cur=S.savedId;
+  $('#saveBtn').textContent=cur?'💾 儲存（更新「'+(S.savedName||'這份')+'」）':'💾 儲存賽程';
+  $('#saveNew').style.display=cur?'':'none';
+  let html;
+  if(!SAVED.length)html='還沒有儲存的賽程。排好正式賽後，到「先對打」頁按「💾 儲存賽程」。';
+  else html=SAVED.map(x=>`<div class="sitem ${x.id===cur?'cur':''}"><div class="nm"><b>${esc(x.name||'未命名賽程')}</b><span class="muted">${fmtT(x.savedAt)} 儲存${x.id===cur?'｜目前開著':''}</span></div><button class="btn" data-open="${esc(x.id)}">打開</button><button class="btn ghost" data-del="${esc(x.id)}">刪除</button></div>`).join('');
+  $$('.savedList').forEach(e=>{e.innerHTML=html});
+}
+function doSave(asNew){
+  readSetup();
+  if(!S.h2){toast('請先排好賽程再儲存');return}
+  const id=(!asNew&&S.savedId)||('s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+  const name=$('#saveName').value.trim()||(!asNew&&S.savedName)||(fmtT(Date.now())+' 賽程');
+  const rec={id,name,savedAt:Date.now(),state:JSON.stringify(snap())};
+  const l=localList().filter(x=>x.id!==id);l.unshift(rec);localPut(l);SAVED=l;
+  S.savedId=id;S.savedName=name;save();$('#saveName').value='';renderSaved();
+  toast('已儲存：'+name);
+}
+function openSaved(id){
+  const x=SAVED.find(r=>r.id===id);if(!x)return;
+  let o;try{o=JSON.parse(x.state)}catch(e){toast('這份資料讀不出來');return}
+  S=Object.assign(freshS(),o,{savedId:id,savedName:x.name});
+  writeSetup();renderEstimate();
+  S=Object.assign(S,{h1:o.h1||null,h2:o.h2||null});
+  save();renderH1();renderH2();renderSaved();showTab('h2');toast('已打開：'+(x.name||''));
+}
+function delSaved(id,btn){
+  armed(btn,()=>{
+    SAVED=localList().filter(x=>x.id!==id);localPut(SAVED);
+    if(S.savedId===id){S.savedId=null;S.savedName=null;save()}
+    renderSaved();toast('已刪除');
+  },true);
+}
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]');if(o){openSaved(o.dataset.open);return}
+  const d=e.target.closest('[data-del]');if(d){delSaved(d.dataset.del,d)}
+});
+$('#h2sets').addEventListener('change',e=>{const v=+e.target.value===3?3:1;S.sets=v;$('#sets').value=String(v);if(S.h2){S.h2.sets=v;renderH2()}save()});
+$('#saveBtn').addEventListener('click',()=>doSave(false));
+$('#saveNew').addEventListener('click',()=>doSave(true));
+$('#saveMsg').textContent='儲存在這台裝置的瀏覽器，換手機或電腦不會同步。';
+SAVED=localList();renderSaved();
+</script>
+</body>
+</html>

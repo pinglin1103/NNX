@@ -19,3 +19,11 @@
 網址：<https://pinglin1103.github.io/NNX/shizi/>（檔案在 `shizi/index.html`）
 
 認識生字、看圖配對、語詞測驗、回想記憶、生字練習（描紅）。每課有自己的 QR 碼。
+
+---
+
+## 羽球交流賽 by NNX
+
+網址：<https://pinglin1103.github.io/NNX/badminton/>（檔案在 `badminton/index.html`）
+
+三校教師羽球交流賽排程：正式賽（積分制）→ 打不完續打 → 有空再抽籤混搭；可下載名單與記分表 PDF。
