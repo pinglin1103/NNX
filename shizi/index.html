@@ -326,6 +326,16 @@ h1 .u{color:#C9776E}
 .ans{font-size:14px;color:#666;font-family:"Noto Sans TC",sans-serif;margin-top:18px;border-top:1px dashed #999;padding-top:6px}
 @media print{body.wsp>*:not(#wsBox){display:none!important}body.wsp #wsBox{position:static;display:block!important;background:none;padding:0;overflow:visible}body.wsp .wsbar{display:none}body.wsp .wspage{box-shadow:none;margin:0;max-width:none;padding:0}@page{size:A4;margin:12mm}}
 @media (max-width:600px){.tq{font-size:40px}.tq .bigc{font-size:76px}.opt.zyo{font-size:26px}.rc{width:52px;font-size:28px}}
+/* 評分 */
+.scorebadge{background:linear-gradient(180deg,#FFFDF8,#F4EADC);border-radius:999px;padding:4px 12px;font-size:14px;box-shadow:0 3px 0 #E2D0B8;white-space:nowrap}
+.scorebadge b{color:#C9776E;margin:0 2px 0 3px}
+.scorepop{position:fixed;inset:0;z-index:35;background:rgba(90,70,54,.4);display:flex;align-items:center;justify-content:center;animation:pop .25s}
+.sc-card{background:linear-gradient(180deg,#FFFDF8,#F4EADC);border-radius:28px;padding:22px 34px;text-align:center;box-shadow:0 10px 0 #E2D0B8,0 20px 40px rgba(0,0,0,.25);min-width:260px}
+.sc-t{font-size:20px;color:var(--soft)}
+.sc-n{font-size:84px;line-height:1.1;color:#C9776E}.sc-n small{font-size:26px}
+.sc-s{font-size:34px;margin:2px 0 6px}
+.sc-m{font-size:16px;color:var(--soft);margin-bottom:12px}
+@media (max-width:600px){.scorebadge{font-size:12px;padding:3px 8px}}
 /* 同學們頭像 */
 .hright{display:flex;align-items:center;gap:10px}
 .pals{display:flex}
@@ -441,7 +451,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
 <div class="wrap">
 <header>
   <h1><span class="u" id="hUnit"></span><span id="hName"></span><span class="slogan">－我會認字，也會玩遊戲！</span><small>by 恩緹老師</small></h1>
-  <div class="hright"><div class="pals" id="pals"></div><div class="stars">⭐ <span id="star">0</span></div></div>
+  <div class="hright"><div class="pals" id="pals"></div><div class="scorebadge" id="scoreBadge" style="display:none"></div><div class="stars">⭐ <span id="star">0</span></div></div>
 </header>
 <nav id="nav">
   <button data-t="read">📖 <span>課文點讀</span></button>
@@ -938,7 +948,7 @@ function go(v,g,l,push=true){
   document.title=`互動識字小教室 ${BOOKS[V].name}${BOOKS[V].g[G].name}${lab(L)} by 恩緹老師`;
   store.set("nnxLit",`${V}-${G}-${L}`);
   if(push){try{history.replaceState(null,"",`#${V}-${G}-${L}`)}catch(e){location.hash=`${V}-${G}-${L}`}}
-  buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();syncRead();}
+  buildLearn();newMatch();newQuiz();newRecall();buildWrite();newTest();syncRead();showBadge();}
 $("verBox").onclick=e=>{const b=e.target.closest(".vb");if(b)go(b.dataset.v,G,-1)};
 $("grSel").onchange=e=>go(V,e.target.value,-1);
 $("lesSel").onchange=e=>go(V,G,+e.target.value);
@@ -989,6 +999,22 @@ function addWordCard(w){const b=document.createElement("button");b.className="ca
 function showWordsOf(o){$("wordList").innerHTML="";
   const ws=WORDS.filter(w=>w.from===o.c||w.t.includes(o.c));ws.filter(w=>w.book).concat(ws.filter(w=>!w.book&&!w.sent),ws.filter(w=>!w.book&&w.sent)).forEach(addWordCard)}
 
+/* ===== 評分：每課每個遊戲 80～100 分（全部第一次就答對＝100，都錯＝80） ===== */
+const GNAME={match:"看圖配對",quiz:"語詞測驗",recall:"回想記憶",test:"生字評量"};
+function score80(k,n){return n?Math.round(80+20*k/n):100}
+function lessonKey(){return `${V}-${G}-${L}`}
+function getScores(){try{return JSON.parse(store.get("nnxLitScore")||"{}")}catch(e){return{}}}
+function showBadge(){const sc=getScores()[lessonKey()]||{};const ks=Object.keys(GNAME).filter(g=>sc[g]!=null);
+  $("scoreBadge").innerHTML=ks.length?`🏅 本課 ${ks.map(g=>`${GNAME[g].slice(0,2)}<b>${sc[g]}</b>`).join("・")}`:"";$("scoreBadge").style.display=ks.length?"":"none"}
+function showScore(game,k,n){const sc=score80(k,n),all=getScores(),key=lessonKey();all[key]=all[key]||{};
+  const best=all[key][game]==null||sc>all[key][game];if(best)all[key][game]=sc;store.set("nnxLitScore",JSON.stringify(all));showBadge();
+  const d=document.createElement("div");d.className="scorepop";
+  d.innerHTML=`<div class="sc-card"><div class="sc-t">${GNAME[game]}　成績</div><div class="sc-n">${sc}<small> 分</small></div>
+   <div class="sc-s">${"⭐".repeat(sc>=100?3:sc>=90?2:1)}</div><div class="sc-m">第一次就答對 ${k} / ${n} 題${best?"　🎉 新紀錄！":""}</div>
+   <button class="btn">繼續 ➜</button></div>`;
+  d.querySelector("button").onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);
+  sfx(true);say(sc>=100?"一百分，太厲害了！":sc>=90?`${sc}分，很棒喔！`:`${sc}分，再加油！`);return sc}
+
 /* ===== 2 看圖配對 ===== */
 let selPic=null;
 function clue(o){ // 字的提示卡：圖 → 語詞圖 → 聽聲音
@@ -999,7 +1025,7 @@ function clue(o){ // 字的提示卡：圖 → 語詞圖 → 聽聲音
   if(st)return{html:`<span class="sub">${zyH(st.t,st.z,o.c)}</span><span class="ear" style="font-size:22px">🔊</span>`,say:st.s||st.t};
   return{html:`<span class="ear">🔊<small>聽一聽</small></span>`,say:o.c};}
 function newMatch(){
-  const set=shuffle(CH).slice(0,6);let left=set.length;selPic=null;$("mMsg").textContent="";$("mMsg").className="msg";
+  const set=shuffle(CH).slice(0,6);let left=set.length;const missed=new Set();selPic=null;$("mMsg").textContent="";$("mMsg").className="msg";
   $("mPics").innerHTML="";$("mWords").innerHTML="";
   shuffle(set).forEach(o=>{const k=clue(o);const p=document.createElement("div");p.className="mpic";p.innerHTML=k.html;p.dataset.c=o.c;p.draggable=true;
     const pick=()=>{if(p.classList.contains("done"))return;document.querySelectorAll(".mpic").forEach(x=>x.classList.remove("sel"));p.classList.add("sel");selPic=p;say(k.say)};
@@ -1008,8 +1034,9 @@ function newMatch(){
   shuffle(set).forEach(o=>{const t=document.createElement("div");t.className="mword";t.innerHTML=zyH(o.c,o.z);
     const tryIt=()=>{if(!selPic||t.classList.contains("done"))return;
       if(selPic.dataset.c===o.c){selPic.classList.remove("sel");selPic.classList.add("done");t.classList.add("done");say(o.c);addStar(1,t);selPic=null;left--;
-        $("mMsg").className="msg ok";$("mMsg").textContent=left?"答對了！👏":"全部配對成功！你好棒！🎉"}
-      else{t.classList.add("shake");selPic.classList.add("shake");setTimeout(()=>document.querySelectorAll(".shake").forEach(x=>x.classList.remove("shake")),400);
+        $("mMsg").className="msg ok";$("mMsg").textContent=left?"答對了！👏":"全部配對成功！你好棒！🎉";
+        if(!left)setTimeout(()=>showScore("match",set.length-missed.size,set.length),700)}
+      else{missed.add(selPic.dataset.c);t.classList.add("shake");selPic.classList.add("shake");setTimeout(()=>document.querySelectorAll(".shake").forEach(x=>x.classList.remove("shake")),400);
         sfx(false);$("mMsg").className="msg bad";$("mMsg").textContent="不對喔！字卡重新洗牌，再仔細看一次！";
         setTimeout(()=>{const box=$("mWords");shuffle([...box.children]).forEach(n=>box.appendChild(n))},450)}};
     t.onclick=tryIt;t.ondragover=e=>{e.preventDefault();t.classList.add("over")};t.ondragleave=()=>t.classList.remove("over");t.ondrop=e=>{e.preventDefault();t.classList.remove("over");tryIt()};
@@ -1037,6 +1064,7 @@ function showQ(){const it=qList[qi];if(!it)return;const {o,w}=it;
     $("qOpts").appendChild(b)})};
   render();}
 $("qNext").onclick=()=>{qi++;if(qi<qList.length)return showQ();
+  if(!qRe)showScore("quiz",qList.length-qMiss.length,qList.length);
   if(qMiss.length){qList=shuffle(qMiss);qMiss=[];qi=0;qRe=true;showQ();$("qMsg").className="msg bad";$("qMsg").textContent=`剛剛有 ${qList.length} 題錯了，我們再練一次！💪`}
   else{newQuiz();$("qMsg").className="msg ok";$("qMsg").textContent="全部都會了！🎉 再玩一輪"}};
 
@@ -1058,6 +1086,7 @@ $("rTip").onclick=()=>{const {o}=rList[ri];rLv++;
   else if(rLv===1){$("rHint").innerHTML=`<span class="gh">${o.c}</span>`;say(o.c);rLv=2}
   else{$("rHint").innerHTML=`<span class="gh">${o.c}</span>`;say(o.c)}};
 $("rNext").onclick=()=>{ri++;if(ri<rList.length)return showR();
+  if(!rRe)showScore("recall",rList.length-rMiss.length,rList.length);
   if(rMiss.length){rList=shuffle(rMiss);rMiss=[];ri=0;rRe=true;showR();$("rMsg").className="msg bad";$("rMsg").textContent=`有 ${rList.length} 題要再練一次，加油！💪`}
   else{newRecall();$("rMsg").className="msg ok";$("rMsg").textContent="全部自己寫對了！🎉 再來一輪"}};
 
@@ -1097,8 +1126,8 @@ function zyBox(z){let s=z||"",nt="",tn="";if(s[0]==="˙"){nt='<i class="nt">˙</
   const l=s.slice(-1);if("ˊˇˋ".includes(l)){tn=l;s=s.slice(0,-1)}
   const a=[...s];return `<span class="zyv">${nt}<span class="col">${a.map((c,i)=>`<b>${c}${i===a.length-1&&tn?`<em>${tn}</em>`:""}</b>`).join("")}</span></span>`}
 const TNAME={listen:"聽音選字",zy:"看字選注音",cloze:"語詞填空"};
-function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filter(r=>r.ok).length,pct=n?Math.round(k/n*100):0;
-  const lv=pct>=90?"🏆 太厲害了！":pct>=70?"🌟 很棒喔！":pct>=50?"💪 再加油！":"🌱 我們再練習一下！";
+function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filter(r=>r.ok).length,pct=score80(k,n);
+  const lv=pct>=100?"🏆 太厲害了！":pct>=95?"🌟 很棒喔！":pct>=90?"💪 再加油！":"🌱 我們再練習一下！";
   const les=BOOKS[V].g[G].les[L],name=`${BOOKS[V].name}${BOOKS[V].g[G].name} ${lab(L)}${les[0]?" "+les[0]:""}`;
   let hist=[];try{hist=JSON.parse(store.get("nnxLitTest")||"[]")}catch(e){}
   const d=new Date();hist.unshift({t:`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`,n:name,k,c:n,miss:tRes.filter(r=>!r.ok).map(r=>r.c).join("")});hist=hist.slice(0,20);store.set("nnxLitTest",JSON.stringify(hist));
@@ -1108,10 +1137,11 @@ function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filte
    <div class="rgrid">${tRes.map(r=>`<div class="rc kai${r.ok?"":" no"}" title="${TNAME[r.type]}">${r.c}<small>${r.ok?"✔":"✘ 選"+r.pick}</small></div>`).join("")}</div>
    <div class="sub">綠色＝會了　紅色＝要再練（題型：${[...new Set(tRes.map(r=>TNAME[r.type]))].join("、")}）</div>
    <div class="bar">${miss.length?`<button class="btn rose" id="tRetry">🔁 只考錯的 ${miss.length} 個字</button>`:""}<button class="btn" id="tAgain">🔄 全部再考一次</button><button class="btn alt" id="tPrint">🖨️ 列印成績單</button></div>
-   <div class="hist"><b>最近紀錄（這台裝置）</b><br>${hist.slice(0,6).map(h=>`${h.t}　${h.n}　<b>${h.k}/${h.c}</b>${h.miss?"　錯："+h.miss:""}`).join("<br>")}</div></div>`;
+   <div class="hist"><b>最近紀錄（這台裝置）</b><br>${hist.slice(0,6).map(h=>`${h.t}　${h.n}　<b>${score80(h.k,h.c)} 分</b>（${h.k}/${h.c}）${h.miss?"　錯："+h.miss:""}`).join("<br>")}</div></div>`;
   $("tEnd").style.display="";tProg();
-  if(pct>=70)for(let i=0;i<6;i++)setTimeout(()=>addStar(0,$("tEnd").querySelector(".score")),i*150);
-  say(pct>=90?"太厲害了！":pct>=70?"很棒喔！":"再加油！");
+  {const all=getScores(),key=lessonKey();all[key]=all[key]||{};if(all[key].test==null||pct>all[key].test)all[key].test=pct;store.set("nnxLitScore",JSON.stringify(all));showBadge()}
+  if(pct>=95)for(let i=0;i<6;i++)setTimeout(()=>addStar(0,$("tEnd").querySelector(".score")),i*150);
+  say(`${pct}分，`+(pct>=100?"太厲害了！":pct>=90?"很棒喔！":"再加油！"));
   if(miss.length)$("tRetry").onclick=()=>newTest(CH.filter(o=>miss.some(m=>m.c===o.c)));
   $("tAgain").onclick=()=>newTest();$("tPrint").onclick=()=>window.print()}
 
