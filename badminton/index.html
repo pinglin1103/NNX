@@ -148,6 +148,7 @@ li{margin:3px 0}
   <div class="card">
     <h2>混雙｜抽籤混搭（正式賽打完後）</h2>
     <div class="muted">全部選手一起抽籤，優先配成混雙（男女搭配），男生或女生剩下才配男雙、女雙；搭檔盡量來自不同學校，並依程度分組、輪流對戰，每個人都有球打。單數人時會有一組 3 人，輪流 2 人上場。</div>
+    <div style="max-width:300px;margin:8px 0"><label>混雙開始時間（不填＝接在正式賽之後；還沒排正式賽就從熱身後開始）</label><input type="time" id="mixAt"></div>
     <button class="btn" id="drawBtn">🎲 開始抽籤</button>
     <button class="btn ghost" id="copy1">轉成文字（貼 LINE）</button>
     <button class="btn" id="pdf1">⬇ 下載 PDF（名單＋記分表）</button>
@@ -456,9 +457,9 @@ function lateNote(S){
   return out;
 }
 function buildMixed(S,fm){
-  fm=fm||S.h2||buildFormal(S);
+  fm=fm||S.h2||null;
   const st=startMin(S),end=st+S.span;
-  const mixStart=fStart(S)+fm.total*S.min2;
+  const mt=/^(\d{1,2}):(\d{2})$/.exec(S.mixAt||'');const mixStart=mt?(+mt[1])*60+(+mt[2]):fStart(S)+(fm?fm.total*S.min2:0);
   const R=Math.floor((end-mixStart)/S.min1);
   const all=[];S.schools.forEach((s,si)=>s.players.forEach(n=>{const m=s.meta[n]||{};if(m.arr==null||m.arr<=end-S.min1)all.push({n,si,grp:m.grp||'賽'})}));
   const notes=lateNote(S);
@@ -691,10 +692,11 @@ function readSetup(){
   S.sets=+$('#sets').value===3?3:1;
   S.onlyArr=[0,1,2].map(i=>$('#only'+i).value);
   S.span=Math.max(60,+$("#span").value||180);
+  S.mixAt=$('#mixAt').value||'';
 }
 function writeSetup(){
   [0,1,2].forEach(i=>{$('#only'+i).value=(S.onlyArr&&S.onlyArr[i]!=null)?S.onlyArr[i]:(i===1?'男雙':'');$('#sn'+i).value=S.schools[i].name;$('#pl'+i).value=(S.raw&&S.raw[i])||S.schools[i].players.join('\n')});
-  $('#courts').value=S.courts;$('#start').value=S.start;$('#warm').value=S.warm==null?15:S.warm;$('#e1').value=S.e1;$('#e2').value=S.e2;$('#e3').value=S.e3;$('#split2').checked=!!S.split2;$('#min1').value=S.min1;$('#min2').value=S.min2;$('#mixn').value=S.mixn||1;$('#sets').value=String(S.sets===3?3:1);$('#span').value=S.span||120;
+  $('#courts').value=S.courts;$('#start').value=S.start;$('#warm').value=S.warm==null?15:S.warm;$('#e1').value=S.e1;$('#e2').value=S.e2;$('#e3').value=S.e3;$('#split2').checked=!!S.split2;$('#min1').value=S.min1;$('#min2').value=S.min2;$('#mixn').value=S.mixn||1;$('#sets').value=String(S.sets===3?3:1);$('#span').value=S.span||120;$('#mixAt').value=S.mixAt||'';
 }
 function showTab(t){
   $$('section').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
@@ -1016,8 +1018,7 @@ function drawH1(){
   const iv=setInterval(()=>{fl.textContent=all[Math.floor(Math.random()*all.length)]},70);
   setTimeout(()=>{
     clearInterval(iv);box.classList.remove('on');
-    if(!S.h2){S.h2=buildFormal(S);renderH2()}
-    S.h1=buildMixed(S,S.h2);save();renderH1(true);
+    S.h1=buildMixed(S,S.h2||null);save();renderH1(true);
   },1500);
 }
 
