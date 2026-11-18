@@ -547,6 +547,29 @@ function buildFormal(S){
     fa.forEach(pa=>fb.forEach(pb=>reqs.push({ev,ri,a,b,pa,pb})));
   })});
   for(let i=reqs.length-1;i>=0;i--){const q=reqs[i];const vs=(si,ps)=>ps.some(n=>{const v=S.schools[si].meta[n].vs;return v&&v!==S.schools[si===q.a?q.b:q.a].name});if(vs(q.a,q.pa)||vs(q.b,q.pb))reqs.splice(i,1)}
+  {const MING=5,cn={},meet={};const K=(si,p)=>si+'|'+p.join('+');
+  reqs.forEach(q=>{const ka=K(q.a,q.pa),kb=K(q.b,q.pb);cn[ka]=(cn[ka]||0)+1;cn[kb]=(cn[kb]||0)+1;const mk=ka+'#'+kb;meet[mk]=(meet[mk]||0)+1});
+  const late=(si,p)=>p.some(n=>S.schools[si].meta[n].arr!=null);
+  const vsOk=(si,p,oi)=>p.every(n=>{const v=S.schools[si].meta[n].vs;return !v||v===S.schools[oi].name});
+  const cand=[];evs.forEach(ev=>{if(!(base[ev]||0))return;for(let si=0;si<3;si++)fixed[ev][si].forEach(p=>cand.push({ev,si,p}))});
+  for(let it=0;it<80;it++){
+    const lows=cand.filter(c=>!late(c.si,c.p)&&(cn[K(c.si,c.p)]||0)<MING).sort((x,y)=>(cn[K(x.si,x.p)]||0)-(cn[K(y.si,y.p)]||0));
+    let done=false;
+    for(const c of lows){
+      const opp=cand.filter(o=>o.ev===c.ev&&o.si!==c.si&&!(only[c.si]&&only[c.si]!==c.ev)&&!(only[o.si]&&only[o.si]!==c.ev)&&vsOk(c.si,c.p,o.si)&&vsOk(o.si,o.p,c.si));
+      if(!opp.length)continue;
+      const mt=o=>{const k1=K(c.si,c.p)+'#'+K(o.si,o.p),k2=K(o.si,o.p)+'#'+K(c.si,c.p);return (meet[k1]||0)+(meet[k2]||0)};
+      opp.sort((x,y)=>(mt(x)*100+(cn[K(x.si,x.p)]||0))-(mt(y)*100+(cn[K(y.si,y.p)]||0)));
+      const o=opp[0];
+      const ri=pairs.findIndex(([x,y])=>(x===c.si&&y===o.si)||(x===o.si&&y===c.si));
+      const a=pairs[ri][0],b=pairs[ri][1];
+      const pa=a===c.si?c.p:o.p,pb=a===c.si?o.p:c.p;
+      reqs.push({ev:c.ev,ri,a,b,pa,pb});
+      const ka=K(a,pa),kb=K(b,pb);cn[ka]=(cn[ka]||0)+1;cn[kb]=(cn[kb]||0)+1;meet[ka+'#'+kb]=(meet[ka+'#'+kb]||0)+1;
+      done=true;break;
+    }
+    if(!done)break;
+  }}
   const two=sz.filter(n=>n>=2).length===2&&reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');const half=Math.ceil(S.courts/2);const both=reqs.some(q=>q.ev==='男雙')&&reqs.some(q=>q.ev==='女雙');
   let slot=0;let pending=reqs.slice();const last={};
   while(pending.length&&slot<60){
