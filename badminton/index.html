@@ -296,6 +296,7 @@ function parseEntries(t){
       if(grp.length&&am){grp.forEach(c=>{c.arr=(+am[1])*60+(+am[2])});return}
       if(grp.length&&NF[x]){grp.forEach(c=>{c.nf=true});return}
       {const vm=/^[對对](.+)$/.exec(x);if(grp.length&&vm){grp.forEach(c=>{c.vs=vm[1]});return}}
+      {const sm=/^代(.+)$/.exec(x);if(grp.length&&sm){grp.forEach(c=>{c.sub=sm[1]});return}}
       if(grp.length&&FG[x]){grp.forEach(c=>{c.g=FG[x]})}
       else if(grp.length&&FP[x]){grp.forEach(c=>{c.grp=FP[x]})}
       else{
@@ -509,6 +510,8 @@ function buildFormal(S){
     if(only[si]===ev&&hasG){
       const sc=S.schools[si];const av=g=>rnd(sc.players.filter(n=>sc.meta[n].g===g&&arrOk(S,si,n,fStart(S))));
       const m=av('男'),w=av('女');const lst=[];
+      {const taken=new Set();sc.players.forEach(n=>{const q=sc.meta[n].pair;if(q&&sc.meta[n].bind&&sc.meta[q]&&!taken.has(n)&&!taken.has(q)&&arrOk(S,si,n,fStart(S))&&arrOk(S,si,q,fStart(S))){taken.add(n);taken.add(q);lst.push([n,q])}});
+      [m,w].forEach(arr=>{for(let i=arr.length-1;i>=0;i--)if(taken.has(arr[i]))arr.splice(i,1)})}
       if(m.length===1&&w.length>=2){w.forEach(x=>lst.push([m[0],x]));m.length=0;w.length=0}
       while(m.length&&w.length)lst.push([m.shift(),w.shift()]);
       while(m.length>1)lst.push([m.shift(),m.shift()]);
@@ -598,12 +601,13 @@ function buildFormal(S){
       const {k,q}=best;
       court++;ec[q.ev]=(ec[q.ev]||0)+1;cov[q.a]=cov[q.b]=true;
       q.pa.forEach(n=>{used[q.a].add(n);last[q.a+'|'+n]=slot});q.pb.forEach(n=>{used[q.b].add(n);last[q.b+'|'+n]=slot});
-      rounds[q.ri].games.push({ev:q.ev,a:q.pa,b:q.pb,slot,court,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''});
+      rounds[q.ri].games.push({ev:q.ev,a:q.pa.slice(),b:q.pb.slice(),slot,court,s1a:'',s1b:'',s2a:'',s2b:'',s3a:'',s3b:''});
       pending.splice(k,1);
     }
     if(court===0&&curT>startMin(S)+S.span){break}
     slot++;
   }
+  S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(!m.sub||m.arr==null)return;let c=0;rounds.forEach(r=>r.games.forEach(g=>{const t=fStart(S)+g.slot*S.min2;if(!arrOk(S,si,n,t))return;[['a',r.a],['b',r.b]].forEach(([sd,s2])=>{if(s2!==si)return;const arr=g[sd];const i=arr.indexOf(m.sub);if(i>=0&&!arr.includes(n)){arr[i]=n;c++}})}));notes.push(sc.name+'：'+n+' 到場後頂'+m.sub+'的位子（'+arrText(m.arr)+' 起，共 '+c+' 點）')}));
   pending.forEach(q=>notes.push(S.schools[q.a].name+' vs '+S.schools[q.b].name+'：'+q.ev+' 排不進時段，已取消'));
   Object.keys(loan).forEach(i=>notes.push(S.schools[i].name+' 比賽組人數不足，部分點借用了中階組／休閒組選手'));
   let total=0,maxC=0;
@@ -686,7 +690,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 const KEY='badminton-nnx26';
 const DEFAULT_RAW=[
 '春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*校長 男\n俊欽*東霖 男\n士弘*偉碩 男\n冠堯 男 @16:00',
-'明憲 男\n先賢 男\n瓊娃 女 休\n玠諭 女\n佳穎 女 休\n宸灝 男 @15:30 後',
+'明憲*宸灝 男\n孟哲 男 * 玠諭 女\n瓊娃*佳穎 女 休\n先賢 男 @15:30 代孟哲',
 '致朋*建良 男\n俊程*正偉 男\n阿榮*裕豐 男\n藝方*倫蕙 女\n若凡*若菁 女\n曜如*素菁 女'];
 function freshS(){return {schools:[{name:'碧華',players:[],meta:{}},{name:'蘆洲',players:[],meta:{}},{name:'成功',players:[],meta:{}}],raw:DEFAULT_RAW.slice(),courts:4,start:'14:00',e1:3,e2:3,e3:0,split2:true,span:180,sets:1,min1:12,min2:12,h1:null,h2:null}}
 let S=freshS();
@@ -700,7 +704,7 @@ function readSetup(){
   S.schools=[0,1,2].map(i=>{
     const ent=parseEntries($('#pl'+i).value);
     const names=uniq(ent.map(e=>e.n));const meta={};
-    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||''}});
+    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||'',sub:ent[k].sub||''}});
     return {name:$('#sn'+i).value.trim()||('學校'+(i+1)),players:names,meta,only:$('#only'+i).value};
   });
   S.courts=Math.max(1,Math.min(12,+$('#courts').value||1));
