@@ -1,0 +1,270 @@
+<!doctype html><html><head><meta charset=utf8><link rel="icon" type="image/png" href="../shizi/favicon.png"><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>教學工具箱 by NNX</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: a teacher's tool shelf — warm header with name, category chips, then a grid of tool cards; owner-only manage mode edits the list in place */
+:root{
+  --bg:#f2efea; --paper:#fbf9f6; --ink:#3b3836; --muted:#7a736d; --line:#ddd6cd;
+  --sage:#8fa58f; --rose:#c49a94; --blue:#8c9fb3; --sand:#c8b18d; --plum:#a08ca6; --clay:#b38b72;
+  --accent:#6f8a72; --accent-ink:#ffffff; --focus:#d4a95c; --danger:#a5574a;
+  --f-display:"LXGW WenKai TC","Kaiti TC","DFKai-SB","BiauKai",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#22201e; --paper:#2c2927; --ink:#ece6df; --muted:#ada49b; --line:#433e3a;
+  --sage:#7f957f; --rose:#a9807a; --blue:#7c8ea2; --sand:#a8946f; --plum:#8d7a93; --clay:#9c7660;
+  --accent:#93ad95; --accent-ink:#1b1f1b; --focus:#e0b86a; --danger:#d98a7c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#22201e; --paper:#2c2927; --ink:#ece6df; --muted:#ada49b; --line:#433e3a;
+  --sage:#7f957f; --rose:#a9807a; --blue:#7c8ea2; --sand:#a8946f; --plum:#8d7a93; --clay:#9c7660;
+  --accent:#93ad95; --accent-ink:#1b1f1b; --focus:#e0b86a; --danger:#d98a7c; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:36px 72px}
+header{display:grid;gap:10px;margin-bottom:26px}
+.eyebrow{font-size:.85rem;letter-spacing:.18em;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.1rem,6vw,3.2rem);line-height:1.15;margin:0;text-wrap:balance}
+h1 .by{font-family:var(--f-body);font-size:.36em;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-left:.6em;vertical-align:middle;white-space:nowrap}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+.stripe{display:flex;height:6px;border-radius:999px;overflow:hidden;max-width:260px}
+.stripe i{flex:1}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.95rem;padding:6px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip small{color:inherit;opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+.search{font:inherit;font-size:.95rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 14px;width:min(100%,240px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.filters{display:grid;gap:8px;min-width:0}
+.frow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.flabel{font-size:.85rem;color:var(--muted);letter-spacing:.08em;min-width:3.5em}
+.chip.big{font-weight:700}
+.groups{display:grid;gap:28px}
+.grp-h{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;font-family:var(--f-display);font-size:1.5rem}
+.grp-h small{font-family:var(--f-body);font-size:.85rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.card .top{padding:18px 18px 0;display:flex;gap:14px;align-items:flex-start}
+.mark{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.6rem;color:#fff}
+.card h3.tn{font-family:var(--f-display);font-size:1.3rem;line-height:1.35;margin:2px 0 4px;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.78rem;padding:1px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.who{border-color:transparent;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--ink)}
+.card p{margin:12px 18px 0;color:var(--muted);font-size:.95rem;overflow-wrap:anywhere}
+.card .foot{margin-top:auto;padding:16px 18px 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.open{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:700;padding:8px 18px;border-radius:999px}
+.open:hover{background:var(--accent);color:var(--accent-ink)}
+.ed{display:none;gap:6px;flex-wrap:wrap}
+.managing .ed{display:flex}
+.btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;padding:6px 12px;border-radius:999px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.btn.warn{color:var(--danger);border-color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:default}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 16px;border:1px dashed var(--line);border-radius:18px}
+.manage{margin-top:30px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px}
+.manage .note{color:var(--muted);font-size:.9rem}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px;display:grid;gap:12px}
+.panel h3{margin:0;font-family:var(--f-display);font-size:1.25rem}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.form label{display:grid;gap:4px;font-size:.88rem;color:var(--muted);min-width:0}
+.form .wide{grid-column:1/-1}
+.form input,.form select,.form textarea{font:inherit;font-size:.98rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.form textarea{resize:vertical;min-height:4.2em}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status{min-height:1.5em;font-size:.92rem;color:var(--muted);margin:0}
+.status.err{color:var(--danger)}.status.ok{color:var(--accent)}
+.unsaved{display:inline-block;font-size:.8rem;background:var(--focus);color:#2b2620;border-radius:999px;padding:1px 10px;margin-left:6px}
+[hidden]{display:none!important}
+footer{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}
+</style>
+
+<div class="wrap" id="app">
+  <header>
+    <span class="eyebrow">特教老師的 AI 小工具</span>
+    <h1>教學工具箱<span class="by">by NNX</span></h1>
+    <p class="lead">我用 AI 做的教學小工具，都放在這裡。點「打開」就能直接使用；平板、電腦都可以。</p>
+    <div class="stripe" aria-hidden="true"><i style="background:var(--sage)"></i><i style="background:var(--rose)"></i><i style="background:var(--blue)"></i><i style="background:var(--sand)"></i><i style="background:var(--plum)"></i></div>
+  </header>
+
+  <section class="panel" id="form-panel" hidden aria-labelledby="form-title">
+    <h3 id="form-title">新增工具</h3>
+    <form class="form" id="tool-form">
+      <label for="f-name">工具名稱<input id="f-name" required maxlength="40" placeholder="例如：注音打字小高手"></label>
+      <label for="f-url">連結<input id="f-url" required type="url" placeholder="https://claude.ai/artifact/…"></label>
+      <label for="f-cat">科目<input id="f-cat" list="cat-list" maxlength="12" placeholder="例如：數學"><datalist id="cat-list"></datalist></label>
+      <label for="f-who">給誰用<select id="f-who"><option value="學生用">學生用</option><option value="老師用">老師用</option><option value="親師共用">親師共用</option></select></label>
+      <label for="f-desc" class="wide">一句話介紹<textarea id="f-desc" maxlength="120" placeholder="這個工具可以做什麼"></textarea></label>
+      <div class="row wide"><button type="submit" class="btn primary" id="f-submit">加入清單</button><button type="button" class="btn" id="f-cancel">取消</button></div>
+    </form>
+  </section>
+
+  <div class="controls">
+    <div class="filters">
+      <div class="frow"><span class="flabel">給誰用</span><div class="chips" id="who-chips" role="group" aria-label="給誰用"></div></div>
+      <div class="frow"><span class="flabel">科目</span><div class="chips" id="chips" role="group" aria-label="科目"></div></div>
+    </div>
+    <input class="search" id="q" type="search" placeholder="搜尋工具" aria-label="搜尋工具">
+  </div>
+  <div class="groups" id="grid"></div>
+
+  <div class="manage" id="manage" hidden>
+    <span class="note" id="manage-note">只有你看得到這一區。</span>
+    <div class="row">
+      <button type="button" class="btn" id="m-toggle">管理工具</button>
+      <button type="button" class="btn" id="m-add" hidden>＋ 新增工具</button>
+      <button type="button" class="btn primary" id="m-save" hidden>儲存網站</button>
+    </div>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <footer>教學工具箱 by NNX</footer>
+</div>
+
+<script>
+var TOOLS = /*DATA*/[{"name": "報讀卷產生器 碧華校內版", "url": "https://claude.ai/artifact/6k6zzdAp1K7Jo4byFktxUZ", "cat": "報讀卷", "who": "老師用", "desc": "碧華校內使用。上傳考卷 PDF、Word 或照片，做成點一下就唸題目的報讀卷，加密碼後用分享連結或 QR Code 給學生。"}, {"name": "報讀卷產生器（公開版）", "url": "https://claude.ai/artifact/NiMadi87N4mWfEn1ZaKzit", "cat": "報讀卷", "who": "老師用", "desc": "給所有老師使用。不用登入就能上傳考卷、試聽朗讀；要儲存考卷時，登入自己的 Claude 帳號建立副本即可。"}, {"name": "考卷變遊戲", "url": "https://claude.ai/artifact/91XudjcUXzvFvwyzeGq2Sx", "cat": "考卷遊戲", "who": "老師用", "desc": "上傳考卷 PDF 或照片，AI 做成有注音、台灣語音報讀和音效的闖關遊戲；每個遊戲都有 QR Code，學生用 iPad 掃了就能玩。"}, {"name": "逐字點讀課文", "url": "https://pinglin1103.github.io/NNX/", "cat": "注音與國語", "who": "學生用", "desc": "點哪個字，就念哪個字。南一、康軒、翰林首冊到六上全部課文，直式排版、每字有注音、台灣國語發音；可一字一字念或整句有感情的念，每課有 QR 碼。給識字困難的孩子。"}, {"name": "注音打字小高手", "url": "https://claude.ai/artifact/FAuy442QHbtNouF4s21Aua", "cat": "注音與國語", "who": "學生用", "desc": "南一、翰林、康軒一到六年級國語生字的注音打字練習，有錯題複習和餵小動物小遊戲。"}, {"name": "互動識字小教室", "url": "https://pinglin1103.github.io/NNX/shizi/", "cat": "注音與國語", "who": "學生用", "desc": "南一、康軒、翰林一上到六上的生字：認識生字（含課本語詞）、看圖配對、語詞測驗、回想記憶、生字練習（會檢查寫得對不對）、生字評量闖關（有成績單）。手機、平板、電腦都能用，每課有 QR 碼。"}, {"name": "一上數學：順序與多少闖關遊戲", "url": "https://claude.ai/artifact/E2wqogox2WxVG2pcSdq6dS", "cat": "數學", "who": "學生用", "desc": "一上數學「順序與多少」的闖關練習遊戲。"}, {"name": "融合班導師挑戰", "url": "https://claude.ai/artifact/Rx4AQQyT85x3KrkTvgpwsa", "cat": "特教宣導", "who": "老師用", "desc": "給普通班老師玩的 RPG 遊戲。在校園地圖上擊敗各種「困難怪物」，學會支持班上有特殊需求孩子的策略。"}, {"name": "特教老師的一天", "url": "https://claude.ai/artifact/PuEunwbT2CzjBxS3LZVDKT", "cat": "特教宣導", "who": "老師用", "desc": "扮演資源班老師度過一天，面對 8 個學生情境做選擇，認識背後的特教策略。"}, {"name": "國小生字練習單", "url": "https://claude.ai/artifact/8PJjfHAA8V34ByGnQp72af", "cat": "注音與國語", "who": "老師用", "desc": "選南一、康軒、翰林的年級和課別，一鍵做出 A4 生字練習單：看・拆・蓋・寫，或生字記憶練習；範字可點讀。目前收錄部分一至六年級課文。"}, {"name": "治療紀錄", "url": "https://claude.ai/artifact/WZrJMv1sMYKktvfK47AsEr", "cat": "特教紀錄", "who": "老師用", "desc": "記錄資源班孩子的物理、語言、職能治療：每次治療的日期、內容和治療師建議，方便追蹤和跟其他老師分享。"}];
+var SELF_TPL = /*TPL*/"<title>教學工具箱 by NNX<\/title>\n<meta name=\"claude:viewport-fit-sides\" content=\"cover\">\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap\">\n<style>\n/* Layout: a teacher's tool shelf — warm header with name, category chips, then a grid of tool cards; owner-only manage mode edits the list in place */\n:root{\n  --bg:#f2efea; --paper:#fbf9f6; --ink:#3b3836; --muted:#7a736d; --line:#ddd6cd;\n  --sage:#8fa58f; --rose:#c49a94; --blue:#8c9fb3; --sand:#c8b18d; --plum:#a08ca6; --clay:#b38b72;\n  --accent:#6f8a72; --accent-ink:#ffffff; --focus:#d4a95c; --danger:#a5574a;\n  --f-display:\"LXGW WenKai TC\",\"Kaiti TC\",\"DFKai-SB\",\"BiauKai\",serif;\n  --f-body:\"Noto Sans TC\",\"PingFang TC\",\"Microsoft JhengHei\",system-ui,sans-serif;\n}\n@media (prefers-color-scheme: dark){:root:not([data-theme=\"light\"]){\n  --bg:#22201e; --paper:#2c2927; --ink:#ece6df; --muted:#ada49b; --line:#433e3a;\n  --sage:#7f957f; --rose:#a9807a; --blue:#7c8ea2; --sand:#a8946f; --plum:#8d7a93; --clay:#9c7660;\n  --accent:#93ad95; --accent-ink:#1b1f1b; --focus:#e0b86a; --danger:#d98a7c; color-scheme:dark}}\n:root[data-theme=\"dark\"]{\n  --bg:#22201e; --paper:#2c2927; --ink:#ece6df; --muted:#ada49b; --line:#433e3a;\n  --sage:#7f957f; --rose:#a9807a; --blue:#7c8ea2; --sand:#a8946f; --plum:#8d7a93; --clay:#9c7660;\n  --accent:#93ad95; --accent-ink:#1b1f1b; --focus:#e0b86a; --danger:#d98a7c; color-scheme:dark}\nbody{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65}\n.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:36px 72px}\nheader{display:grid;gap:10px;margin-bottom:26px}\n.eyebrow{font-size:.85rem;letter-spacing:.18em;color:var(--muted)}\nh1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.1rem,6vw,3.2rem);line-height:1.15;margin:0;text-wrap:balance}\nh1 .by{font-family:var(--f-body);font-size:.36em;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-left:.6em;vertical-align:middle;white-space:nowrap}\n.lead{margin:0;color:var(--muted);max-width:60ch}\n.stripe{display:flex;height:6px;border-radius:999px;overflow:hidden;max-width:260px}\n.stripe i{flex:1}\n.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}\n.chips{display:flex;flex-wrap:wrap;gap:8px}\n.chip{border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.95rem;padding:6px 14px;border-radius:999px;cursor:pointer}\n.chip[aria-pressed=\"true\"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}\n.chip small{color:inherit;opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}\n.search{font:inherit;font-size:.95rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 14px;width:min(100%,240px)}\nbutton:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}\n.filters{display:grid;gap:8px;min-width:0}\n.frow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}\n.flabel{font-size:.85rem;color:var(--muted);letter-spacing:.08em;min-width:3.5em}\n.chip.big{font-weight:700}\n.groups{display:grid;gap:28px}\n.grp-h{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;font-family:var(--f-display);font-size:1.5rem}\n.grp-h small{font-family:var(--f-body);font-size:.85rem;color:var(--muted)}\n.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}\n.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;min-width:0}\n.card .top{padding:18px 18px 0;display:flex;gap:14px;align-items:flex-start}\n.mark{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.6rem;color:#fff}\n.card h3.tn{font-family:var(--f-display);font-size:1.3rem;line-height:1.35;margin:2px 0 4px;overflow-wrap:anywhere}\n.tags{display:flex;flex-wrap:wrap;gap:6px}\n.tag{font-size:.78rem;padding:1px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}\n.tag.who{border-color:transparent;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--ink)}\n.card p{margin:12px 18px 0;color:var(--muted);font-size:.95rem;overflow-wrap:anywhere}\n.card .foot{margin-top:auto;padding:16px 18px 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}\n.open{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:700;padding:8px 18px;border-radius:999px}\n.open:hover{background:var(--accent);color:var(--accent-ink)}\n.ed{display:none;gap:6px;flex-wrap:wrap}\n.managing .ed{display:flex}\n.btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;padding:6px 12px;border-radius:999px;cursor:pointer}\n.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}\n.btn.warn{color:var(--danger);border-color:var(--danger)}\n.btn:disabled{opacity:.45;cursor:default}\n.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 16px;border:1px dashed var(--line);border-radius:18px}\n.manage{margin-top:30px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px}\n.manage .note{color:var(--muted);font-size:.9rem}\n.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px;display:grid;gap:12px}\n.panel h3{margin:0;font-family:var(--f-display);font-size:1.25rem}\n.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}\n.form label{display:grid;gap:4px;font-size:.88rem;color:var(--muted);min-width:0}\n.form .wide{grid-column:1/-1}\n.form input,.form select,.form textarea{font:inherit;font-size:.98rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}\n.form textarea{resize:vertical;min-height:4.2em}\n.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}\n.status{min-height:1.5em;font-size:.92rem;color:var(--muted);margin:0}\n.status.err{color:var(--danger)}.status.ok{color:var(--accent)}\n.unsaved{display:inline-block;font-size:.8rem;background:var(--focus);color:#2b2620;border-radius:999px;padding:1px 10px;margin-left:6px}\n[hidden]{display:none!important}\nfooter{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}\n<\/style>\n\n<div class=\"wrap\" id=\"app\">\n  <header>\n    <span class=\"eyebrow\">特教老師的 AI 小工具<\/span>\n    <h1>教學工具箱<span class=\"by\">by NNX<\/span><\/h1>\n    <p class=\"lead\">我用 AI 做的教學小工具，都放在這裡。點「打開」就能直接使用；平板、電腦都可以。<\/p>\n    <div class=\"stripe\" aria-hidden=\"true\"><i style=\"background:var(--sage)\"><\/i><i style=\"background:var(--rose)\"><\/i><i style=\"background:var(--blue)\"><\/i><i style=\"background:var(--sand)\"><\/i><i style=\"background:var(--plum)\"><\/i><\/div>\n  <\/header>\n\n  <section class=\"panel\" id=\"form-panel\" hidden aria-labelledby=\"form-title\">\n    <h3 id=\"form-title\">新增工具<\/h3>\n    <form class=\"form\" id=\"tool-form\">\n      <label for=\"f-name\">工具名稱<input id=\"f-name\" required maxlength=\"40\" placeholder=\"例如：注音打字小高手\"><\/label>\n      <label for=\"f-url\">連結<input id=\"f-url\" required type=\"url\" placeholder=\"https://claude.ai/artifact/…\"><\/label>\n      <label for=\"f-cat\">科目<input id=\"f-cat\" list=\"cat-list\" maxlength=\"12\" placeholder=\"例如：數學\"><datalist id=\"cat-list\"><\/datalist><\/label>\n      <label for=\"f-who\">給誰用<select id=\"f-who\"><option value=\"學生用\">學生用<\/option><option value=\"老師用\">老師用<\/option><option value=\"親師共用\">親師共用<\/option><\/select><\/label>\n      <label for=\"f-desc\" class=\"wide\">一句話介紹<textarea id=\"f-desc\" maxlength=\"120\" placeholder=\"這個工具可以做什麼\"><\/textarea><\/label>\n      <div class=\"row wide\"><button type=\"submit\" class=\"btn primary\" id=\"f-submit\">加入清單<\/button><button type=\"button\" class=\"btn\" id=\"f-cancel\">取消<\/button><\/div>\n    <\/form>\n  <\/section>\n\n  <div class=\"controls\">\n    <div class=\"filters\">\n      <div class=\"frow\"><span class=\"flabel\">給誰用<\/span><div class=\"chips\" id=\"who-chips\" role=\"group\" aria-label=\"給誰用\"><\/div><\/div>\n      <div class=\"frow\"><span class=\"flabel\">科目<\/span><div class=\"chips\" id=\"chips\" role=\"group\" aria-label=\"科目\"><\/div><\/div>\n    <\/div>\n    <input class=\"search\" id=\"q\" type=\"search\" placeholder=\"搜尋工具\" aria-label=\"搜尋工具\">\n  <\/div>\n  <div class=\"groups\" id=\"grid\"><\/div>\n\n  <div class=\"manage\" id=\"manage\" hidden>\n    <span class=\"note\" id=\"manage-note\">只有你看得到這一區。<\/span>\n    <div class=\"row\">\n      <button type=\"button\" class=\"btn\" id=\"m-toggle\">管理工具<\/button>\n      <button type=\"button\" class=\"btn\" id=\"m-add\" hidden>＋ 新增工具<\/button>\n      <button type=\"button\" class=\"btn primary\" id=\"m-save\" hidden>儲存網站<\/button>\n    <\/div>\n  <\/div>\n  <p class=\"status\" id=\"status\" role=\"status\" aria-live=\"polite\"><\/p>\n  <footer>教學工具箱 by NNX<\/footer>\n<\/div>\n\n<script>\nvar TOOLS = /*DATA*/[];\nvar SELF_TPL = /*TPL*/null;\nvar SKEL = \"<!doctype html><html><head><meta charset=utf8><meta name=viewport content=\\\"width=device-width,initial-scale=1,viewport-fit=cover\\\"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}<\\/style><\\/head><body>\\n\";\n(function(){\n\"use strict\";\nvar $ = function(id){ return document.getElementById(id); };\nvar PALETTE = [\"--sage\",\"--rose\",\"--blue\",\"--sand\",\"--plum\",\"--clay\"];\nvar tools = JSON.parse(JSON.stringify(TOOLS));\nvar who = \"全部\", cat = \"全部\", q = \"\", managing = false, dirty = false, editIdx = -1, canWrite = false, art = null;\ntry { cat = sessionStorage.getItem(\"tb-cat\") || \"全部\"; who = sessionStorage.getItem(\"tb-who\") || \"全部\"; } catch(e) {}\nvar WHO_ORDER = [\"老師用\", \"學生用\", \"親師共用\"];\nfunction whos(){ var o = WHO_ORDER.filter(function(w){ return tools.some(function(t){ return (t.who || \"學生用\") === w; }); }); tools.forEach(function(t){ var w = t.who || \"學生用\"; if (o.indexOf(w) < 0) o.push(w); }); return o; }\nfunction inWho(t){ return who === \"全部\" || (t.who || \"學生用\") === who; }\nfunction esc(s){ return String(s == null ? \"\" : s).replace(/&/g,\"&amp;\").replace(/<\/g,\"&lt;\").replace(/>/g,\"&gt;\").replace(/\"/g,\"&quot;\"); }\nfunction cats(){ var o = []; tools.forEach(function(t){ if (t.cat && o.indexOf(t.cat) < 0) o.push(t.cat); }); return o; }\nfunction colorOf(c){ var i = cats().indexOf(c); return \"var(\" + PALETTE[(i < 0 ? 0 : i) % PALETTE.length] + \")\"; }\nfunction initial(n){ var s = String(n || \"\").replace(/^[\\s\\d一二三四五六上下:：、.]+/, \"\"); return Array.from(s || n || \"?\")[0]; }\nfunction safeUrl(u){ return /^https?:\\/\\//i.test(u || \"\") ? u : \"#\"; }\nfunction status(m, c){ var s = $(\"status\"); s.textContent = m || \"\"; s.className = \"status\" + (c ? \" \" + c : \"\"); }\n\nfunction renderChips(){\n  var wl = [\"全部\"].concat(whos()); if (wl.indexOf(who) < 0) who = \"全部\";\n  $(\"who-chips\").innerHTML = wl.map(function(w){\n    var n = w === \"全部\" ? tools.length : tools.filter(function(t){ return (t.who || \"學生用\") === w; }).length;\n    return '<button type=\"button\" class=\"chip big\" data-who=\"' + esc(w) + '\" aria-pressed=\"' + (w === who) + '\">' + esc(w) + \"<small>\" + n + \"<\/small><\/button>\";\n  }).join(\"\");\n  var pool = tools.filter(inWho), sub = [];\n  pool.forEach(function(t){ if (t.cat && sub.indexOf(t.cat) < 0) sub.push(t.cat); });\n  var list = [\"全部\"].concat(sub);\n  if (list.indexOf(cat) < 0) cat = \"全部\";\n  $(\"chips\").innerHTML = list.map(function(c){\n    var n = c === \"全部\" ? pool.length : pool.filter(function(t){ return t.cat === c; }).length;\n    return '<button type=\"button\" class=\"chip\" data-cat=\"' + esc(c) + '\" aria-pressed=\"' + (c === cat) + '\">' + esc(c) + \"<small>\" + n + \"<\/small><\/button>\";\n  }).join(\"\");\n  $(\"cat-list\").innerHTML = cats().map(function(c){ return '<option value=\"' + esc(c) + '\">'; }).join(\"\");\n}\nfunction render(){\n  renderChips();\n  var ql = q.trim().toLowerCase();\n  var shown = tools.map(function(t, i){ return { t: t, i: i }; }).filter(function(o){\n    var t = o.t;\n    return inWho(t) && (cat === \"全部\" || t.cat === cat) && (!ql || (t.name + \" \" + t.desc + \" \" + t.cat + \" \" + t.who).toLowerCase().indexOf(ql) >= 0);\n  });\n  function card(o){\n    var t = o.t, i = o.i;\n    return '<article class=\"card\"><div class=\"top\"><div class=\"mark\" style=\"background:' + colorOf(t.cat) + '\" aria-hidden=\"true\">' + esc(initial(t.name)) + '<\/div><div>' +\n      \"<h3 class=\\\"tn\\\">\" + esc(t.name) + '<\/h3><div class=\"tags\"><span class=\"tag who\">' + esc(t.who || \"學生用\") + \"<\/span>\" + (t.cat ? '<span class=\"tag\">' + esc(t.cat) + \"<\/span>\" : \"\") + \"<\/div><\/div><\/div>\" +\n      (t.desc ? \"<p>\" + esc(t.desc) + \"<\/p>\" : \"\") +\n      '<div class=\"foot\"><a class=\"open\" href=\"' + esc(safeUrl(t.url)) + '\" target=\"_blank\" rel=\"noopener\">打開 ↗<\/a>' +\n      '<div class=\"ed\"><button type=\"button\" class=\"btn\" data-act=\"up\" data-i=\"' + i + '\"' + (i === 0 ? \" disabled\" : \"\") + ' aria-label=\"往前移\">↑<\/button>' +\n      '<button type=\"button\" class=\"btn\" data-act=\"down\" data-i=\"' + i + '\"' + (i === tools.length - 1 ? \" disabled\" : \"\") + ' aria-label=\"往後移\">↓<\/button>' +\n      '<button type=\"button\" class=\"btn\" data-act=\"edit\" data-i=\"' + i + '\">編輯<\/button>' +\n      '<button type=\"button\" class=\"btn warn\" data-act=\"del\" data-i=\"' + i + '\">刪除<\/button><\/div><\/div><\/article>';\n  }\n  var order = cats();\n  var groups = (who === \"全部\" ? whos() : [who]).map(function(w){\n    var items = shown.filter(function(o){ return (o.t.who || \"學生用\") === w; })\n      .sort(function(a, b){ return (order.indexOf(a.t.cat) - order.indexOf(b.t.cat)) || (a.i - b.i); });\n    return { w: w, items: items };\n  }).filter(function(g){ return g.items.length; });\n  $(\"grid\").innerHTML = groups.length ? groups.map(function(g){\n    return '<section class=\"grp\"><h2 class=\"grp-h\">' + esc(g.w) + \"<small>\" + g.items.length + \" 個工具<\/small><\/h2><div class=\\\"grid\\\">\" + g.items.map(card).join(\"\") + \"<\/div><\/section>\";\n  }).join(\"\") : '<div class=\"empty\">' + (tools.length ? \"找不到符合的工具。\" : \"還沒有工具。按下方「管理工具」→「新增工具」加入第一個。\") + \"<\/div>\";\n  $(\"app\").classList.toggle(\"managing\", managing);\n  $(\"m-save\").hidden = !managing; $(\"m-add\").hidden = !managing;\n  $(\"m-toggle\").textContent = managing ? \"完成管理\" : \"管理工具\";\n  $(\"manage-note\").innerHTML = managing ? \"可以新增、編輯、排序或刪除工具，改完按「儲存網站」。\" + (dirty ? '<span class=\"unsaved\">尚未儲存<\/span>' : \"\") : \"只有你看得到這一區。\";\n}\n$(\"who-chips\").addEventListener(\"click\", function(e){ var b = e.target.closest(\".chip\"); if (!b) return; who = b.dataset.who; cat = \"全部\"; try { sessionStorage.setItem(\"tb-who\", who); sessionStorage.setItem(\"tb-cat\", cat); } catch(x) {} render(); });\n$(\"chips\").addEventListener(\"click\", function(e){ var b = e.target.closest(\".chip\"); if (!b) return; cat = b.dataset.cat; try { sessionStorage.setItem(\"tb-cat\", cat); } catch(x) {} render(); });\n$(\"q\").addEventListener(\"input\", function(){ q = this.value; render(); });\n\n/* manage */\nvar delArm = {};\n$(\"grid\").addEventListener(\"click\", function(e){\n  var b = e.target.closest(\"button[data-act]\"); if (!b || !managing) return;\n  var i = +b.dataset.i, a = b.dataset.act;\n  if (a === \"up\" && i > 0){ var x = tools[i-1]; tools[i-1] = tools[i]; tools[i] = x; dirty = true; render(); }\n  else if (a === \"down\" && i < tools.length - 1){ var y = tools[i+1]; tools[i+1] = tools[i]; tools[i] = y; dirty = true; render(); }\n  else if (a === \"edit\") openForm(i);\n  else if (a === \"del\"){\n    if (!delArm[i] || Date.now() - delArm[i] > 3000){ delArm[i] = Date.now(); b.textContent = \"再按一次刪除\"; setTimeout(function(){ if (b.isConnected) b.textContent = \"刪除\"; }, 3000); return; }\n    tools.splice(i, 1); delArm = {}; dirty = true; render(); status(\"已從清單移除，記得按「儲存網站」。\");\n  }\n});\nfunction openForm(i){\n  editIdx = i; var t = i >= 0 ? tools[i] : { name: \"\", url: \"\", cat: cat !== \"全部\" ? cat : \"\", who: \"學生用\", desc: \"\" };\n  $(\"form-title\").textContent = i >= 0 ? \"編輯工具\" : \"新增工具\";\n  $(\"f-submit\").textContent = i >= 0 ? \"更新\" : \"加入清單\";\n  $(\"f-name\").value = t.name; $(\"f-url\").value = t.url; $(\"f-cat\").value = t.cat; $(\"f-who\").value = t.who || \"學生用\"; $(\"f-desc\").value = t.desc;\n  $(\"form-panel\").hidden = false; $(\"form-panel\").scrollIntoView({ behavior: \"smooth\", block: \"start\" }); $(\"f-name\").focus();\n}\n$(\"tool-form\").addEventListener(\"submit\", function(e){\n  e.preventDefault();\n  var url = $(\"f-url\").value.trim();\n  if (!/^https?:\\/\\//i.test(url)) { status(\"連結要用 https:// 開頭。\", \"err\"); $(\"f-url\").focus(); return; }\n  var t = { name: $(\"f-name\").value.trim(), url: url, cat: $(\"f-cat\").value.trim(), who: $(\"f-who\").value, desc: $(\"f-desc\").value.trim() };\n  if (!t.name) { $(\"f-name\").focus(); return; }\n  if (editIdx >= 0) tools[editIdx] = t; else tools.push(t);\n  dirty = true; $(\"form-panel\").hidden = true; render();\n  status((editIdx >= 0 ? \"已更新\" : \"已加入\") + \"「\" + t.name + \"」，記得按「儲存網站」。\", \"ok\");\n});\n$(\"f-cancel\").addEventListener(\"click\", function(){ $(\"form-panel\").hidden = true; });\n$(\"m-toggle\").addEventListener(\"click\", function(){ managing = !managing; if (!managing) $(\"form-panel\").hidden = true; render(); });\n$(\"m-add\").addEventListener(\"click\", function(){ openForm(-1); });\n\n/* save: the page republishes itself with the new list */\nvar M_TPL = \"/*\" + \"TPL*/null\", M_DATA = \"/*\" + \"DATA*/[]\";\nfunction js(x){ return JSON.stringify(x).replace(/<\\//g, \"<\\\\/\").replace(/<\!--/g, \"<\\\\!--\").replace(/\\u2028/g, \"\\\\u2028\").replace(/\\u2029/g, \"\\\\u2029\"); }\nfunction buildPage(list){\n  var t = SELF_TPL, i = t.indexOf(M_DATA);\n  t = t.slice(0, i) + \"/*DATA*/\" + js(list) + t.slice(i + M_DATA.length);\n  var j = t.indexOf(M_TPL);\n  t = t.slice(0, j) + \"/*TPL*/\" + js(SELF_TPL) + t.slice(j + M_TPL.length);\n  return SKEL + t + \"<\/body><\/html>\";\n}\n$(\"m-save\").addEventListener(\"click\", async function(){\n  if (!art || !canWrite) { status(\"這個畫面不能儲存。\", \"err\"); return; }\n  var b = this; b.disabled = true; status(\"正在儲存…\");\n  try { await art.publish(buildPage(tools)); dirty = false; status(\"已儲存，頁面會重新載入。\", \"ok\"); }\n  catch(err){\n    var c = err && err.code;\n    if (c === \"conflict\") status(\"有新的版本，頁面正在重新載入，請再改一次。\", \"err\");\n    else if (c === \"rate_limited\") status(\"儲存太頻繁了，請等一下再按。\", \"err\");\n    else if (c === \"not_writer\" || c === \"not_granted\" || c === \"capability_disabled\" || c === \"not_declared\") { canWrite = false; $(\"manage\").hidden = true; managing = false; render(); status(\"這個畫面只能看，不能儲存。\", \"err\"); }\n    else status(\"儲存失敗，請稍後再試一次。\", \"err\");\n  } finally { b.disabled = false; }\n});\nwindow.addEventListener(\"beforeunload\", function(e){ if (dirty) { e.preventDefault(); e.returnValue = \"\"; } });\n\nrender();\n(async function(){\n  try {\n    if (window.claude && window.claude.use){\n      art = await window.claude.use(\"artifact\");\n      var user = await window.claude.use(\"user\");\n      canWrite = !!art && !!user && !!(await user.canEdit());\n    }\n  } catch(e) { canWrite = false; }\n  $(\"manage\").hidden = !canWrite;\n})();\n})();\n<\/script>\n";
+var SKEL = "<!doctype html><html><head><meta charset=utf8><meta name=viewport content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}<\/style><\/head><body>\n";
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var PALETTE = ["--sage","--rose","--blue","--sand","--plum","--clay"];
+var tools = JSON.parse(JSON.stringify(TOOLS));
+var who = "全部", cat = "全部", q = "", managing = false, dirty = false, editIdx = -1, canWrite = false, art = null;
+try { cat = sessionStorage.getItem("tb-cat") || "全部"; who = sessionStorage.getItem("tb-who") || "全部"; } catch(e) {}
+var WHO_ORDER = ["老師用", "學生用", "親師共用"];
+function whos(){ var o = WHO_ORDER.filter(function(w){ return tools.some(function(t){ return (t.who || "學生用") === w; }); }); tools.forEach(function(t){ var w = t.who || "學生用"; if (o.indexOf(w) < 0) o.push(w); }); return o; }
+function inWho(t){ return who === "全部" || (t.who || "學生用") === who; }
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function cats(){ var o = []; tools.forEach(function(t){ if (t.cat && o.indexOf(t.cat) < 0) o.push(t.cat); }); return o; }
+function colorOf(c){ var i = cats().indexOf(c); return "var(" + PALETTE[(i < 0 ? 0 : i) % PALETTE.length] + ")"; }
+function initial(n){ var s = String(n || "").replace(/^[\s\d一二三四五六上下:：、.]+/, ""); return Array.from(s || n || "?")[0]; }
+function safeUrl(u){ return /^https?:\/\//i.test(u || "") ? u : "#"; }
+function status(m, c){ var s = $("status"); s.textContent = m || ""; s.className = "status" + (c ? " " + c : ""); }
+
+function renderChips(){
+  var wl = ["全部"].concat(whos()); if (wl.indexOf(who) < 0) who = "全部";
+  $("who-chips").innerHTML = wl.map(function(w){
+    var n = w === "全部" ? tools.length : tools.filter(function(t){ return (t.who || "學生用") === w; }).length;
+    return '<button type="button" class="chip big" data-who="' + esc(w) + '" aria-pressed="' + (w === who) + '">' + esc(w) + "<small>" + n + "</small></button>";
+  }).join("");
+  var pool = tools.filter(inWho), sub = [];
+  pool.forEach(function(t){ if (t.cat && sub.indexOf(t.cat) < 0) sub.push(t.cat); });
+  var list = ["全部"].concat(sub);
+  if (list.indexOf(cat) < 0) cat = "全部";
+  $("chips").innerHTML = list.map(function(c){
+    var n = c === "全部" ? pool.length : pool.filter(function(t){ return t.cat === c; }).length;
+    return '<button type="button" class="chip" data-cat="' + esc(c) + '" aria-pressed="' + (c === cat) + '">' + esc(c) + "<small>" + n + "</small></button>";
+  }).join("");
+  $("cat-list").innerHTML = cats().map(function(c){ return '<option value="' + esc(c) + '">'; }).join("");
+}
+function render(){
+  renderChips();
+  var ql = q.trim().toLowerCase();
+  var shown = tools.map(function(t, i){ return { t: t, i: i }; }).filter(function(o){
+    var t = o.t;
+    return inWho(t) && (cat === "全部" || t.cat === cat) && (!ql || (t.name + " " + t.desc + " " + t.cat + " " + t.who).toLowerCase().indexOf(ql) >= 0);
+  });
+  function card(o){
+    var t = o.t, i = o.i;
+    return '<article class="card"><div class="top"><div class="mark" style="background:' + colorOf(t.cat) + '" aria-hidden="true">' + esc(initial(t.name)) + '</div><div>' +
+      "<h3 class=\"tn\">" + esc(t.name) + '</h3><div class="tags"><span class="tag who">' + esc(t.who || "學生用") + "</span>" + (t.cat ? '<span class="tag">' + esc(t.cat) + "</span>" : "") + "</div></div></div>" +
+      (t.desc ? "<p>" + esc(t.desc) + "</p>" : "") +
+      '<div class="foot"><a class="open" href="' + esc(safeUrl(t.url)) + '" target="_blank" rel="noopener">打開 ↗</a>' +
+      '<div class="ed"><button type="button" class="btn" data-act="up" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + ' aria-label="往前移">↑</button>' +
+      '<button type="button" class="btn" data-act="down" data-i="' + i + '"' + (i === tools.length - 1 ? " disabled" : "") + ' aria-label="往後移">↓</button>' +
+      '<button type="button" class="btn" data-act="edit" data-i="' + i + '">編輯</button>' +
+      '<button type="button" class="btn warn" data-act="del" data-i="' + i + '">刪除</button></div></div></article>';
+  }
+  var order = cats();
+  var groups = (who === "全部" ? whos() : [who]).map(function(w){
+    var items = shown.filter(function(o){ return (o.t.who || "學生用") === w; })
+      .sort(function(a, b){ return (order.indexOf(a.t.cat) - order.indexOf(b.t.cat)) || (a.i - b.i); });
+    return { w: w, items: items };
+  }).filter(function(g){ return g.items.length; });
+  $("grid").innerHTML = groups.length ? groups.map(function(g){
+    return '<section class="grp"><h2 class="grp-h">' + esc(g.w) + "<small>" + g.items.length + " 個工具</small></h2><div class=\"grid\">" + g.items.map(card).join("") + "</div></section>";
+  }).join("") : '<div class="empty">' + (tools.length ? "找不到符合的工具。" : "還沒有工具。按下方「管理工具」→「新增工具」加入第一個。") + "</div>";
+  $("app").classList.toggle("managing", managing);
+  $("m-save").hidden = !managing; $("m-add").hidden = !managing;
+  $("m-toggle").textContent = managing ? "完成管理" : "管理工具";
+  $("manage-note").innerHTML = managing ? "可以新增、編輯、排序或刪除工具，改完按「儲存網站」。" + (dirty ? '<span class="unsaved">尚未儲存</span>' : "") : "只有你看得到這一區。";
+}
+$("who-chips").addEventListener("click", function(e){ var b = e.target.closest(".chip"); if (!b) return; who = b.dataset.who; cat = "全部"; try { sessionStorage.setItem("tb-who", who); sessionStorage.setItem("tb-cat", cat); } catch(x) {} render(); });
+$("chips").addEventListener("click", function(e){ var b = e.target.closest(".chip"); if (!b) return; cat = b.dataset.cat; try { sessionStorage.setItem("tb-cat", cat); } catch(x) {} render(); });
+$("q").addEventListener("input", function(){ q = this.value; render(); });
+
+/* manage */
+var delArm = {};
+$("grid").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-act]"); if (!b || !managing) return;
+  var i = +b.dataset.i, a = b.dataset.act;
+  if (a === "up" && i > 0){ var x = tools[i-1]; tools[i-1] = tools[i]; tools[i] = x; dirty = true; render(); }
+  else if (a === "down" && i < tools.length - 1){ var y = tools[i+1]; tools[i+1] = tools[i]; tools[i] = y; dirty = true; render(); }
+  else if (a === "edit") openForm(i);
+  else if (a === "del"){
+    if (!delArm[i] || Date.now() - delArm[i] > 3000){ delArm[i] = Date.now(); b.textContent = "再按一次刪除"; setTimeout(function(){ if (b.isConnected) b.textContent = "刪除"; }, 3000); return; }
+    tools.splice(i, 1); delArm = {}; dirty = true; render(); status("已從清單移除，記得按「儲存網站」。");
+  }
+});
+function openForm(i){
+  editIdx = i; var t = i >= 0 ? tools[i] : { name: "", url: "", cat: cat !== "全部" ? cat : "", who: "學生用", desc: "" };
+  $("form-title").textContent = i >= 0 ? "編輯工具" : "新增工具";
+  $("f-submit").textContent = i >= 0 ? "更新" : "加入清單";
+  $("f-name").value = t.name; $("f-url").value = t.url; $("f-cat").value = t.cat; $("f-who").value = t.who || "學生用"; $("f-desc").value = t.desc;
+  $("form-panel").hidden = false; $("form-panel").scrollIntoView({ behavior: "smooth", block: "start" }); $("f-name").focus();
+}
+$("tool-form").addEventListener("submit", function(e){
+  e.preventDefault();
+  var url = $("f-url").value.trim();
+  if (!/^https?:\/\//i.test(url)) { status("連結要用 https:// 開頭。", "err"); $("f-url").focus(); return; }
+  var t = { name: $("f-name").value.trim(), url: url, cat: $("f-cat").value.trim(), who: $("f-who").value, desc: $("f-desc").value.trim() };
+  if (!t.name) { $("f-name").focus(); return; }
+  if (editIdx >= 0) tools[editIdx] = t; else tools.push(t);
+  dirty = true; $("form-panel").hidden = true; render();
+  status((editIdx >= 0 ? "已更新" : "已加入") + "「" + t.name + "」，記得按「儲存網站」。", "ok");
+});
+$("f-cancel").addEventListener("click", function(){ $("form-panel").hidden = true; });
+$("m-toggle").addEventListener("click", function(){ managing = !managing; if (!managing) $("form-panel").hidden = true; render(); });
+$("m-add").addEventListener("click", function(){ openForm(-1); });
+
+/* save: the page republishes itself with the new list */
+var M_TPL = "/*" + "TPL*/null", M_DATA = "/*" + "DATA*/[]";
+function js(x){ return JSON.stringify(x).replace(/<\//g, "<\\/").replace(/<!--/g, "<\\!--").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029"); }
+function buildPage(list){
+  var t = SELF_TPL, i = t.indexOf(M_DATA);
+  t = t.slice(0, i) + "/*DATA*/" + js(list) + t.slice(i + M_DATA.length);
+  var j = t.indexOf(M_TPL);
+  t = t.slice(0, j) + "/*TPL*/" + js(SELF_TPL) + t.slice(j + M_TPL.length);
+  return SKEL + t + "</body></html>";
+}
+$("m-save").addEventListener("click", async function(){
+  if (!art || !canWrite) { status("這個畫面不能儲存。", "err"); return; }
+  var b = this; b.disabled = true; status("正在儲存…");
+  try { await art.publish(buildPage(tools)); dirty = false; status("已儲存，頁面會重新載入。", "ok"); }
+  catch(err){
+    var c = err && err.code;
+    if (c === "conflict") status("有新的版本，頁面正在重新載入，請再改一次。", "err");
+    else if (c === "rate_limited") status("儲存太頻繁了，請等一下再按。", "err");
+    else if (c === "not_writer" || c === "not_granted" || c === "capability_disabled" || c === "not_declared") { canWrite = false; $("manage").hidden = true; managing = false; render(); status("這個畫面只能看，不能儲存。", "err"); }
+    else status("儲存失敗，請稍後再試一次。", "err");
+  } finally { b.disabled = false; }
+});
+window.addEventListener("beforeunload", function(e){ if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+render();
+(async function(){
+  try {
+    if (window.claude && window.claude.use){
+      art = await window.claude.use("artifact");
+      var user = await window.claude.use("user");
+      canWrite = !!art && !!user && !!(await user.canEdit());
+    }
+  } catch(e) { canWrite = false; }
+  $("manage").hidden = !canWrite;
+})();
+})();
+</script>
+
+
+</body></html>
