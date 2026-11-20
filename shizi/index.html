@@ -427,7 +427,7 @@ button,.card,.mpic,.mword,.opt,.pc{touch-action:manipulation;-webkit-tap-highlig
 <div id="wsBox"><div class="wsbar"><b>🖨️ 學習單</b>
   <label><input type="checkbox" id="wsA" checked>生字描寫</label><label><input type="checkbox" id="wsB" checked>語詞填空</label>
   <label><input type="checkbox" id="wsC" checked>看注音寫國字</label><label><input type="checkbox" id="wsD" checked>比一比</label><label><input type="checkbox" id="wsE">附答案</label>
-  <span class="sp"></span><button class="btn" id="wsPrint">🖨️ 列印 / 存 PDF</button><button class="btn rose" id="wsClose">關閉</button></div>
+  <span class="sp"></span><button class="btn" id="wsPrint">🖨️ 列印 / 存 PDF</button><button class="btn alt" id="wsWord">📄 存成 Word</button><button class="btn rose" id="wsClose">關閉</button></div>
   <div id="wsPage"></div></div>
 <div class="ctl" id="ctl">
   <span class="brand">互動識字小教室 by 恩緹老師</span>
@@ -1147,19 +1147,20 @@ function endT(){$("tPlay").style.display="none";const n=tRes.length,k=tRes.filte
 
 /* ===== 一鍵學習單（A4，可列印或存成 PDF） ===== */
 function buildWS(){const les=BOOKS[V].g[G].les[L],name=`${BOOKS[V].name}${BOOKS[V].g[G].name} ${lab(L)}${les[0]?"　"+les[0]:""}`;
-  const on=id=>$(id).checked;let h=`<div class="wspage"><h2>${name}　生字學習單</h2><div class="who"><span>姓名：＿＿＿＿＿＿</span><span>日期：＿＿月＿＿日</span><span>得分：＿＿＿</span></div>`;
+  const on=id=>$(id).checked;WSD={name,A:on("wsA")?CH.slice():null};let h=`<div class="wspage"><h2>${name}　生字學習單</h2><div class="who"><span>姓名：＿＿＿＿＿＿</span><span>日期：＿＿月＿＿日</span><span>得分：＿＿＿</span></div>`;
   const ans=[];
   if(on("wsA")){h+=`<h3>一、生字描寫：先看，再描，最後自己寫</h3>`;
     CH.forEach(o=>{h+=`<div class="wsrow"><div class="lb">${o.b?"部首<br>"+o.b:""}</div><div class="tz md kai">${o.c}</div><div class="zyc"><span class="zy">${zyIn(o.z)}</span></div>${'<div class="tz tr kai">'+o.c+'</div>'.repeat(1)}${('<div class="tz tr kai">'+o.c+'</div>').repeat(2)}${'<div class="tz"></div>'.repeat(4)}</div>`})}
   const qs=CH.map(o=>{const ws=(W[o.c]?.w||[]).filter(w=>[...w.t].length<=4&&w.z);const w=ws.find(w=>w.book)||ws.find(w=>!w.sent)||ws[0];return w?{o,w}:null}).filter(Boolean);
   const bk=WORDS.filter(w=>w.book&&w.from);bk.forEach(w=>{const q=qs.find(x=>x.o.c===w.from);if(q&&!q.w.book)q.w=w});
   if(on("wsB")&&qs.length){h+=`<h3>二、語詞填空：在格子裡寫出正確的字</h3><div class="wsq">${qs.map((q,i)=>`<div class="it"><span class="n">${i+1}.</span>${zyV(q.w.t,q.w.z,q.o.c,1)}</div>`).join("")}</div>`;
-    ans.push("語詞填空："+qs.map((q,i)=>`${i+1}.${q.o.c}`).join("　"))}
+    WSD.B=qs;ans.push("語詞填空："+qs.map((q,i)=>`${i+1}.${q.o.c}`).join("　"))}
   if(on("wsC")){const cs=shuffle(CH);h+=`<h3>三、看注音，寫國字</h3><div class="wszy">${cs.map((o,i)=>`<div class="it"><span>${i+1}.</span><span class="zyq"><span class="zy" style="font-size:.5em">${zyIn(o.z)}</span></span><div class="tz"></div></div>`).join("")}</div>`;
-    ans.push("看注音寫國字："+cs.map((o,i)=>`${i+1}.${o.c}`).join("　"))}
+    WSD.C=cs;ans.push("看注音寫國字："+cs.map((o,i)=>`${i+1}.${o.c}`).join("　"))}
   const bi=(les[4]||"").split(";").filter(Boolean).map(p=>p.split("|").map(x=>{const [c,t,z]=x.split(":");return{c,t,z}}));
   if(on("wsD")&&bi.length){h+=`<h3>四、比一比：寫出正確的字</h3><div class="wsbi">${bi.map(p=>p.map(x=>zyV(x.t,x.z,x.c,1)).join("　")).join("<span style='color:#bbb'>｜</span>")}</div>`;
-    ans.push("比一比："+bi.map(p=>p.map(x=>x.t).join("、")).join("　"))}
+    WSD.D=bi;ans.push("比一比："+bi.map(p=>p.map(x=>x.t).join("、")).join("　"))}
+  WSD.ans=on("wsE")?ans:[];
   if(on("wsE")&&ans.length)h+=`<div class="ans"><b>答案</b><br>${ans.join("<br>")}</div>`;
   $("wsPage").innerHTML=h+`<div style="text-align:right;font-size:12px;color:#999;margin-top:10px;font-family:sans-serif">互動識字小教室</div></div>`;
   $("wsD").parentElement.style.display=bi.length?"":"none"}
@@ -1168,6 +1169,67 @@ $("wsClose").onclick=()=>$("wsBox").classList.remove("on");
 ["wsA","wsB","wsC","wsD","wsE"].forEach(id=>$(id).onchange=buildWS);
 $("wsPrint").onclick=()=>{document.body.classList.add("wsp");setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove("wsp"),500)},50)};
 window.addEventListener("afterprint",()=>document.body.classList.remove("wsp"));
+/* ===== 學習單存成 Word（.docx，瀏覽器直接產生，不用網路） ===== */
+let WSD=null;
+const DX=(()=>{
+  const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const KAI="標楷體";
+  const r=(t,o={})=>`<w:r><w:rPr><w:rFonts w:ascii="${o.f||KAI}" w:hAnsi="${o.f||KAI}" w:eastAsia="${o.f||KAI}" w:cs="${o.f||KAI}"/>${o.b?"<w:b/>":""}${o.c?`<w:color w:val="${o.c}"/>`:""}<w:sz w:val="${o.sz||24}"/><w:szCs w:val="${o.sz||24}"/></w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
+  const p=(runs,o={})=>`<w:p><w:pPr>${o.keep?"<w:keepNext/>":""}<w:spacing w:before="${o.bf||0}" w:after="${o.af||0}" ${o.line?`w:line="${o.line}" w:lineRule="exact"`:'w:line="240" w:lineRule="auto"'}/>${o.jc?`<w:jc w:val="${o.jc}"/>`:""}${o.bd?`<w:pBdr><w:bottom w:val="single" w:sz="12" w:space="2" w:color="333333"/></w:pBdr>`:""}${o.tab?`<w:tabs>${o.tab.map(x=>`<w:tab w:val="${x[0]}" w:pos="${x[1]}"/>`).join("")}</w:tabs>`:""}<w:rPr><w:sz w:val="${o.psz||24}"/></w:rPr></w:pPr>${runs||""}</w:p>`;
+  const tiny=()=>p("",{line:20,psz:2});
+  const B=(v,c)=>`<w:top w:val="${v}" w:sz="8" w:color="${c}"/><w:left w:val="${v}" w:sz="8" w:color="${c}"/><w:bottom w:val="${v}" w:sz="8" w:color="${c}"/><w:right w:val="${v}" w:sz="8" w:color="${c}"/>`;
+  const tc=(body,w,o={})=>`<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${o.box?`<w:tcBorders>${B("single","444444")}</w:tcBorders>`:""}<w:vAlign w:val="${o.va||"center"}"/></w:tcPr>${body.endsWith("</w:tbl>")?body+tiny():body}</w:tc>`;
+  const tbl=(rows,ws,o={})=>`<w:tbl><w:tblPr><w:tblW w:w="${ws.reduce((a,b)=>a+b,0)}" w:type="dxa"/>${o.jc?`<w:jc w:val="${o.jc}"/>`:""}<w:tblBorders>${B(o.grid?"single":"nil","444444")}<w:insideH w:val="${o.grid?"single":"nil"}" w:sz="8" w:color="444444"/><w:insideV w:val="${o.grid?"single":"nil"}" w:sz="8" w:color="444444"/></w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="${o.pad||0}" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="${o.pad||0}" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${ws.map(w=>`<w:gridCol w:w="${w}"/>`).join("")}</w:tblGrid>${rows.map(x=>`<w:tr><w:trPr><w:cantSplit/>${x.h?`<w:trHeight w:val="${x.h}" w:hRule="${x.rule||"exact"}"/>`:""}</w:trPr>${x.c}</w:tr>`).join("")}</w:tbl>`;
+  /* 直式注音：符號由上往下，聲調在最後一個符號的右上，輕聲點在最上面 */
+  function zy(z,sz){let s=z||"",nt=false,tn="";if(!s)return tiny();
+    if(s[0]==="˙"){nt=true;s=s.slice(1)}else if(s.slice(-1)==="˙"){nt=true;s=s.slice(0,-1)}
+    const l=s.slice(-1);if("ˊˇˋ".includes(l)){tn=l;s=s.slice(0,-1)}
+    const a=[...s],L=Math.round(sz*10.5),sw=Math.round(sz*11),tw=Math.round(sz*8);
+    const rows=[];if(nt)rows.push({h:Math.round(L*.6),c:tc(p(r("˙",{sz}),{jc:"center",line:Math.round(L*.6)}),sw)+tc(tiny(),tw)});
+    a.forEach((c,i)=>rows.push({h:L,c:tc(p(r(c,{sz}),{jc:"center",line:L}),sw)+tc(i===a.length-1&&tn?p(r(tn,{sz:Math.round(sz*.9)}),{line:Math.round(L*.75)}):tiny(),tw,{va:"top"})}));
+    return tbl(rows,[sw,tw])+tiny()}
+  /* 一個語詞：每個字右邊是直式注音；blank 的字變成空格子 */
+  function word(t,z,blank,cs,zs){const zz=(z||"").split(" "),ch=[...t],cw=Math.round(cs*22),zw=Math.round(zs*30);
+    const cells=ch.map((c,i)=>tc(c===blank?p(""):p(r(c,{sz:cs*2}),{jc:"center"}),cw,{box:c===blank})+tc(zy(zz[i],zs*2),zw)).join("");
+    return tbl([{h:Math.round(cs*24),rule:"atLeast",c:cells}],ch.flatMap(()=>[cw,zw]))+tiny()}
+  const h3=t=>p(r(t,{sz:30,b:true,f:"微軟正黑體"}),{bf:200,af:100,keep:true});
+  function doc(d){let x="";
+    x+=p(r(d.name.replace("　"," ")+"　生字學習單",{sz:40,b:true}),{jc:"center",af:80});
+    x+=p(r("姓名：＿＿＿＿＿＿",{sz:26})+r("\t")+r("日期：＿＿月＿＿日",{sz:26})+r("\t")+r("得分：＿＿＿",{sz:26}),{bd:1,af:160,tab:[["center",5270],["right",10540]]});
+    let n=0;const T=["一","二","三","四"];
+    if(d.A&&d.A.length){x+=h3(`${T[n++]}、生字描寫：先看，再描，最後自己寫`);const W1=[700,960,620],BX=950,ws=W1.concat(Array(7).fill(BX));
+      x+=tbl(d.A.map(o=>({h:BX,c:tc(o.b?p(r("部首",{sz:18,c:"666666"}),{jc:"center"})+p(r(o.b,{sz:26}),{jc:"center"}):p(""),W1[0])+tc(p(r(o.c,{sz:64}),{jc:"center"}),W1[1],{box:1})+tc(zy(o.z,24),W1[2])
+        +[0,1,2].map(()=>tc(p(r(o.c,{sz:60,c:"BFBFBF"}),{jc:"center"}),BX,{box:1})).join("")+Array(4).fill(tc(p(""),BX,{box:1})).join("")})),ws,{pad:20})+tiny()}
+    if(d.B&&d.B.length){x+=h3(`${T[n++]}、語詞填空：在格子裡寫出正確的字`);const per=4,cw=2630,rows=[];
+      for(let i=0;i<d.B.length;i+=per){const g=d.B.slice(i,i+per);rows.push({h:900,rule:"atLeast",c:g.map((q,j)=>tc(tbl([{c:tc(p(r(`${i+j+1}.`,{sz:24})),380)+tc(word(q.w.t,q.w.z,q.o.c,18,10),cw-400)}],[380,cw-400]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
+      x+=tbl(rows,Array(per).fill(cw),{pad:20})+tiny()}
+    if(d.C&&d.C.length){x+=h3(`${T[n++]}、看注音，寫國字`);const per=6,cw=1750,rows=[];
+      for(let i=0;i<d.C.length;i+=per){const g=d.C.slice(i,i+per);rows.push({h:1000,rule:"atLeast",c:g.map((o,j)=>tc(tbl([{h:900,c:tc(p(r(`${i+j+1}.`,{sz:22})),380)+tc(zy(o.z,24),500)+tc(p(""),860,{box:1})}],[380,500,860]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
+      x+=tbl(rows,Array(per).fill(cw),{pad:0})+tiny()}
+    if(d.D&&d.D.length){x+=h3(`${T[n++]}、比一比：寫出正確的字`);const per=2,cw=5270,rows=[];
+      for(let i=0;i<d.D.length;i+=per){const g=d.D.slice(i,i+per);rows.push({h:900,rule:"atLeast",c:g.map(pr=>{const ww=Math.floor((cw-40)/pr.length);return tc(tbl([{c:pr.map(o=>tc(word(o.t,o.z,o.c,18,10),ww)).join("")}],pr.map(()=>ww)),cw)}).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
+      x+=tbl(rows,Array(per).fill(cw),{pad:20})+tiny()}
+    if(d.ans&&d.ans.length){x+=p(r("答案",{sz:22,b:true,c:"666666",f:"微軟正黑體"}),{bf:300});d.ans.forEach(a=>x+=p(r(a,{sz:22,c:"666666",f:"微軟正黑體"})))}
+    x+=p(r("互動識字小教室",{sz:18,c:"999999",f:"微軟正黑體"}),{jc:"right",bf:200});
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${x}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="680" w:right="680" w:bottom="680" w:left="680" w:header="400" w:footer="400" w:gutter="0"/></w:sectPr></w:body></w:document>`}
+  /* 簡單 zip（不壓縮） */
+  const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}})();
+  function zip(files){const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+    files.forEach(([name,txt])=>{const nb=enc.encode(name),db=enc.encode(txt),crc=CRC(db);
+      const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,1);h.setUint16(4,20,1);h.setUint16(6,0x0800,1);h.setUint16(8,0,1);h.setUint32(10,0x00210000,1);h.setUint32(14,crc,1);h.setUint32(18,db.length,1);h.setUint32(22,db.length,1);h.setUint16(26,nb.length,1);h.setUint16(28,0,1);
+      const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,1);c.setUint16(4,20,1);c.setUint16(6,20,1);c.setUint16(8,0x0800,1);c.setUint16(10,0,1);c.setUint32(12,0x00210000,1);c.setUint32(16,crc,1);c.setUint32(20,db.length,1);c.setUint32(24,db.length,1);c.setUint16(28,nb.length,1);c.setUint32(42,off,1);
+      parts.push(h,nb,db);cen.push(c,nb);off+=30+nb.length+db.length});
+    const cs=cen.reduce((a,b)=>a+b.byteLength,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,1);e.setUint16(8,files.length,1);e.setUint16(10,files.length,1);e.setUint32(12,cs,1);e.setUint32(16,off,1);
+    return new Blob([...parts,...cen,e],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})}
+  function make(d){return zip([
+    ["[Content_Types].xml",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
+    ["_rels/.rels",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+    ["word/document.xml",doc(d)]])}
+  return {make,doc}})();
+$("wsWord").onclick=()=>{if(!WSD)buildWS();const b=DX.make(WSD),a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download=WSD.name.replace(/[\\/:*?"<>|　\s]+/g,"_")+"_學習單.docx";document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)};
+
 
 /* ===== 5 生字練習 ===== */
 let pi=0,ghostOn=true;const cv=$("cv"),ctx=cv.getContext("2d");
