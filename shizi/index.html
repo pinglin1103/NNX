@@ -1189,7 +1189,7 @@ const DX=(()=>{
     a.forEach((c,i)=>rows.push({h:L,c:tc(p(r(c,{sz}),{jc:"center",line:L}),sw)+tc(i===a.length-1&&tn?p(r(tn,{sz:Math.round(sz*.9)}),{line:Math.round(L*.75)}):tiny(),tw,{va:"top"})}));
     return tbl(rows,[sw,tw])+tiny()}
   /* 一個語詞：每個字右邊是直式注音；blank 的字變成空格子 */
-  function word(t,z,blank,cs,zs){const zz=(z||"").split(" "),ch=[...t],cw=Math.round(cs*22),zw=Math.round(zs*30);
+  function word(t,z,blank,cs,zs){const zz=(z||"").split(" "),ch=[...t],cw=Math.round(cs*24),zw=Math.round(zs*30);
     const cells=ch.map((c,i)=>tc(c===blank?p(""):p(r(c,{sz:cs*2}),{jc:"center"}),cw,{box:c===blank})+tc(zy(zz[i],zs*2),zw)).join("");
     return tbl([{h:Math.round(cs*24),rule:"atLeast",c:cells}],ch.flatMap(()=>[cw,zw]))+tiny()}
   const h3=t=>p(r(t,{sz:30,b:true,f:"微軟正黑體"}),{bf:200,af:100,keep:true});
@@ -1200,8 +1200,8 @@ const DX=(()=>{
     if(d.A&&d.A.length){x+=h3(`${T[n++]}、生字描寫：先看，再描，最後自己寫`);const W1=[700,960,620],BX=950,ws=W1.concat(Array(7).fill(BX));
       x+=tbl(d.A.map(o=>({h:BX,c:tc(o.b?p(r("部首",{sz:18,c:"666666"}),{jc:"center"})+p(r(o.b,{sz:26}),{jc:"center"}):p(""),W1[0])+tc(p(r(o.c,{sz:64}),{jc:"center"}),W1[1],{box:1})+tc(zy(o.z,24),W1[2])
         +[0,1,2].map(()=>tc(p(r(o.c,{sz:60,c:"BFBFBF"}),{jc:"center"}),BX,{box:1})).join("")+Array(4).fill(tc(p(""),BX,{box:1})).join("")})),ws,{pad:20})+tiny()}
-    if(d.B&&d.B.length){x+=h3(`${T[n++]}、語詞填空：在格子裡寫出正確的字`);const per=4,cw=2630,rows=[];
-      for(let i=0;i<d.B.length;i+=per){const g=d.B.slice(i,i+per);rows.push({h:900,rule:"atLeast",c:g.map((q,j)=>tc(tbl([{c:tc(p(r(`${i+j+1}.`,{sz:24})),380)+tc(word(q.w.t,q.w.z,q.o.c,18,10),cw-400)}],[380,cw-400]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
+    if(d.B&&d.B.length){x+=h3(`${T[n++]}、語詞填空：在格子裡寫出正確的字`);const mx=Math.max(...d.B.map(q=>[...q.w.t].length)),per=mx>=4?2:3,cw=Math.floor(10500/per),rows=[];
+      for(let i=0;i<d.B.length;i+=per){const g=d.B.slice(i,i+per);rows.push({h:1100,rule:"atLeast",c:g.map((q,j)=>tc(tbl([{c:tc(p(r(`${i+j+1}.`,{sz:32})),440)+tc(word(q.w.t,q.w.z,q.o.c,27,13),cw-460)}],[440,cw-460]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
       x+=tbl(rows,Array(per).fill(cw),{pad:20})+tiny()}
     if(d.C&&d.C.length){x+=h3(`${T[n++]}、看注音，寫國字`);const per=6,cw=1750,rows=[];
       for(let i=0;i<d.C.length;i+=per){const g=d.C.slice(i,i+per);rows.push({h:1000,rule:"atLeast",c:g.map((o,j)=>tc(tbl([{h:900,c:tc(p(r(`${i+j+1}.`,{sz:22})),380)+tc(zy(o.z,24),500)+tc(p(""),860,{box:1})}],[380,500,860]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
