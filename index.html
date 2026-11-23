@@ -1925,7 +1925,7 @@ var SELF_TPL = null;
     setTimeout(fin, 4500);
     var my = ++speakSeq;
     function go(){ if(my !== speakSeq) { fin(); return; } try{ synth.resume(); }catch(e){} synth.speak(u); }
-    if(synth.speaking || synth.pending){ synth.cancel(); setTimeout(go, 90); } else { go(); }
+    if(synth.speaking || synth.pending){ synth.cancel(); setTimeout(go, 30); } else { go(); }
   }
   var speakSeq = 0;
 
@@ -2714,7 +2714,9 @@ var SELF_TPL = null;
     if(quiz){ var cb = chars[i]; quizTap(cb.firstChild.textContent, cb, cb.getAttribute("data-say")); return; }
     stopPlay(); setPick(i);
     var b = chars[i]; b.classList.add("now");
+    var r0 = rate; rate = Math.max(rate, 1);  // 點單一個字時念快一點
     speak(b.getAttribute("data-one"), function(){ b.classList.remove("now"); });
+    rate = r0;
   }
 
   function startPlay(){
