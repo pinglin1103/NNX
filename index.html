@@ -226,8 +226,7 @@
     <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴ 收合</button>
     <div class="setgrp" id="setGrp">
     <div class="grp"><span>速度</span>
-      <button class="seg" data-r="0.4" data-g="900">慢</button>
-      <button class="seg on" data-r="0.95" data-g="200">中</button>
+      <button class="seg on" data-r="0.95" data-g="200" title="一個字一個字念">一個字</button>
       <button class="seg" data-r="0.65" data-g="0" data-mode="sent" title="一整句一起念，比較有感情">整句</button>
     </div>
     <div class="grp"><span>字</span>
@@ -3149,7 +3148,7 @@ var SELF_TPL = null;
     if(ASSIGN && getBuiltin(ASSIGN.v, ASSIGN.b, ASSIGN.l)){ ver = ASSIGN.v; book = ASSIGN.b; les = ASSIGN.l; }
   })();
   if(sget("cr3|vert") === "0") { vert = false; $("lyV").classList.remove("on"); $("lyH").classList.add("on"); }
-  (function(){ var sp = sget("cr3|speed"); if(sp === "0.85") sp = "0.95"; if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
+  (function(){ var sp = sget("cr3|speed"); if(sp === "0.85" || sp === "0.4") sp = "0.95"; if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
   // 這個分頁之前開過的課文分頁(重新整理還在)
   (function(){ try{ var o = JSON.parse(ssGet("cr3|tabs") || "null"); if(o && o.t && o.t.length){ TABS = o.t.filter(function(t){ return getBuiltin(t.v, t.b, t.l) || getCustom(t.v, t.b, t.l); }); ACT = Math.min(o.a || 0, Math.max(TABS.length - 1, 0)); if(TABS[ACT]){ ver = TABS[ACT].v; book = TABS[ACT].b; les = TABS[ACT].l; } } }catch(e){} })();
   TABS_READY = true;
