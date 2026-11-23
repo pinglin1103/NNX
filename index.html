@@ -21,6 +21,17 @@
   .wrap{max-width:1000px;margin:0 auto;padding:14px 12px 60px}
   h1{font-size:1.25rem;margin:0 0 10px;letter-spacing:.05em}
   h1 small{font-weight:400;color:var(--muted);font-size:.85rem;margin-left:6px}
+  .ltabs{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:2px;-webkit-overflow-scrolling:touch}
+  .ltab{flex:0 0 auto;display:flex;align-items:center;border-radius:12px 12px 4px 4px;background:#E4DDD4;color:var(--ink);border:none;font-size:.9rem;min-height:40px}
+  .ltab .lt{padding:8px 4px 8px 12px;background:none;border:none;font:inherit;color:inherit;max-width:10em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ltab .lx{padding:8px 10px;background:none;border:none;font:inherit;color:var(--muted);font-size:1.1rem;line-height:1}
+  .ltab.on{background:var(--sage);color:#fff} .ltab.on .lx{color:#f3efe8}
+  .ltab.add{padding:8px 14px;font-weight:600}
+  #mergeBar{display:none;background:#FFF6E0;border:2px solid #E7C46A;border-radius:14px;padding:10px 12px;margin:0 0 10px;line-height:1.6}
+  #mergeBar.on{display:block} #mergeBar .btn{margin:6px 6px 0 0}
+  #mergedNote{display:none;position:fixed;inset:0;z-index:50;background:rgba(40,35,30,.45);align-items:center;justify-content:center;padding:16px}
+  #mergedNote.on{display:flex} #mergedNote .mbox{background:var(--card);border-radius:18px;padding:18px;max-width:360px;line-height:1.7}
+  #mergedNote .mbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
   .card{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 2px 10px rgba(90,80,70,.08);margin-bottom:12px}
   .pick{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .pickhead{flex:1 0 100%;display:flex;align-items:center;gap:10px}
@@ -247,6 +258,9 @@
     </div>
   </div>
 
+  <div id="mergeBar" role="status"></div>
+  <div class="ltabs" id="ltabs" role="tablist" aria-label="課文分頁"></div>
+  <div id="mergedNote" role="alert"><div class="mbox"><b>這個視窗的課，已經收進另一個視窗的分頁了。</b><br>可以關掉這個分頁或視窗。<div class="mbtns"><button class="btn" id="mnClose">關掉這個分頁</button><button class="btn ghost" id="mnStay">留著</button></div></div></div>
   <div class="card" id="reader">
     <div class="lesson-title" id="vt"></div>
     <div class="vtabs" id="vtabs" role="tablist">
@@ -1807,7 +1821,7 @@ var SELF_TPL = null;
   // ================= 狀態 =================
   var synth = window.speechSynthesis;
   var voice = null, rate = 0.95, gap = 200, fs = 3, token = 0, playing = false, showZy = true, editing = false, vert = true;
-  var ver = "南一", book = "一上", les = 1;
+  var ver = "南一", book = "一上", les = 1, TABS_READY = false;
   var chars = [], startIdx = 0, mem = {};
 
   // ================= 儲存(裝置上) =================
@@ -2883,7 +2897,7 @@ var SELF_TPL = null;
     fillSelect($("selB"), availBooks(ver).map(function(b){ return {v:b,t:b}; }), book);
     fillLessons();
   }
-  function saveSel(){ sset("cr3|sel", JSON.stringify({v:ver,b:book,l:les})); try{ var c = codeOf(ver,book,les); if(location.hash.replace("#","") !== c) location.hash = c; }catch(e){} }
+  function saveSel(){ sset("cr3|sel", JSON.stringify({v:ver,b:book,l:les})); if(typeof onLessonChanged === "function" && TABS_READY) onLessonChanged(); try{ var c = codeOf(ver,book,les); if(location.hash.replace("#","") !== c) location.hash = c; }catch(e){} }
   function loadSel(){
     var s = sget("cr3|sel"); if(!s) return;
     try{ var o = JSON.parse(s); if(VERS.indexOf(o.v) >= 0) ver = o.v; if(BOOKS.indexOf(o.b) >= 0) book = o.b; if(o.l >= 0 && o.l <= NLES) les = o.l; }catch(e){}
@@ -3037,6 +3051,93 @@ var SELF_TPL = null;
   $("foldBtn2").addEventListener("click", function(){ setFold(true); try{ $("bar").scrollIntoView({block:"start", behavior:"smooth"}); }catch(e){} });
   (function(){ var f = sget("cr3|fold"); if(f === "1" || (f === null && window.innerWidth < 760)) setFold(true); })();
 
+  // ================= 課文分頁、多視窗合併、設定同步 =================
+  // 每個視窗自己的分頁清單(存在這個分頁的 sessionStorage,重新整理還在)
+  var TABS = [], ACT = 0;
+  function ssGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }
+  function ssSet(k, v){ try{ sessionStorage.setItem(k, v); }catch(e){} }
+  function tabLabel(t){ var e = getBuiltin(t.v, t.b, t.l), nm = e && e.name ? e.name.replace(/\[[^\]]*\]/g, "") : ""; var lb = t.l === 0 ? "" : (lesLabel(t.v, t.b, t.l) || ""); lb = /^第\d+課$/.test(lb) ? String(t.l) : lb; return t.v.charAt(0) + t.b + lb + (nm ? " " + nm : ""); }
+  function sameT(a, b){ return a.v === b.v && a.b === b.b && a.l === b.l; }
+  function saveTabs(){ ssSet("cr3|tabs", JSON.stringify({t: TABS, a: ACT})); }
+  function goTab(i){ if(!TABS[i]) return; stopPlay(); ACT = i; var t = TABS[i]; ver = t.v; book = t.b; les = t.l; editing = false; syncMenus(); saveSel(); render(); }
+  function renderTabs(){
+    var box = $("ltabs"); box.innerHTML = "";
+    TABS.forEach(function(t, i){
+      var w = document.createElement("div"); w.className = "ltab" + (i === ACT ? " on" : ""); w.setAttribute("role", "tab"); w.setAttribute("aria-selected", i === ACT ? "true" : "false");
+      var b = document.createElement("button"); b.type = "button"; b.className = "lt"; b.textContent = tabLabel(t); b.title = tabLabel(t);
+      b.addEventListener("click", function(){ if(i !== ACT) goTab(i); });
+      w.appendChild(b);
+      if(TABS.length > 1){
+        var x = document.createElement("button"); x.type = "button"; x.className = "lx"; x.textContent = "×"; x.setAttribute("aria-label", "關掉這個分頁");
+        x.addEventListener("click", function(){ TABS.splice(i, 1); if(ACT >= TABS.length) ACT = TABS.length - 1; if(i < ACT) ACT--; saveTabs(); if(i === ACT || !sameT(TABS[ACT], {v:ver,b:book,l:les})) goTab(ACT); else renderTabs(); announce(); });
+        w.appendChild(x);
+      }
+      box.appendChild(w);
+    });
+    var add = document.createElement("button"); add.type = "button"; add.className = "ltab add"; add.textContent = "＋ 開新分頁"; add.title = "多開一課，選好要看的課";
+    add.addEventListener("click", function(){ TABS.push({v:ver, b:book, l:les}); ACT = TABS.length - 1; saveTabs(); renderTabs(); try{ setPickFold(false); $("pickCard").scrollIntoView({block:"start", behavior:"smooth"}); }catch(e){} });
+    box.appendChild(add);
+    try{ var on = box.querySelector(".ltab.on"); if(on) on.scrollIntoView({inline:"nearest", block:"nearest"}); }catch(e){}
+  }
+  // 換課時,更新目前這個分頁
+  function onLessonChanged(){
+    var cur = {v:ver, b:book, l:les};
+    if(!TABS.length){ TABS = [cur]; ACT = 0; }
+    else TABS[ACT] = cur;
+    // 同一課開了兩個分頁就合成一個
+    for(var i = TABS.length - 1; i >= 0; i--){ if(i !== ACT && sameT(TABS[i], cur)){ TABS.splice(i, 1); if(i < ACT) ACT--; } }
+    saveTabs(); renderTabs(); announce();
+  }
+
+  // 多視窗:用 BroadcastChannel 互相告知「我開著哪些課」
+  var WID = Math.random().toString(36).slice(2), BC = null, OTHERS = {};
+  try{ BC = new BroadcastChannel("nnx-reader"); }catch(e){ BC = null; }
+  function announce(){ if(BC) try{ BC.postMessage({t: "here", id: WID, tabs: TABS}); }catch(e){} }
+  function refreshMergeBar(){
+    var bar = $("mergeBar"), ids = Object.keys(OTHERS), extra = [];
+    ids.forEach(function(id){ (OTHERS[id] || []).forEach(function(t){ if(!TABS.some(function(m){ return sameT(m, t); }) && !extra.some(function(m){ return sameT(m, t); })) extra.push(t); }); });
+    if(!ids.length || !extra.length){ bar.classList.remove("on"); bar.innerHTML = ""; return; }
+    bar.innerHTML = "";
+    var p = document.createElement("div"); p.innerHTML = "🪟 還有 <b>" + ids.length + "</b> 個視窗／分頁開著別的課：" + extra.map(function(t){ return "「" + esc(tabLabel(t)) + "」"; }).join("、");
+    var b = document.createElement("button"); b.className = "btn"; b.textContent = "全部收進這個畫面";
+    b.addEventListener("click", function(){
+      extra.forEach(function(t){ TABS.push(t); });
+      saveTabs(); renderTabs();
+      if(BC) try{ BC.postMessage({t: "merged", by: WID, ids: ids}); }catch(e){}
+      OTHERS = {}; refreshMergeBar();
+    });
+    var n = document.createElement("button"); n.className = "btn ghost"; n.textContent = "先不要";
+    n.addEventListener("click", function(){ bar.classList.remove("on"); });
+    bar.appendChild(p); bar.appendChild(b); bar.appendChild(n); bar.classList.add("on");
+  }
+  if(BC){
+    BC.onmessage = function(ev){
+      var m = ev.data || {};
+      if(m.id === WID) return;
+      if(m.t === "hello"){ announce(); if(m.id) { OTHERS[m.id] = m.tabs || []; refreshMergeBar(); } }
+      else if(m.t === "here"){ OTHERS[m.id] = m.tabs || []; refreshMergeBar(); }
+      else if(m.t === "bye"){ delete OTHERS[m.id]; refreshMergeBar(); }
+      else if(m.t === "merged"){
+        if((m.ids || []).indexOf(WID) >= 0){ stopPlay(); $("mergedNote").classList.add("on"); if(BC) try{ BC.postMessage({t: "bye", id: WID}); }catch(e){} BC.onmessage = null; }
+        else { OTHERS = {}; refreshMergeBar(); if(BC) try{ BC.postMessage({t: "hello", id: WID, tabs: TABS}); }catch(e){} }
+      }
+    };
+    window.addEventListener("pagehide", function(){ try{ BC.postMessage({t: "bye", id: WID}); }catch(e){} });
+  }
+  $("mnClose").addEventListener("click", function(){ window.close(); setTimeout(function(){ $("mergedNote").querySelector("b").textContent = "瀏覽器不讓網頁自己關掉，請手動關掉這個分頁。"; }, 300); });
+  $("mnStay").addEventListener("click", function(){ $("mergedNote").classList.remove("on"); });
+
+  // 設定同步:別的視窗改了設定,這裡跟著改(課次不同步,每個視窗看自己的課)
+  window.addEventListener("storage", function(e){
+    if(!e.key || e.newValue === null) return;
+    var v = e.newValue;
+    if(e.key === "cr3|speed"){ var b = v === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + v + '"]:not([data-mode])'); if(b && !b.classList.contains("on")) b.click(); }
+    else if(e.key === "cr3|zy"){ if((v === "1") !== showZy) setZy(v === "1"); }
+    else if(e.key === "cr3|vert"){ if((v === "1") !== vert) setLy(v === "1"); }
+    else if(e.key === "cr3|fs"){ var f = parseFloat(v); if(f && Math.abs(f - fs) > 0.01) setFs(f); }
+    else if(e.key === "cr3|voice"){ var sel = $("selVoice"); if(sel && sel.value !== v){ sel.value = v; twVoices.concat(otherZh).forEach(function(x){ if(x.name === v) voice = x; }); } }
+  });
+
   // ================= 啟動 =================
   loadSel();
   (function(){
@@ -3047,7 +3148,11 @@ var SELF_TPL = null;
   })();
   if(sget("cr3|vert") === "0") { vert = false; $("lyV").classList.remove("on"); $("lyH").classList.add("on"); }
   (function(){ var sp = sget("cr3|speed"); if(sp === "0.85") sp = "0.95"; if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
+  // 這個分頁之前開過的課文分頁(重新整理還在)
+  (function(){ try{ var o = JSON.parse(ssGet("cr3|tabs") || "null"); if(o && o.t && o.t.length){ TABS = o.t.filter(function(t){ return getBuiltin(t.v, t.b, t.l) || getCustom(t.v, t.b, t.l); }); ACT = Math.min(o.a || 0, Math.max(TABS.length - 1, 0)); if(TABS[ACT]){ ver = TABS[ACT].v; book = TABS[ACT].b; les = TABS[ACT].l; } } }catch(e){} })();
+  TABS_READY = true;
   syncMenus(); saveSel(); setFs(parseFloat(sget("cr3|fs")) || 3); render();
+  if(BC) try{ BC.postMessage({t: "hello", id: WID, tabs: TABS}); }catch(e){}
   // 自動注音函式庫可能稍後才載入完成,載入後再畫一次
   window.addEventListener("load", function(){ if(HAS_PY() && !editing) render(); });
   // 「生字遊戲」：開互動識字小教室的同一課（康軒在那邊的代碼是 kx）
