@@ -210,11 +210,11 @@
     <button class="btn quiz" id="quizBtn" title="聽聲音，找出那個字">🎯 考考我</button>
     <!-- 生字遊戲按鈕先隱藏(要恢復就拿掉 style="display:none") -->
     <button class="btn game" id="gameBtn" style="display:none" title="到互動識字小教室玩這一課的生字遊戲">🎮 生字遊戲</button>
-    <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴</button>
+    <button class="btn fold" id="foldBtn" aria-expanded="true">⚙ 設定 ▴ 收合</button>
     <div class="setgrp" id="setGrp">
     <div class="grp"><span>速度</span>
       <button class="seg" data-r="0.4" data-g="900">慢</button>
-      <button class="seg on" data-r="0.85" data-g="320">中</button>
+      <button class="seg on" data-r="0.95" data-g="200">中</button>
       <button class="seg" data-r="0.65" data-g="0" data-mode="sent" title="一整句一起念，比較有感情">整句</button>
     </div>
     <div class="grp"><span>字</span>
@@ -234,6 +234,7 @@
     </div>
     <button class="btn ghost" id="qrBtn">▦ QR 碼</button>
     <button class="btn ghost" id="edit">✎ 改課文</button>
+    <button class="btn ghost" id="foldBtn2" title="把設定收起來">▲ 收合設定</button>
     </div>
     <div id="quiz" role="region" aria-label="考考我">
       <div class="qq" id="qq">聽聽看，找出這個字！</div>
@@ -1805,7 +1806,7 @@ var SELF_TPL = null;
 
   // ================= 狀態 =================
   var synth = window.speechSynthesis;
-  var voice = null, rate = 0.85, gap = 320, fs = 3, token = 0, playing = false, showZy = true, editing = false, vert = true;
+  var voice = null, rate = 0.95, gap = 200, fs = 3, token = 0, playing = false, showZy = true, editing = false, vert = true;
   var ver = "南一", book = "一上", les = 1;
   var chars = [], startIdx = 0, mem = {};
 
@@ -2178,7 +2179,7 @@ var SELF_TPL = null;
     if(!qs.length) return;
     quiz = {qs:qs, i:0, stars:0, wrong:0, hinted:false, miss:[], lock:false, occ:[], round:1, total:qs.length, retry:[]};
     $("quiz").classList.add("on"); $("quizBtn").textContent = "🎯 重新考"; $("reader").classList.add("quizzing");
-    try{ $("bar").classList.toggle("fold", true); $("foldBtn").textContent = "⚙ 設定 ▾"; }catch(e){}
+    try{ $("bar").classList.toggle("fold", true); $("foldBtn").textContent = "⚙ 設定 ▾ 展開"; }catch(e){}
     clearQuizMarks(); askQ();
   }
   function clearFocus(){
@@ -3031,8 +3032,9 @@ var SELF_TPL = null;
   (function(){ var f = sget("cr3|pfold"); if(f === "1" || (f === null && /#/.test(location.href) && location.hash.length > 1)) setPickFold(true); })();
 
   // ---------- 設定收合 ----------
-  function setFold(f){ $("bar").classList.toggle("fold", f); $("foldBtn").textContent = f ? "⚙ 設定 ▾" : "⚙ 設定 ▴"; $("foldBtn").setAttribute("aria-expanded", f ? "false" : "true"); sset("cr3|fold", f ? "1" : "0"); }
+  function setFold(f){ $("bar").classList.toggle("fold", f); $("foldBtn").textContent = f ? "⚙ 設定 ▾ 展開" : "⚙ 設定 ▴ 收合"; $("foldBtn").setAttribute("aria-expanded", f ? "false" : "true"); sset("cr3|fold", f ? "1" : "0"); }
   $("foldBtn").addEventListener("click", function(){ setFold(!$("bar").classList.contains("fold")); });
+  $("foldBtn2").addEventListener("click", function(){ setFold(true); try{ $("bar").scrollIntoView({block:"start", behavior:"smooth"}); }catch(e){} });
   (function(){ var f = sget("cr3|fold"); if(f === "1" || (f === null && window.innerWidth < 760)) setFold(true); })();
 
   // ================= 啟動 =================
@@ -3044,7 +3046,7 @@ var SELF_TPL = null;
     if(ASSIGN && getBuiltin(ASSIGN.v, ASSIGN.b, ASSIGN.l)){ ver = ASSIGN.v; book = ASSIGN.b; les = ASSIGN.l; }
   })();
   if(sget("cr3|vert") === "0") { vert = false; $("lyV").classList.remove("on"); $("lyH").classList.add("on"); }
-  (function(){ var sp = sget("cr3|speed"); if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
+  (function(){ var sp = sget("cr3|speed"); if(sp === "0.85") sp = "0.95"; if(sp){ var b = sp === "sent" ? document.querySelector('.seg[data-mode="sent"]') : document.querySelector('.seg[data-r="' + sp + '"]:not([data-mode])'); if(b) b.click(); } })();
   syncMenus(); saveSel(); setFs(parseFloat(sget("cr3|fs")) || 3); render();
   // 自動注音函式庫可能稍後才載入完成,載入後再畫一次
   window.addEventListener("load", function(){ if(HAS_PY() && !editing) render(); });
