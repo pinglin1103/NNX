@@ -319,8 +319,8 @@ h1 .u{color:#C9776E}
 .wsq .vw{font-size:36px}.wspage .vc .zy{font-size:.34em}
 .wsq .vc .blank{border:1.5px solid #333;background:#fff;border-radius:2px}
 .wszy{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
-.wszy .it{display:flex;align-items:center;gap:4px;font-size:15px;font-family:"Noto Sans TC",sans-serif}
-.wszy .zyq{font-size:40px;display:inline-flex}
+.wszy .it{display:flex;align-items:center;gap:0;font-size:15px;font-family:"Noto Sans TC",sans-serif}
+.wszy .zyq{font-size:40px;display:inline-flex}.wszy .it>span:first-child{margin-right:4px}
 .wsbi{display:flex;flex-wrap:wrap;gap:12px 28px;font-size:30px}
 .wsbi .vw{font-size:26px}
 .ans{font-size:14px;color:#666;font-family:"Noto Sans TC",sans-serif;margin-top:18px;border-top:1px dashed #999;padding-top:6px}
@@ -1155,7 +1155,7 @@ function buildWS(){const les=BOOKS[V].g[G].les[L],name=`${BOOKS[V].name}${BOOKS[
   const bk=WORDS.filter(w=>w.book&&w.from);bk.forEach(w=>{const q=qs.find(x=>x.o.c===w.from);if(q&&!q.w.book)q.w=w});
   if(on("wsB")&&qs.length){h+=`<h3>二、語詞填空：在格子裡寫出正確的字</h3><div class="wsq">${qs.map((q,i)=>`<div class="it"><span class="n">${i+1}.</span>${zyV(q.w.t,q.w.z,q.o.c,1)}</div>`).join("")}</div>`;
     WSD.B=qs;ans.push("語詞填空："+qs.map((q,i)=>`${i+1}.${q.o.c}`).join("　"))}
-  if(on("wsC")){const cs=shuffle(CH);h+=`<h3>三、看注音，寫國字</h3><div class="wszy">${cs.map((o,i)=>`<div class="it"><span>${i+1}.</span><span class="zyq"><span class="zy" style="font-size:.5em">${zyIn(o.z)}</span></span><div class="tz"></div></div>`).join("")}</div>`;
+  if(on("wsC")){const cs=shuffle(CH);h+=`<h3>三、看注音，寫國字</h3><div class="wszy">${cs.map((o,i)=>`<div class="it"><span>${i+1}.</span><div class="tz"></div><div class="zyc"><span class="zy">${zyIn(o.z)}</span></div></div>`).join("")}</div>`;
     WSD.C=cs;ans.push("看注音寫國字："+cs.map((o,i)=>`${i+1}.${o.c}`).join("　"))}
   const bi=(les[4]||"").split(";").filter(Boolean).map(p=>p.split("|").map(x=>{const [c,t,z]=x.split(":");return{c,t,z}}));
   if(on("wsD")&&bi.length){h+=`<h3>四、比一比：寫出正確的字</h3><div class="wsbi">${bi.map(p=>p.map(x=>zyV(x.t,x.z,x.c,1)).join("　")).join("<span style='color:#bbb'>｜</span>")}</div>`;
@@ -1204,7 +1204,7 @@ const DX=(()=>{
       for(let i=0;i<d.B.length;i+=per){const g=d.B.slice(i,i+per);rows.push({h:1100,rule:"atLeast",c:g.map((q,j)=>tc(tbl([{c:tc(p(r(`${i+j+1}.`,{sz:32})),440)+tc(word(q.w.t,q.w.z,q.o.c,27,13),cw-460)}],[440,cw-460]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
       x+=tbl(rows,Array(per).fill(cw),{pad:20})+tiny()}
     if(d.C&&d.C.length){x+=h3(`${T[n++]}、看注音，寫國字`);const per=6,cw=1750,rows=[];
-      for(let i=0;i<d.C.length;i+=per){const g=d.C.slice(i,i+per);rows.push({h:1000,rule:"atLeast",c:g.map((o,j)=>tc(tbl([{h:900,c:tc(p(r(`${i+j+1}.`,{sz:22})),380)+tc(zy(o.z,24),500)+tc(p(""),860,{box:1})}],[380,500,860]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
+      for(let i=0;i<d.C.length;i+=per){const g=d.C.slice(i,i+per);rows.push({h:1000,rule:"atLeast",c:g.map((o,j)=>tc(tbl([{h:900,c:tc(p(r(`${i+j+1}.`,{sz:22})),380)+tc(p(""),860,{box:1})+tc(zy(o.z,24),500)}],[380,860,500]),cw)).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
       x+=tbl(rows,Array(per).fill(cw),{pad:0})+tiny()}
     if(d.D&&d.D.length){x+=h3(`${T[n++]}、比一比：寫出正確的字`);const per=2,cw=5270,rows=[];
       for(let i=0;i<d.D.length;i+=per){const g=d.D.slice(i,i+per);rows.push({h:900,rule:"atLeast",c:g.map(pr=>{const ww=Math.floor((cw-40)/pr.length);return tc(tbl([{c:pr.map(o=>tc(word(o.t,o.z,o.c,18,10),ww)).join("")}],pr.map(()=>ww)),cw)}).join("")+Array(per-g.length).fill(tc(p(""),cw)).join("")})}
