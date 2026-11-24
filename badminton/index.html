@@ -553,7 +553,7 @@ function buildFormal(S){
   {const rc={};S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(m.rot&&m.rot.length)['男雙','女雙'].forEach(ev=>{
     const idx=[];reqs.forEach((q,i)=>{if(q.ev===ev&&((q.a===si&&q.pa[0]===n)||(q.b===si&&q.pb[0]===n)))idx.push(i)});
     const L=idx.length,keep=new Set();for(let k=0;k<Math.min(3,L);k++)keep.add(idx[Math.floor((k+0.5)*L/3)]);
-    idx.forEach(i=>{if(!keep.has(i))reqs[i].del=1;else{const q=reqs[i],c=rc[si+n]=(rc[si+n]||0)+1,pr=[n,m.rot[(c-1)%m.rot.length]];if(q.a===si&&q.pa[0]===n)q.pa=pr;else q.pb=pr}})})}));
+    idx.forEach(i=>{if(!keep.has(i))reqs[i].del=1;else{const q=reqs[i],c=rc[si+n+ev]=(rc[si+n+ev]||0)+1,pr=[n,m.rot[(c-1+(ev==='男雙'?1:0))%m.rot.length]];if(q.a===si&&q.pa[0]===n)q.pa=pr;else q.pb=pr}})})}));
     for(let i=reqs.length-1;i>=0;i--)if(reqs[i].del)reqs.splice(i,1)}
   {const MING=5,cn={},meet={};const K=(si,p)=>si+'|'+p.join('+');
   reqs.forEach(q=>{const ka=K(q.a,q.pa),kb=K(q.b,q.pb);cn[ka]=(cn[ka]||0)+1;cn[kb]=(cn[kb]||0)+1;const mk=ka+'#'+kb;meet[mk]=(meet[mk]||0)+1});
