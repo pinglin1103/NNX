@@ -464,13 +464,10 @@ function buildMixed(S,fm){
   fm=fm||S.h2||null;
   const st=startMin(S),end=st+S.span;
   const mt=/^(\d{1,2}):(\d{2})$/.exec(S.mixAt||'');const mixStart=mt?(+mt[1])*60+(+mt[2]):fStart(S)+(fm?fm.total*S.min2:0);
-  const R=Math.floor((end-mixStart)/S.min1);
-  const all=[];S.schools.forEach((s,si)=>s.players.forEach(n=>{const m=s.meta[n]||{};if((m.arr==null||m.arr<=end-S.min1)&&!(S.noDraw||[]).includes(si+'|'+n))all.push({n,si,grp:m.grp||'賽'})}));
+  let R=Math.floor((end-mixStart)/S.min1);const over=R<1;if(over)R=12;
+  const all=[];S.schools.forEach((s,si)=>s.players.forEach(n=>{const m=s.meta[n]||{};if((over||m.arr==null||m.arr<=end-S.min1)&&!(S.noDraw||[]).includes(si+'|'+n))all.push({n,si,grp:m.grp||'賽'})}));
   const notes=[];
-  if(R<1){
-    notes.push('正式賽預計打到 '+arrText(mixStart)+'，已接近或超過活動結束時間（'+arrText(end)+'），沒有時間抽籤混搭。');
-    return {teams:[],rounds:[],split:false,keys:['all'],alloc:{},notes,names:S.schools.map(s=>s.name),sizes:S.schools.map(s=>s.players.length),start:arrText(mixStart),min1:S.min1,courts:S.courts};
-  }
+  if(over)notes.push('正式賽預計打到 '+arrText(mixStart)+'，已超過活動結束時間（'+arrText(end)+'），混雙仍照常抽籤，時間僅供參考。');
   const avail=(team,r)=>team.members.every(m=>arrOk(S,m.si,m.n,mixStart+r*S.min1));
   const rot=all.length>=2?buildRotation(S,all,S.courts,R,0,!!S.split2,avail):{teams:[],rounds:[],split:false,keys:['all'],alloc:{}};
   const mixn=Math.max(1,S.mixn||1);
