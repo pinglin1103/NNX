@@ -705,7 +705,7 @@ const $$=s=>Array.from(document.querySelectorAll(s));
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 const KEY='badminton-nnx26';
 const DEFAULT_RAW=[
-'春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*校長 男\n俊欽*東霖 男\n士弘*偉碩 男\n冠堯 男 @16:00',
+'春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*行政 男\n俊欽*東霖 男\n冠堯*偉碩 男 @16:00',
 '孟哲*(佳穎+瓊娃) 遇本孝\n謝明憲*葉宸灝 男\n沈玠諭*吳珮菁 女\n溫仙賢 男 @15:00',
 '致朋*建良 男\n俊程*正偉 男\n阿榮*裕豐 男\n藝方*倫蕙 女\n若凡*若菁 女\n曜如*素菁 女'];
 function freshS(){return {schools:[{name:'碧華',players:[],meta:{}},{name:'蘆洲',players:[],meta:{}},{name:'成功',players:[],meta:{}}],raw:DEFAULT_RAW.slice(),courts:4,start:'14:00',e1:3,e2:3,e3:0,split2:true,span:180,sets:1,min1:12,min2:12,h1:null,h2:null}}
@@ -713,7 +713,7 @@ let S=freshS();
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}}}}catch(e){}}
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}if(!S.bhMig){S.bhMig=1;S.raw[0]=DEFAULT_RAW[0]}}}}catch(e){}}
 
 function readSetup(){
   S.raw=[0,1,2].map(i=>$('#pl'+i).value);
