@@ -275,7 +275,7 @@ li{margin:3px 0}
   <div class="muted" id="swInfo"></div>
   <div class="swopts" id="swOpts"></div>
   <label>或直接輸入新名字</label><input type="text" id="swName" placeholder="例：新來的老師">
-  <label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:15px;margin-top:10px"><input type="checkbox" id="swAll" checked style="width:20px;height:20px"> <span id="swAllTxt">他所有的場次都一起換</span></label>
+  <label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:15px;margin-top:10px"><input type="checkbox" id="swAll" style="width:20px;height:20px"> <span id="swAllTxt">他所有的場次都一起換</span></label>
   <div style="margin-top:10px"><button class="btn" id="swOk">確定換人</button><button class="btn ghost" id="swCancel">取消</button></div>
 </div></div>
 
@@ -1160,8 +1160,8 @@ function openSwap(key){
   SW={ri:+ri,gi:+gi,side,k:+k,si,old,pick:''};
   const cnt=S.h2.rounds.reduce((c,rr)=>c+rr.games.filter(x=>(rr.a===si?x.a:rr.b===si?x.b:[]).includes(old)).length,0);
   $('#swInfo').textContent=`${S.h2.names[si]}｜把「${old}」換成：`;
-  $('#swAllTxt').textContent=`「${old}」所有的場次都一起換（共 ${cnt} 場）`;
-  $('#swAll').checked=true;$('#swName').value='';
+  $('#swAllTxt').textContent=`連「${old}」其他場次也一起換（共 ${cnt} 場，預設只換這一場）`;
+  $('#swAll').checked=false;$('#swName').value='';
   const sc=S.schools[si]||{players:[],meta:{}};
   const busy=new Set((side==='a'?g.a:g.b));
   const lv={'中':'中階','休':'休閒'};
