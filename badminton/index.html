@@ -552,7 +552,7 @@ function buildFormal(S){
   for(let i=reqs.length-1;i>=0;i--){const q=reqs[i];const vs=(si,ps)=>ps.some(n=>{const v=S.schools[si].meta[n].vs;return v&&v!==S.schools[si===q.a?q.b:q.a].name});if(vs(q.a,q.pa)||vs(q.b,q.pb))reqs.splice(i,1)}
   {const rc={};S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(m.rot&&m.rot.length)['男雙','女雙'].forEach(ev=>{
     const idx=[];reqs.forEach((q,i)=>{if(q.ev===ev&&((q.a===si&&q.pa[0]===n)||(q.b===si&&q.pb[0]===n)))idx.push(i)});
-    const L=idx.length,keep=new Set();for(let k=0;k<Math.min(3,L);k++)keep.add(idx[Math.floor((k+0.5)*L/3)]);
+    const L=idx.length,keep=new Set();for(let k=0;k<Math.min(2,L);k++)keep.add(idx[Math.floor((k+0.5)*L/2)]);
     idx.forEach(i=>{if(!keep.has(i))reqs[i].del=1;else{const q=reqs[i],c=rc[si+n+ev]=(rc[si+n+ev]||0)+1,pr=[n,m.rot[(c-1+(ev==='男雙'?1:0))%m.rot.length]];if(q.a===si&&q.pa[0]===n)q.pa=pr;else q.pb=pr}})})}));
     for(let i=reqs.length-1;i>=0;i--)if(reqs[i].del)reqs.splice(i,1)}
   {const MAXG=6,K=(si,p)=>si+'|'+p.join('+'),cn={};
@@ -571,7 +571,8 @@ function buildFormal(S){
     const lows=cand.filter(c=>!late(c.si,c.p)&&(cn[K(c.si,c.p)]||0)<MING).sort((x,y)=>(cn[K(x.si,x.p)]||0)-(cn[K(y.si,y.p)]||0));
     let done=false;
     for(const c of lows){
-      const opp=cand.filter(o=>o.ev===c.ev&&o.si!==c.si&&(cn[K(o.si,o.p)]||0)<6&&!(only[c.si]&&only[c.si]!==c.ev)&&!(only[o.si]&&only[o.si]!==c.ev)&&vsOk(c.si,c.p,o.si)&&vsOk(o.si,o.p,c.si));
+      let opp=cand.filter(o=>o.ev===c.ev&&o.si!==c.si&&!(only[c.si]&&only[c.si]!==c.ev)&&!(only[o.si]&&only[o.si]!==c.ev)&&vsOk(c.si,c.p,o.si)&&vsOk(o.si,o.p,c.si));
+      {const u=opp.filter(o=>(cn[K(o.si,o.p)]||0)<6);if(u.length)opp=u}
       if(!opp.length)continue;
       const mt=o=>{const k1=K(c.si,c.p)+'#'+K(o.si,o.p),k2=K(o.si,o.p)+'#'+K(c.si,c.p);return (meet[k1]||0)+(meet[k2]||0)};
       opp.sort((x,y)=>(mt(x)*100+(cn[K(x.si,x.p)]||0))-(mt(y)*100+(cn[K(y.si,y.p)]||0)));
