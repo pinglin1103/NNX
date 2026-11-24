@@ -884,7 +884,10 @@ function renderTeams(){
   const m={};
   h.rounds.forEach(r=>r.games.forEach(g=>{[[r.a,g.a],[r.b,g.b]].forEach(([si,p])=>{const k=si+'|'+teamKey(p);(m[k]=m[k]||{si,p:p.slice(),n:0}).n++})}));
   let html='<div class="card" style="background:#fff"><h3 style="margin-top:0">隊伍管理</h3><div class="muted">刪除隊伍：該隊所有場次都會拿掉（比分一起清除）。</div><div style="margin:8px 0">';
-  Object.values(m).sort((a,b)=>a.si-b.si).forEach(t=>{html+=`<span style="display:inline-block;margin:2px 0"><span class="chip sch${t.si}">${esc(t.p.join('＋'))}<small>${esc(h.names[t.si])}・${t.n}場</small></span><button type="button" class="btn ghost" style="padding:2px 8px;font-size:13px;margin:0 10px 0 0" data-delteam="${esc(t.si+'|'+teamKey(t.p))}">刪除</button></span>`});
+  Object.values(m).sort((a,b)=>a.si-b.si).forEach(t=>{html+=`<span style="display:inline-block;margin:2px 0"><span class="chip sch${t.si}">${esc(t.p.join('＋'))}<small>${esc(h.names[t.si])}</small></span><button type="button" class="btn ghost" style="padding:2px 8px;font-size:13px;margin:0 10px 0 0" data-delteam="${esc(t.si+'|'+teamKey(t.p))}">刪除</button></span>`});
+  const pc={};h.rounds.forEach(r=>r.games.forEach(g=>{[[r.a,g.a],[r.b,g.b]].forEach(([si,p])=>p.forEach(n=>{const k=si+'|'+n;pc[k]=(pc[k]||0)+1}))}));
+  html+='</div><h3>每人打了幾場（換人後會自動更新）</h3><div style="margin:6px 0">';
+  Object.keys(pc).sort((x,y)=>(+x.split('|')[0])-(+y.split('|')[0])).forEach(k=>{const i=k.indexOf('|'),si=+k.slice(0,i),n=k.slice(i+1);html+=`<span class="chip sch${si}" style="margin:2px 4px 2px 0">${esc(n)}<small>${esc(h.names[si])}・${pc[k]}場</small></span>`});
   const so=h.names.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('');
   html+='</div><h3>臨時加一場（有人臨時來打：填名字，再填比分）</h3><div class="grid2"><div><label>一方學校</label><select id="mgA">'+so+'</select></div><div><label>選手 1</label><input type="text" id="mgA1"></div><div><label>選手 2</label><input type="text" id="mgA2"></div><div><label>另一方學校</label><select id="mgB">'+so+'</select></div><div><label>選手 1</label><input type="text" id="mgB1"></div><div><label>選手 2</label><input type="text" id="mgB2"></div><div><label>項目</label><select id="mgEv"><option>男雙</option><option>女雙</option><option>混雙</option><option>雙打</option><option>單打</option></select></div></div><button type="button" class="btn" id="mgBtn">＋ 加入這一場</button></div>';
   el.innerHTML=html;
