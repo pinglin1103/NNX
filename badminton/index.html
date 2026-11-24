@@ -289,7 +289,7 @@ const NF={'後':1,'晚':1,'不先':1,'後上':1,'不先上':1};
 const FP={'中':'中','中階':'中','中階組':'中','休':'休','休閒':'休','交流':'休','樂':'休','賽':'賽','比賽':'賽','非休':'賽','非休閒':'賽','非休閒組':'賽','比賽組':'賽','休閒組':'休'};
 function parseEntries(t){
   const out=[];let grp=[];let link=null;const rots=[];
-  String(t||'').replace(/([^\s,，;；、*＊+＋（()）@]+)[*＊][（(]([^）)]+)[）)]/g,(m0,man,ps)=>{const L=ps.split(/[+＋、,，]/).map(s=>s.trim()).filter(Boolean);rots.push({man,ps:L});return man+' '+L.join('+')}).replace(/([^\s@])@(\d)/g,'$1 @$2').replace(/[（(][^）)]*[）)]/g,' ').split(/[\n;；、]+/).forEach(line=>{
+  String(t||'').replace(/([^\s,，;；、*＊+＋（()）@]+)[*＊][（(]([^）)]+)[）)]/g,(m0,man,ps)=>{const L=ps.split(/[+＋、,，]/).map(s=>s.trim()).filter(Boolean);rots.push({man,ps:L});return L.join('+')+' '+man}).replace(/([^\s@])@(\d)/g,'$1 @$2').replace(/[（(][^）)]*[）)]/g,' ').split(/[\n;；、]+/).forEach(line=>{
     line.split(/[\s,，]+/).filter(Boolean).forEach(x=>{
       if(/^[+＋*＊]+$/.test(x)){link={bind:/[*＊]/.test(x)};return}
       if(/^[+＋*＊]/.test(x)&&x.length>1){link={bind:/[*＊]/.test(x[0])};x=x.slice(1)}
@@ -297,6 +297,7 @@ function parseEntries(t){
       if(grp.length&&am){grp.forEach(c=>{c.arr=(+am[1])*60+(+am[2])});return}
       if(grp.length&&NF[x]){grp.forEach(c=>{c.nf=true});return}
       {const vm=/^[對对](.+)$/.exec(x);if(grp.length&&vm){grp.forEach(c=>{c.vs=vm[1]});return}}
+      {const mm=/^遇(.+)$/.exec(x);if(grp.length&&mm){grp.forEach(c=>{c.meet=(c.meet||[]).concat(mm[1].split(/[+＋、]/).filter(Boolean))});return}}
       {const sm=/^代(.+)$/.exec(x);if(grp.length&&sm){grp.forEach(c=>{c.sub=sm[1]});return}}
       if(grp.length&&FG[x]){grp.forEach(c=>{c.g=FG[x]})}
       else if(grp.length&&FP[x]){grp.forEach(c=>{c.grp=FP[x]})}
@@ -553,6 +554,8 @@ function buildFormal(S){
   {const rc={};S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(m.rot&&m.rot.length)['男雙','女雙'].forEach(ev=>{
     const idx=[];reqs.forEach((q,i)=>{if(q.ev===ev&&((q.a===si&&q.pa[0]===n)||(q.b===si&&q.pb[0]===n)))idx.push(i)});
     const L=idx.length,keep=new Set();for(let k=0;k<Math.min(2,L);k++)keep.add(idx[Math.floor((k+0.5)*L/2)]);
+    if(m.meet&&m.meet.length){const hit=i=>{const q=reqs[i],ps=q.a===si&&q.pa[0]===n?q.pb:q.pa;return m.meet.some(x=>ps.includes(x))};
+      if(![...keep].some(hit)){const w=idx.find(hit);if(w!=null){const ks=[...keep];if(ks.length>=2)keep.delete(ks[ks.length-1]);keep.add(w);reqs[w].must=1}}}
     idx.forEach(i=>{if(!keep.has(i))reqs[i].del=1;else{const q=reqs[i],c=rc[si+n+ev]=(rc[si+n+ev]||0)+1,pr=[n,m.rot[(c-1+(ev==='男雙'?1:0))%m.rot.length]];if(q.a===si&&q.pa[0]===n)q.pa=pr;else q.pb=pr}})})}));
     for(let i=reqs.length-1;i>=0;i--)if(reqs[i].del)reqs.splice(i,1)}
   {const MAXG=6,K=(si,p)=>si+'|'+p.join('+'),cn={};
@@ -560,7 +563,7 @@ function buildFormal(S){
   for(let it=0;it<200;it++){
     const over=Object.keys(cn).filter(k=>cn[k]>MAXG).sort((x,y)=>cn[y]-cn[x]);if(!over.length)break;
     const k=over[0];let best=-1,bs=-1;
-    reqs.forEach((q,i)=>{const ka=K(q.a,q.pa),kb=K(q.b,q.pb);if(ka!==k&&kb!==k)return;const o=ka===k?kb:ka;const sc=cn[o]*10+i/1000;if(sc>bs){bs=sc;best=i}});
+    reqs.forEach((q,i)=>{const ka=K(q.a,q.pa),kb=K(q.b,q.pb);if(ka!==k&&kb!==k)return;const o=ka===k?kb:ka;if(q.must)return;const sc=cn[o]*10+i/1000;if(sc>bs){bs=sc;best=i}});
     if(best<0)break;const q=reqs.splice(best,1)[0];cn[K(q.a,q.pa)]--;cn[K(q.b,q.pb)]--}}
   {const MING=5,cn={},meet={};const K=(si,p)=>si+'|'+p.join('+');
   reqs.forEach(q=>{const ka=K(q.a,q.pa),kb=K(q.b,q.pb);cn[ka]=(cn[ka]||0)+1;cn[kb]=(cn[kb]||0)+1;const mk=ka+'#'+kb;meet[mk]=(meet[mk]||0)+1});
@@ -703,7 +706,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 const KEY='badminton-nnx26';
 const DEFAULT_RAW=[
 '春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*校長 男\n俊欽*東霖 男\n士弘*偉碩 男\n冠堯 男 @16:00',
-'孟哲*(佳穎+瓊娃)\n謝明憲*葉宸灝 男\n沈玠諭*吳珮菁 女\n溫仙賢 男 @15:00',
+'孟哲*(佳穎+瓊娃) 遇本孝\n謝明憲*葉宸灝 男\n沈玠諭*吳珮菁 女\n溫仙賢 男 @15:00',
 '致朋*建良 男\n俊程*正偉 男\n阿榮*裕豐 男\n藝方*倫蕙 女\n若凡*若菁 女\n曜如*素菁 女'];
 function freshS(){return {schools:[{name:'碧華',players:[],meta:{}},{name:'蘆洲',players:[],meta:{}},{name:'成功',players:[],meta:{}}],raw:DEFAULT_RAW.slice(),courts:4,start:'14:00',e1:3,e2:3,e3:0,split2:true,span:180,sets:1,min1:12,min2:12,h1:null,h2:null}}
 let S=freshS();
@@ -717,7 +720,7 @@ function readSetup(){
   S.schools=[0,1,2].map(i=>{
     const ent=parseEntries($('#pl'+i).value);
     const names=uniq(ent.map(e=>e.n));const meta={};
-    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||'',sub:ent[k].sub||'',rot:ent[k].rot||null}});
+    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||'',sub:ent[k].sub||'',rot:ent[k].rot||null,meet:ent[k].meet||null}});
     return {name:$('#sn'+i).value.trim()||('學校'+(i+1)),players:names,meta,only:$('#only'+i).value};
   });
   S.courts=Math.max(1,Math.min(12,+$('#courts').value||1));
