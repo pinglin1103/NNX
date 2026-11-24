@@ -126,7 +126,7 @@ li{margin:3px 0}
       <div><label>男雙：填 0＝不打；有打就每組搭檔都會排到（打遍對手每組）</label><input type="number" id="e1" min="0" max="6" value="3"></div>
       <div><label>女雙：填 0＝不打；有打就每組搭檔都會排到（打遍對手每組）</label><input type="number" id="e2" min="0" max="6" value="3"></div>
       <div><label>混雙：填 0＝不打；有打就每組搭檔都會排到</label><input type="number" id="e3" min="0" max="6" value="0"></div>
-      <div><label>抽籤混搭：每組打幾場</label><input type="number" id="mixn" min="1" max="6" value="1"></div>
+      <div><label>抽籤混搭：每組打幾場（0＝直接排滿全部時間的賽程表）</label><input type="number" id="mixn" min="0" max="6" value="0"></div>
       <div><label>正式賽每「點」預留分鐘數</label><input type="number" id="min2" min="8" max="60" value="12"></div>
       <div><label>正式賽每「點」打幾局</label><select id="sets"><option value="1" selected>只打 1 局（單局決勝）</option><option value="3">三戰兩勝</option></select></div>
       <div><label>有空再抽籤（混搭）每輪分鐘數</label><input type="number" id="min1" min="5" max="30" value="12"></div>
@@ -471,8 +471,8 @@ function buildMixed(S,fm){
   if(over)notes.push('正式賽預計打到 '+arrText(mixStart)+'，已超過活動結束時間（'+arrText(end)+'），混雙仍照常抽籤，時間僅供參考。');
   const avail=(team,r)=>team.members.every(m=>arrOk(S,m.si,m.n,mixStart+r*S.min1));
   const rot=all.length>=2?buildRotation(S,all,S.courts,R,0,!!S.split2,avail):{teams:[],rounds:[],split:false,keys:['all'],alloc:{}};
-  const mixn=Math.max(1,S.mixn||1);
-  if(rot.rounds&&rot.rounds.length){
+  const mixn=S.mixn==null||S.mixn===0?(over?2:0):Math.max(1,S.mixn);
+  if(mixn>0&&rot.rounds&&rot.rounds.length){
     const pc={};let keep=rot.rounds.length;
     for(let i=0;i<rot.rounds.length;i++){
       rot.rounds[i].matches.forEach(m=>{pc[m.a]=(pc[m.a]||0)+1;pc[m.b]=(pc[m.b]||0)+1});
@@ -713,7 +713,7 @@ let S=freshS();
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}if(!S.bhMig){S.bhMig=1;S.raw[0]=DEFAULT_RAW[0]}}}}catch(e){}}
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}if(!S.bhMig){S.bhMig=1;S.raw[0]=DEFAULT_RAW[0]}if(!S.mixMig){S.mixMig=1;S.mixn=0}}}}catch(e){}}
 
 function readSetup(){
   S.raw=[0,1,2].map(i=>$('#pl'+i).value);
@@ -732,7 +732,7 @@ function readSetup(){
   S.split2=$('#split2').checked;
   S.min1=Math.max(5,+$('#min1').value||12);
   S.min2=Math.max(8,+$('#min2').value||12);
-  S.mixn=Math.max(1,Math.min(6,+$('#mixn').value||1));
+  S.mixn=Math.max(0,Math.min(6,+$('#mixn').value||0));
   S.sets=+$('#sets').value===3?3:1;
   S.onlyArr=[0,1,2].map(i=>$('#only'+i).value);
   S.span=Math.max(60,+$("#span").value||180);
@@ -740,7 +740,7 @@ function readSetup(){
 }
 function writeSetup(){
   [0,1,2].forEach(i=>{$('#only'+i).value=(S.onlyArr&&S.onlyArr[i]!=null)?S.onlyArr[i]:'';$('#sn'+i).value=S.schools[i].name;$('#pl'+i).value=(S.raw&&S.raw[i])||S.schools[i].players.join('\n')});
-  $('#courts').value=S.courts;$('#start').value=S.start;$('#warm').value=S.warm==null?15:S.warm;$('#e1').value=S.e1;$('#e2').value=S.e2;$('#e3').value=S.e3;$('#split2').checked=!!S.split2;$('#min1').value=S.min1;$('#min2').value=S.min2;$('#mixn').value=S.mixn||1;$('#sets').value=String(S.sets===3?3:1);$('#span').value=S.span||120;$('#mixAt').value=S.mixAt||'';
+  $('#courts').value=S.courts;$('#start').value=S.start;$('#warm').value=S.warm==null?15:S.warm;$('#e1').value=S.e1;$('#e2').value=S.e2;$('#e3').value=S.e3;$('#split2').checked=!!S.split2;$('#min1').value=S.min1;$('#min2').value=S.min2;$('#mixn').value=S.mixn==null?0:S.mixn;$('#sets').value=String(S.sets===3?3:1);$('#span').value=S.span||120;$('#mixAt').value=S.mixAt||'';
 }
 function showTab(t){
   $$('section').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
