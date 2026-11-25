@@ -298,6 +298,7 @@ function parseEntries(t){
       if(grp.length&&NF[x]){grp.forEach(c=>{c.nf=true});return}
       {const vm=/^[對对](.+)$/.exec(x);if(grp.length&&vm){grp.forEach(c=>{c.vs=vm[1]});return}}
       {const mm=/^遇(.+)$/.exec(x);if(grp.length&&mm){grp.forEach(c=>{c.meet=(c.meet||[]).concat(mm[1].split(/[+＋、]/).filter(Boolean))});return}}
+      {const am2=/^輪替(.+)$/.exec(x);if(grp.length&&am2){grp[0].alt=am2[1].split(/[+＋、]/).filter(Boolean);return}}
       {const sm=/^代(.+)$/.exec(x);if(grp.length&&sm){grp.forEach(c=>{c.sub=sm[1]});return}}
       if(grp.length&&FG[x]){grp.forEach(c=>{c.g=FG[x]})}
       else if(grp.length&&FP[x]){grp.forEach(c=>{c.grp=FP[x]})}
@@ -624,6 +625,17 @@ function buildFormal(S){
     slot++;
   }
   S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(!m.sub||m.arr==null)return;let c=0;rounds.forEach(r=>r.games.forEach(g=>{const t=fStart(S)+g.slot*S.min2;if(!arrOk(S,si,n,t))return;[['a',r.a],['b',r.b]].forEach(([sd,s2])=>{if(s2!==si)return;const arr=g[sd];const i=arr.indexOf(m.sub);if(i>=0&&!arr.includes(n)){arr[i]=n;c++}})}));notes.push(sc.name+'：'+n+' 到場後頂'+m.sub+'的位子（'+arrText(m.arr)+' 起，共 '+c+' 點）')}));
+  S.schools.forEach((sc,si)=>sc.players.forEach(n=>{const m=sc.meta[n];if(!m.alt||!m.alt.length||m.arr==null)return;
+    const gs=[];rounds.forEach(r=>r.games.forEach(g=>{[['a',r.a],['b',r.b]].forEach(([sd,s2])=>{if(s2===si)gs.push({g,sd})})}));
+    gs.sort((x,y)=>x.g.slot-y.g.slot);
+    const busy=sl=>gs.some(o=>o.g.slot===sl&&o.g[o.sd].includes(n));
+    const done={};let c=0,turn=0,miss=0;
+    while(miss<m.alt.length){
+      const T=m.alt[turn%m.alt.length];turn++;
+      const o=gs.find(o=>!done[o.g.slot+'|'+o.g.court]&&arrOk(S,si,n,fStart(S)+o.g.slot*S.min2)&&o.g[o.sd].includes(T)&&!o.g[o.sd].includes(n)&&!busy(o.g.slot));
+      if(!o){miss++;continue}miss=0;
+      const arr=o.g[o.sd];arr[arr.indexOf(T)]=n;done[o.g.slot+'|'+o.g.court]=1;c++}
+    notes.push(sc.name+'：'+n+' 到場後輪流頂 '+m.alt.join('、')+' 的場次（共 '+c+' 場）')}));
   pending.forEach(q=>notes.push(S.schools[q.a].name+' vs '+S.schools[q.b].name+'：'+q.ev+' 排不進時段，已取消'));
   Object.keys(loan).forEach(i=>notes.push(S.schools[i].name+' 比賽組人數不足，部分點借用了中階組／休閒組選手'));
   let total=0,maxC=0;
@@ -706,21 +718,21 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 const KEY='badminton-nnx26';
 const DEFAULT_RAW=[
 '春桃*佩霖 女\n珮雅*嬿婷 女\n恩緹*雅琦 女 後\n麗美*瓊娟 女 @15:00 對成功\n本孝*偉碩 男\n俊欽*東霖 男\n冠堯 男 @16:00',
-'謝明憲*佳穎 男\n葉宸灝*瓊娃 女\n沈玠諭*吳珮菁 女\n溫仙賢*孟哲 男 @15:00',
+'謝明憲*佳穎 男\n葉宸灝*瓊娃 女\n沈玠諭*吳珮菁 女\n溫仙賢*孟哲 男 @15:00 輪替瓊娃+佳穎',
 '致朋*建良 男\n俊程*正偉 男\n阿榮*裕豐 男\n藝方*倫蕙 女\n若凡*若菁 女\n曜如*素菁 女'];
 function freshS(){return {schools:[{name:'碧華',players:[],meta:{}},{name:'蘆洲',players:[],meta:{}},{name:'成功',players:[],meta:{}}],raw:DEFAULT_RAW.slice(),courts:4,start:'14:00',e1:3,e2:3,e3:0,split2:true,span:180,sets:1,min1:12,min2:12,h1:null,h2:null}}
 let S=freshS();
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}if(!S.bhMig){S.bhMig=1;S.raw[0]=DEFAULT_RAW[0]}if(!S.mixMig){S.mixMig=1;S.mixn=0}if(!S.lst3Mig){S.lst3Mig=1;S.raw[0]=DEFAULT_RAW[0]}if(!S.lst2Mig){S.lst2Mig=1;S.raw[0]=DEFAULT_RAW[0];S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr){S.onlyArr[0]='';S.onlyArr[1]=''}}}}}catch(e){}}
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.schools){S=Object.assign(S,o);if(!S.raw||S.raw.every(x=>!x))S.raw=DEFAULT_RAW.slice();if(!S.only1Mig){S.only1Mig=1;if(S.onlyArr&&S.onlyArr[1]==='男雙')S.onlyArr[1]=''}if(!S.rotMig){S.rotMig=1;S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr)S.onlyArr[1]=''}if(!S.bhMig){S.bhMig=1;S.raw[0]=DEFAULT_RAW[0]}if(!S.mixMig){S.mixMig=1;S.mixn=0}if(!S.lst4Mig){S.lst4Mig=1;S.raw[1]=DEFAULT_RAW[1]}if(!S.lst3Mig){S.lst3Mig=1;S.raw[0]=DEFAULT_RAW[0]}if(!S.lst2Mig){S.lst2Mig=1;S.raw[0]=DEFAULT_RAW[0];S.raw[1]=DEFAULT_RAW[1];if(S.onlyArr){S.onlyArr[0]='';S.onlyArr[1]=''}}}}}catch(e){}}
 
 function readSetup(){
   S.raw=[0,1,2].map(i=>$('#pl'+i).value);
   S.schools=[0,1,2].map(i=>{
     const ent=parseEntries($('#pl'+i).value);
     const names=uniq(ent.map(e=>e.n));const meta={};
-    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||'',sub:ent[k].sub||'',rot:ent[k].rot||null,meet:ent[k].meet||null}});
+    names.forEach((n,k)=>{meta[n]={g:ent[k].g,grp:ent[k].grp,pair:ent[k].pair||'',bind:!!ent[k].bind,arr:ent[k].arr==null?null:ent[k].arr,nf:!!ent[k].nf,vs:ent[k].vs||'',sub:ent[k].sub||'',rot:ent[k].rot||null,meet:ent[k].meet||null,alt:ent[k].alt||null}});
     return {name:$('#sn'+i).value.trim()||('學校'+(i+1)),players:names,meta,only:$('#only'+i).value};
   });
   S.courts=Math.max(1,Math.min(12,+$('#courts').value||1));
