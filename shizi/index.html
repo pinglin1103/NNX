@@ -986,7 +986,11 @@ function showWord(w,btn){
   $("detail").innerHTML=`<div class="dtop"><button class="spk" onclick="say('${w.s||w.t}')">🔊</button>聽一聽</div>
   <div class="dmain"><div class="big" style="font-size:60px">${zyV(w.t,w.z)}</div><div class="pic">${picOfWord(w)}</div></div>
   ${w.book?'<div class="mean">📘 這是課本裡的語詞。</div>':""}${w.sent?'<div class="mean">📖 這是課文裡的句子。</div>':""}${w.from?`<div class="mean">這個${w.sent?"句子":"語詞"}裡有這課的生字「<b class="kai" style="font-size:1.4em">${w.from}</b>」。</div>`:""}
-  ${rel.length?`<div class="ext"><b>還有這些語詞</b><div class="extrow">${rel.map(x=>`<div class="extitem" onclick="say('${x.s||x.t}')"><span class="e">${picOfWord(x)}</span>${zyV(x.t,x.z)}<button class="spk sm">🔊</button></div>`).join("")}</div></div>`:""}`;
+`;
+  /* 相關語詞合併到左邊「語詞」區，不再另外列一區 */
+  const have=new Set([...document.querySelectorAll("#wordList .card")].map(c=>c.dataset.t));
+  rel.filter(x=>!have.has(x.t)).forEach(addWordCard);
+  $("wordList").querySelectorAll(".tip").forEach(t=>t.remove());
   say(w.s||w.t)}
 function buildLearn(){
   $("charList").innerHTML="";$("wordList").innerHTML="";
@@ -995,7 +999,7 @@ function buildLearn(){
   if(bk.length){$("wordList").innerHTML='<p class="tip" style="width:100%;margin:0">📘 課本語詞（點生字可看更多）</p>';bk.forEach(addWordCard)}
   else $("wordList").innerHTML='<p class="tip">👈 先點一個生字，這裡會出現它的語詞。</p>';
   $("detail").innerHTML='<p class="tip" style="margin:0">點左邊的生字開始認識吧！</p>';}
-function addWordCard(w){const b=document.createElement("button");b.className="card"+(w.book?" book":"");b.innerHTML=zyV(w.t,w.z);b.onclick=()=>showWord(w,b);$("wordList").appendChild(b)}
+function addWordCard(w){const b=document.createElement("button");b.className="card"+(w.book?" book":"");b.innerHTML=zyV(w.t,w.z);b.dataset.t=w.t;b.onclick=()=>showWord(w,b);$("wordList").appendChild(b)}
 function showWordsOf(o){$("wordList").innerHTML="";
   const ws=WORDS.filter(w=>w.from===o.c||w.t.includes(o.c));ws.filter(w=>w.book).concat(ws.filter(w=>!w.book&&!w.sent),ws.filter(w=>!w.book&&w.sent)).forEach(addWordCard)}
 
