@@ -982,15 +982,10 @@ function showChar(o,btn,quiet){
   if(!quiet)say(o.c)}
 function showWord(w,btn){
   document.querySelectorAll("#wordList .card").forEach(c=>c.classList.toggle("on",c===btn));
-  const rel=WORDS.filter(x=>x.t!==w.t&&[...w.t].some(c=>x.t.includes(c))).slice(0,3);
   $("detail").innerHTML=`<div class="dtop"><button class="spk" onclick="say('${w.s||w.t}')">🔊</button>聽一聽</div>
   <div class="dmain"><div class="big" style="font-size:60px">${zyV(w.t,w.z)}</div><div class="pic">${picOfWord(w)}</div></div>
   ${w.book?'<div class="mean">📘 這是課本裡的語詞。</div>':""}${w.sent?'<div class="mean">📖 這是課文裡的句子。</div>':""}${w.from?`<div class="mean">這個${w.sent?"句子":"語詞"}裡有這課的生字「<b class="kai" style="font-size:1.4em">${w.from}</b>」。</div>`:""}
-`;
-  /* 相關語詞合併到左邊「語詞」區，不再另外列一區 */
-  const have=new Set([...document.querySelectorAll("#wordList .card")].map(c=>c.dataset.t));
-  rel.filter(x=>!have.has(x.t)).forEach(addWordCard);
-  $("wordList").querySelectorAll(".tip").forEach(t=>t.remove());
+`; /* 語詞只列在左邊語詞區：點了哪個生字，就只列含那個字的語詞，點語詞不再加別的 */
   say(w.s||w.t)}
 function buildLearn(){
   $("charList").innerHTML="";$("wordList").innerHTML="";
