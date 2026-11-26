@@ -976,7 +976,7 @@ function showChar(o,btn,quiet){
   <div class="dmain"><div class="big">${zyH(o.c,o.z)}</div><div class="pic">${picOfChar(o.c)}</div></div>
   <div class="facts">${facts(o)}${kind?`<span class="fact"><b>造字</b> ${kind}</span>`:""}</div>
   ${txt?`<div class="mean">📖 字的故事：${txt}</div>`:""}
-  <div class="ext"><b>${W[o.c]?.gen?"課文語詞":"延伸詞彙"}</b><div class="extrow">${ws.map(w=>`<div class="extitem" onclick="say('${w.s||w.t}')"><span class="e">${picOfWord(w)}</span>${zyV(w.t,w.z)}<button class="spk sm">🔊</button></div>`).join("")}</div></div>`;
+`; /* 延伸詞彙已併入左邊語詞區 */
   const les=BOOKS[V].g[G].les[L],bi=(les[4]||"").split(";").map(p=>p.split("|").map(x=>{const [c,t,z]=x.split(":");return{c,t,z}})).find(p=>p.some(x=>x.c===o.c));
   if(bi)$("detail").insertAdjacentHTML("beforeend",`<div class="ext bi"><b>比一比（長得很像的字）</b><div class="extrow">${bi.map(x=>`<div class="biitem${x.c===o.c?" me":""}" onclick="say('${x.t}')"><span class="bic kai">${x.c}</span>${zyV(x.t,x.z)}<button class="spk sm">🔊</button></div>`).join("")}</div></div>`);
   if(!quiet)say(o.c)}
@@ -996,7 +996,9 @@ function buildLearn(){
   $("detail").innerHTML='<p class="tip" style="margin:0">點左邊的生字開始認識吧！</p>';}
 function addWordCard(w){const b=document.createElement("button");b.className="card"+(w.book?" book":"");b.innerHTML=zyV(w.t,w.z);b.dataset.t=w.t;b.onclick=()=>showWord(w,b);$("wordList").appendChild(b)}
 function showWordsOf(o){$("wordList").innerHTML="";
-  const ws=WORDS.filter(w=>w.from===o.c||w.t.includes(o.c));ws.filter(w=>w.book).concat(ws.filter(w=>!w.book&&!w.sent),ws.filter(w=>!w.book&&w.sent)).forEach(addWordCard)}
+  const ws=WORDS.filter(w=>w.from===o.c||w.t.includes(o.c)),seen=new Set();
+  ws.filter(w=>w.book).concat(ws.filter(w=>!w.book&&!w.sent),(W[o.c]?.w||[]).filter(w=>!w.sent).map(w=>({...w,from:w.from||o.c})),ws.filter(w=>!w.book&&w.sent),(W[o.c]?.w||[]).filter(w=>w.sent).map(w=>({...w,from:w.from||o.c})))
+    .forEach(w=>{if(!seen.has(w.t)){seen.add(w.t);addWordCard(w)}})}
 
 /* ===== 評分：每課每個遊戲 80～100 分（全部第一次就答對＝100，都錯＝80） ===== */
 const GNAME={match:"看圖配對",quiz:"語詞測驗",recall:"回想記憶",test:"生字評量"};
